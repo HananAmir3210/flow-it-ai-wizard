@@ -1,4 +1,3 @@
-
 import React, { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,6 +9,7 @@ import WorkflowVisualization from "@/components/WorkflowVisualization";
 import WorkflowModal from "@/components/WorkflowModal";
 import LoadingSpinner from "@/components/LoadingSpinner";
 import AuthModal from "@/components/AuthModal";
+import FeatureModal from "@/components/FeatureModal";
 
 const Index = () => {
   const [goalInput, setGoalInput] = useState("");
@@ -20,11 +20,36 @@ const Index = () => {
   const [promptHistory, setPromptHistory] = useState<string[]>([]);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [user, setUser] = useState<{ name: string; email: string } | null>(null);
+  const [isFeatureModalOpen, setIsFeatureModalOpen] = useState(false);
+  const [selectedFeature, setSelectedFeature] = useState<any>(null);
+  const [activeSection, setActiveSection] = useState<string>("");
 
   // Refs for smooth scrolling
   const featuresRef = useRef<HTMLElement>(null);
   const pricingRef = useRef<HTMLElement>(null);
   const promptRef = useRef<HTMLDivElement>(null);
+
+  // Feature data
+  const features = {
+    aiAnalysis: {
+      title: "AI-Powered Analysis",
+      description: "Advanced AI breaks down complex goals into actionable steps",
+      details: "Our AI transforms your goal into step-by-step SOPs using industry knowledge and automation logic. It analyzes your input, identifies key components, and creates detailed procedures that follow best practices.",
+      example: "Input: 'Automate client onboarding' → Output: 20-step SOP including consultation setup, contract automation, tool configuration, and follow-up sequences."
+    },
+    visualWorkflows: {
+      title: "Visual Workflows",
+      description: "Interactive flowcharts make complex processes easy to understand",
+      details: "Convert your SOPs into beautiful, interactive flowcharts that your team can follow visually. Each step is clearly mapped with decision points, parallel processes, and clear next actions.",
+      example: "Your client onboarding SOP becomes a visual flowchart showing the path from initial contact → consultation → contract → setup → launch, with decision points for different client types."
+    },
+    exportShare: {
+      title: "Export & Share",
+      description: "Download PDFs or share links with your team instantly",
+      details: "Export your SOPs and workflows in multiple formats. Share via secure links, download as PDFs for offline use, or integrate with your existing documentation systems.",
+      example: "Export your onboarding SOP as a PDF for new hires, or share a live link that updates automatically when you make changes to the process."
+    }
+  };
 
   // Load prompt history from localStorage on component mount
   React.useEffect(() => {
@@ -32,6 +57,23 @@ const Index = () => {
     if (history) {
       setPromptHistory(JSON.parse(history));
     }
+
+    // Intersection Observer for active section tracking
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            setActiveSection(entry.target.id);
+          }
+        });
+      },
+      { threshold: 0.3, rootMargin: '-80px 0px -80px 0px' }
+    );
+
+    const sections = document.querySelectorAll('section[id]');
+    sections.forEach((section) => observer.observe(section));
+
+    return () => observer.disconnect();
   }, []);
 
   const handleGenerateSOP = async () => {
@@ -55,7 +97,7 @@ const Index = () => {
   };
 
   const scrollToSection = (ref: React.RefObject<HTMLElement>) => {
-    ref.current?.scrollIntoView({ behavior: 'smooth' });
+    ref.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
 
   const toggleDarkMode = () => {
@@ -67,16 +109,23 @@ const Index = () => {
     // Placeholder login logic
     console.log('Login:', email, password);
     setUser({ name: email.split('@')[0], email });
+    setIsAuthModalOpen(false);
   };
 
   const handleSignup = (email: string, password: string, confirmPassword: string) => {
     // Placeholder signup logic
     console.log('Signup:', email, password, confirmPassword);
     setUser({ name: email.split('@')[0], email });
+    setIsAuthModalOpen(false);
   };
 
   const handleLogout = () => {
     setUser(null);
+  };
+
+  const openFeatureModal = (featureKey: keyof typeof features) => {
+    setSelectedFeature(features[featureKey]);
+    setIsFeatureModalOpen(true);
   };
 
   return (
@@ -91,14 +140,14 @@ const Index = () => {
             <Button 
               variant="ghost"
               onClick={() => scrollToSection(featuresRef)}
-              className="dark:text-gray-300 dark:hover:text-white"
+              className={`dark:text-gray-300 dark:hover:text-white ${activeSection === 'features' ? 'bg-accent' : ''}`}
             >
               Features
             </Button>
             <Button 
               variant="ghost"
               onClick={() => scrollToSection(pricingRef)}
-              className="dark:text-gray-300 dark:hover:text-white"
+              className={`dark:text-gray-300 dark:hover:text-white ${activeSection === 'pricing' ? 'bg-accent' : ''}`}
             >
               Pricing
             </Button>
@@ -312,7 +361,7 @@ const Index = () => {
       )}
 
       {/* Features Section */}
-      <section ref={featuresRef} className="bg-white dark:bg-gray-900 py-20">
+      <section id="features" ref={featuresRef} className="bg-white dark:bg-gray-900 py-20">
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
             <h2 className="text-4xl font-bold mb-4 dark:text-white">Everything you need to systematize your business</h2>
@@ -322,28 +371,40 @@ const Index = () => {
           </div>
           
           <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
-            <Card className="text-center p-6 hover:shadow-lg transition-shadow border-2 dark:bg-gray-800 dark:border-gray-700">
+            <Card 
+              className="text-center p-6 hover:shadow-lg transition-all duration-300 border-2 dark:bg-gray-800 dark:border-gray-700 cursor-pointer transform hover:scale-105"
+              onClick={() => openFeatureModal('aiAnalysis')}
+            >
               <div className="bg-blue-100 dark:bg-blue-900 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
                 <ArrowUp className="text-blue-600 dark:text-blue-400" size={24} />
               </div>
               <h3 className="font-semibold text-xl mb-2 dark:text-white">AI-Powered Analysis</h3>
               <p className="text-gray-600 dark:text-gray-300">Advanced AI breaks down complex goals into actionable steps</p>
+              <div className="mt-4 text-blue-600 dark:text-blue-400 text-sm font-medium">Click to learn more →</div>
             </Card>
             
-            <Card className="text-center p-6 hover:shadow-lg transition-shadow border-2 dark:bg-gray-800 dark:border-gray-700">
+            <Card 
+              className="text-center p-6 hover:shadow-lg transition-all duration-300 border-2 dark:bg-gray-800 dark:border-gray-700 cursor-pointer transform hover:scale-105"
+              onClick={() => openFeatureModal('visualWorkflows')}
+            >
               <div className="bg-purple-100 dark:bg-purple-900 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Youtube className="text-purple-600 dark:text-purple-400" size={24} />
               </div>
               <h3 className="font-semibold text-xl mb-2 dark:text-white">Visual Workflows</h3>
               <p className="text-gray-600 dark:text-gray-300">Interactive flowcharts make complex processes easy to understand</p>
+              <div className="mt-4 text-purple-600 dark:text-purple-400 text-sm font-medium">Click to learn more →</div>
             </Card>
             
-            <Card className="text-center p-6 hover:shadow-lg transition-shadow border-2 dark:bg-gray-800 dark:border-gray-700">
+            <Card 
+              className="text-center p-6 hover:shadow-lg transition-all duration-300 border-2 dark:bg-gray-800 dark:border-gray-700 cursor-pointer transform hover:scale-105"
+              onClick={() => openFeatureModal('exportShare')}
+            >
               <div className="bg-green-100 dark:bg-green-900 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
                 <ArrowDown className="text-green-600 dark:text-green-400" size={24} />
               </div>
               <h3 className="font-semibold text-xl mb-2 dark:text-white">Export & Share</h3>
               <p className="text-gray-600 dark:text-gray-300">Download PDFs or share links with your team instantly</p>
+              <div className="mt-4 text-green-600 dark:text-green-400 text-sm font-medium">Click to learn more →</div>
             </Card>
           </div>
         </div>
@@ -388,7 +449,7 @@ const Index = () => {
       </section>
 
       {/* Pricing */}
-      <section ref={pricingRef} className="py-20 bg-white dark:bg-gray-900">
+      <section id="pricing" ref={pricingRef} className="py-20 bg-white dark:bg-gray-900">
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
             <h2 className="text-4xl font-bold mb-4 dark:text-white">Simple, transparent pricing</h2>
@@ -481,6 +542,13 @@ const Index = () => {
         onClose={() => setIsAuthModalOpen(false)}
         onLogin={handleLogin}
         onSignup={handleSignup}
+      />
+
+      {/* Feature Modal */}
+      <FeatureModal
+        isOpen={isFeatureModalOpen}
+        onClose={() => setIsFeatureModalOpen(false)}
+        feature={selectedFeature}
       />
     </div>
   );
