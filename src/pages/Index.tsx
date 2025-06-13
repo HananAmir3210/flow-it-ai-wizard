@@ -1,21 +1,66 @@
-
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { ArrowDown, ArrowUp, Youtube } from "lucide-react";
+import { ArrowDown, ArrowUp, Youtube, Menu, X } from "lucide-react";
+import { generateSOPFromPrompt, SOPResponse } from "@/utils/openai";
+import WorkflowVisualization from "@/components/WorkflowVisualization";
+import WorkflowModal from "@/components/WorkflowModal";
+import LoadingSpinner from "@/components/LoadingSpinner";
 
 const Index = () => {
   const [goalInput, setGoalInput] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [generatedContent, setGeneratedContent] = useState<SOPResponse | null>(null);
+  const [isWorkflowModalOpen, setIsWorkflowModalOpen] = useState(false);
+  const [isDarkMode, setIsDarkMode] = useState(false);
+  const [promptHistory, setPromptHistory] = useState<string[]>([]);
 
-  const handleGenerateSOP = () => {
-    console.log("Generating SOP for:", goalInput);
-    // This would integrate with AI in a real implementation
+  // Refs for smooth scrolling
+  const featuresRef = useRef<HTMLElement>(null);
+  const pricingRef = useRef<HTMLElement>(null);
+  const promptRef = useRef<HTMLDivElement>(null);
+
+  // Load prompt history from localStorage on component mount
+  React.useEffect(() => {
+    const history = localStorage.getItem('prompt-history');
+    if (history) {
+      setPromptHistory(JSON.parse(history));
+    }
+  }, []);
+
+  const handleGenerateSOP = async () => {
+    if (!goalInput.trim()) return;
+    
+    setIsLoading(true);
+    try {
+      const response = await generateSOPFromPrompt(goalInput);
+      setGeneratedContent(response);
+      
+      // Save to prompt history
+      const newHistory = [goalInput, ...promptHistory.slice(0, 9)]; // Keep last 10
+      setPromptHistory(newHistory);
+      localStorage.setItem('prompt-history', JSON.stringify(newHistory));
+      
+    } catch (error) {
+      console.error('Error generating SOP:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const scrollToSection = (ref: React.RefObject<HTMLElement>) => {
+    ref.current?.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  const toggleDarkMode = () => {
+    setIsDarkMode(!isDarkMode);
+    document.documentElement.classList.toggle('dark');
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
+    <div className={`min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 ${isDarkMode ? 'dark' : ''}`}>
       {/* Navigation */}
       <nav className="border-b bg-white/80 backdrop-blur-md sticky top-0 z-50">
         <div className="container mx-auto px-4 py-4 flex justify-between items-center">
@@ -23,9 +68,28 @@ const Index = () => {
             AI SOP Generator
           </div>
           <div className="flex gap-4 items-center">
-            <Button variant="ghost">Features</Button>
-            <Button variant="ghost">Pricing</Button>
-            <Button>Get Started</Button>
+            <Button 
+              variant="ghost"
+              onClick={() => scrollToSection(featuresRef)}
+            >
+              Features
+            </Button>
+            <Button 
+              variant="ghost"
+              onClick={() => scrollToSection(pricingRef)}
+            >
+              Pricing
+            </Button>
+            <Button onClick={() => scrollToSection(promptRef)}>
+              Get Started
+            </Button>
+            <Button 
+              variant="outline" 
+              size="sm"
+              onClick={toggleDarkMode}
+            >
+              {isDarkMode ? '☀️' : '🌙'}
+            </Button>
           </div>
         </div>
       </nav>
@@ -42,82 +106,176 @@ const Index = () => {
           </p>
           
           {/* Input Section */}
-          <div className="bg-white rounded-2xl shadow-lg p-8 mb-16 max-w-2xl mx-auto border border-gray-100">
+          <div ref={promptRef} className="bg-white rounded-2xl shadow-lg p-8 mb-16 max-w-2xl mx-auto border border-gray-100">
             <div className="flex flex-col gap-4">
               <Input
                 placeholder="e.g., automate my client onboarding process"
                 value={goalInput}
                 onChange={(e) => setGoalInput(e.target.value)}
                 className="text-lg py-4 px-6 border-2 focus:border-blue-500 rounded-xl"
+                onKeyPress={(e) => e.key === 'Enter' && handleGenerateSOP()}
               />
               <Button 
                 onClick={handleGenerateSOP}
+                disabled={!goalInput.trim() || isLoading}
                 className="py-4 text-lg font-semibold bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 transition-all duration-300 transform hover:scale-105"
               >
-                Generate SOP & Workflow
+                {isLoading ? "Generating..." : "Generate SOP & Workflow"}
               </Button>
+              
+              {/* Prompt History */}
+              {promptHistory.length > 0 && (
+                <div className="text-left">
+                  <p className="text-sm text-gray-500 mb-2">Recent prompts:</p>
+                  <div className="flex flex-wrap gap-2">
+                    {promptHistory.slice(0, 3).map((prompt, index) => (
+                      <button
+                        key={index}
+                        onClick={() => setGoalInput(prompt)}
+                        className="text-xs px-3 py-1 bg-gray-100 hover:bg-gray-200 rounded-full transition-colors"
+                      >
+                        {prompt.length > 30 ? prompt.substring(0, 30) + '...' : prompt}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>
       </section>
 
-      {/* Preview Section */}
-      <section className="container mx-auto px-4 py-16">
-        <div className="text-center mb-12">
-          <h2 className="text-4xl font-bold mb-4">See it in action</h2>
-          <p className="text-gray-600 text-lg">Here's what you get in seconds</p>
-        </div>
-        
-        <div className="grid md:grid-cols-2 gap-8 max-w-6xl mx-auto">
-          {/* SOP Preview */}
-          <Card className="border-2 hover:shadow-lg transition-shadow">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                📋 Generated SOP
-              </CardTitle>
-              <CardDescription>Detailed step-by-step procedures</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="bg-gray-50 rounded-lg p-4 text-sm">
-                <div className="font-semibold mb-2">Client Onboarding SOP</div>
-                <div className="space-y-2 text-gray-700">
-                  <div>1. Initial client consultation and needs assessment</div>
-                  <div>2. Send welcome package and contracts</div>
-                  <div>3. Set up project management tools</div>
-                  <div>4. Schedule kickoff meeting</div>
-                  <div>5. Create project timeline and milestones</div>
-                  <div className="text-gray-500">+ 15 more detailed steps...</div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+      {/* Generated Content Section */}
+      {(isLoading || generatedContent) && (
+        <section className="container mx-auto px-4 py-16">
+          <div className="text-center mb-12">
+            <h2 className="text-4xl font-bold mb-4">Your Generated Content</h2>
+            <p className="text-gray-600 text-lg">Here's your AI-generated SOP and workflow</p>
+          </div>
+          
+          {isLoading ? (
+            <LoadingSpinner message="AI is crafting your SOP and workflow..." />
+          ) : generatedContent && (
+            <div className="grid md:grid-cols-2 gap-8 max-w-6xl mx-auto">
+              {/* Generated SOP */}
+              <Card className="border-2 hover:shadow-lg transition-shadow">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    📋 {generatedContent.sop.title}
+                  </CardTitle>
+                  <CardDescription>AI-generated step-by-step procedure</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="bg-gray-50 rounded-lg p-4 text-sm max-h-96 overflow-y-auto">
+                    <div className="space-y-4">
+                      {generatedContent.sop.steps.map((step) => (
+                        <div key={step.number} className="border-l-4 border-blue-500 pl-4">
+                          <div className="font-semibold text-gray-900">
+                            {step.number}. {step.title}
+                          </div>
+                          <div className="text-gray-700 mt-1">{step.description}</div>
+                          {step.details && (
+                            <ul className="list-disc list-inside text-gray-600 text-xs mt-2 ml-2">
+                              {step.details.map((detail, idx) => (
+                                <li key={idx}>{detail}</li>
+                              ))}
+                            </ul>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                  <div className="mt-4 flex gap-2">
+                    <Button variant="outline" size="sm">
+                      📄 Export PDF
+                    </Button>
+                    <Button variant="outline" size="sm">
+                      🔗 Share Link
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
 
-          {/* Workflow Preview */}
-          <Card className="border-2 hover:shadow-lg transition-shadow">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                🔄 Visual Workflow
-              </CardTitle>
-              <CardDescription>Interactive flowchart diagram</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="bg-gradient-to-br from-blue-50 to-purple-50 rounded-lg p-4 h-48 flex items-center justify-center">
-                <div className="flex flex-col items-center gap-4">
-                  <div className="bg-blue-500 text-white px-4 py-2 rounded-lg text-sm">Start</div>
-                  <ArrowDown className="text-gray-400" size={20} />
-                  <div className="bg-white border-2 border-blue-200 px-4 py-2 rounded-lg text-sm">Consultation</div>
-                  <ArrowDown className="text-gray-400" size={20} />
-                  <div className="bg-white border-2 border-purple-200 px-4 py-2 rounded-lg text-sm">Setup Tools</div>
-                  <div className="text-gray-500 text-xs">+ Interactive diagram</div>
+              {/* Generated Workflow */}
+              <Card className="border-2 hover:shadow-lg transition-shadow">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    🔄 Visual Workflow
+                  </CardTitle>
+                  <CardDescription>Interactive flowchart diagram</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <WorkflowVisualization 
+                    steps={generatedContent.workflow} 
+                    isPreview={true}
+                    onStartClick={() => setIsWorkflowModalOpen(true)}
+                  />
+                </CardContent>
+              </Card>
+            </div>
+          )}
+        </section>
+      )}
+
+      {/* Preview Section (original static content) */}
+      {!generatedContent && !isLoading && (
+        <section className="container mx-auto px-4 py-16">
+          <div className="text-center mb-12">
+            <h2 className="text-4xl font-bold mb-4">See it in action</h2>
+            <p className="text-gray-600 text-lg">Here's what you get in seconds</p>
+          </div>
+          
+          <div className="grid md:grid-cols-2 gap-8 max-w-6xl mx-auto">
+            {/* SOP Preview */}
+            <Card className="border-2 hover:shadow-lg transition-shadow">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  📋 Generated SOP
+                </CardTitle>
+                <CardDescription>Detailed step-by-step procedures</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="bg-gray-50 rounded-lg p-4 text-sm">
+                  <div className="font-semibold mb-2">Client Onboarding SOP</div>
+                  <div className="space-y-2 text-gray-700">
+                    <div>1. Initial client consultation and needs assessment</div>
+                    <div>2. Send welcome package and contracts</div>
+                    <div>3. Set up project management tools</div>
+                    <div>4. Schedule kickoff meeting</div>
+                    <div>5. Create project timeline and milestones</div>
+                    <div className="text-gray-500">+ 15 more detailed steps...</div>
+                  </div>
                 </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      </section>
+              </CardContent>
+            </Card>
+
+            {/* Workflow Preview */}
+            <Card className="border-2 hover:shadow-lg transition-shadow">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  🔄 Visual Workflow
+                </CardTitle>
+                <CardDescription>Interactive flowchart diagram</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="bg-gradient-to-br from-blue-50 to-purple-50 rounded-lg p-4 h-48 flex items-center justify-center">
+                  <div className="flex flex-col items-center gap-4">
+                    <div className="bg-blue-500 text-white px-4 py-2 rounded-lg text-sm">Start</div>
+                    <ArrowDown className="text-gray-400" size={20} />
+                    <div className="bg-white border-2 border-blue-200 px-4 py-2 rounded-lg text-sm">Consultation</div>
+                    <ArrowDown className="text-gray-400" size={20} />
+                    <div className="bg-white border-2 border-purple-200 px-4 py-2 rounded-lg text-sm">Setup Tools</div>
+                    <div className="text-gray-500 text-xs">+ Interactive diagram</div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </section>
+      )}
 
       {/* Features Section */}
-      <section className="bg-white py-20">
+      <section ref={featuresRef} className="bg-white py-20">
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
             <h2 className="text-4xl font-bold mb-4">Everything you need to systematize your business</h2>
@@ -193,7 +351,7 @@ const Index = () => {
       </section>
 
       {/* Pricing */}
-      <section className="py-20 bg-white">
+      <section ref={pricingRef} className="py-20 bg-white">
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
             <h2 className="text-4xl font-bold mb-4">Simple, transparent pricing</h2>
@@ -214,7 +372,9 @@ const Index = () => {
                   <li>✓ PDF export</li>
                   <li>✓ Email support</li>
                 </ul>
-                <Button className="w-full" variant="outline">Get Started Free</Button>
+                <Button className="w-full" variant="outline" onClick={() => scrollToSection(promptRef)}>
+                  Get Started Free
+                </Button>
               </CardContent>
             </Card>
             
@@ -233,7 +393,9 @@ const Index = () => {
                   <li>✓ Priority support</li>
                   <li>✓ Custom branding</li>
                 </ul>
-                <Button className="w-full bg-blue-500 hover:bg-blue-600">Start Pro Trial</Button>
+                <Button className="w-full bg-blue-500 hover:bg-blue-600" onClick={() => scrollToSection(promptRef)}>
+                  Start Pro Trial
+                </Button>
               </CardContent>
             </Card>
           </div>
@@ -245,7 +407,11 @@ const Index = () => {
         <div className="container mx-auto px-4 text-center">
           <h2 className="text-4xl font-bold mb-4">Ready to systematize your business?</h2>
           <p className="text-xl mb-8 opacity-90">Join thousands of business owners who've streamlined their operations</p>
-          <Button size="lg" className="bg-white text-blue-600 hover:bg-gray-100 text-lg px-8 py-4">
+          <Button 
+            size="lg" 
+            className="bg-white text-blue-600 hover:bg-gray-100 text-lg px-8 py-4"
+            onClick={() => scrollToSection(promptRef)}
+          >
             Start Building Workflows Today
           </Button>
         </div>
@@ -261,6 +427,16 @@ const Index = () => {
           </div>
         </div>
       </footer>
+
+      {/* Workflow Modal */}
+      {generatedContent && (
+        <WorkflowModal
+          isOpen={isWorkflowModalOpen}
+          onClose={() => setIsWorkflowModalOpen(false)}
+          steps={generatedContent.workflow}
+          title={generatedContent.sop.title}
+        />
+      )}
     </div>
   );
 };
