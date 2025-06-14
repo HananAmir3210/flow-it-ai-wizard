@@ -17,6 +17,7 @@ import {
   BackgroundVariant,
   useReactFlow,
   ConnectionMode,
+  MarkerType,
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 
@@ -219,7 +220,7 @@ const InteractiveWorkflowModal: React.FC<InteractiveWorkflowModalProps> = ({
         type: 'smoothstep',
         animated: true,
         markerEnd: {
-          type: 'arrowclosed',
+          type: MarkerType.ArrowClosed,
         },
       };
       setEdges((eds) => addEdge(newEdge, eds));
