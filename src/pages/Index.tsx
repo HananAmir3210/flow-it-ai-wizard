@@ -1,3 +1,4 @@
+
 import React, { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -28,6 +29,7 @@ const Index = () => {
   const featuresRef = useRef<HTMLElement>(null);
   const pricingRef = useRef<HTMLElement>(null);
   const promptRef = useRef<HTMLDivElement>(null);
+  const resultsRef = useRef<HTMLElement>(null);
 
   // Feature data
   const features = {
@@ -77,11 +79,19 @@ const Index = () => {
   }, []);
 
   const handleGenerateSOP = async () => {
-    if (!goalInput.trim()) return;
+    if (!goalInput.trim()) {
+      alert("Please enter a goal to generate a workflow.");
+      return;
+    }
     
     setIsLoading(true);
+    setGeneratedContent(null); // Clear previous results
+    
     try {
+      console.log("Starting SOP generation for:", goalInput);
       const response = await generateSOPFromPrompt(goalInput);
+      console.log("Generated content:", response);
+      
       setGeneratedContent(response);
       
       // Save to prompt history
@@ -89,8 +99,14 @@ const Index = () => {
       setPromptHistory(newHistory);
       localStorage.setItem('prompt-history', JSON.stringify(newHistory));
       
+      // Scroll to results section after generation
+      setTimeout(() => {
+        resultsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 100);
+      
     } catch (error) {
       console.error('Error generating SOP:', error);
+      alert('Failed to generate SOP. Please try again.');
     } finally {
       setIsLoading(false);
     }
@@ -233,14 +249,16 @@ const Index = () => {
 
       {/* Generated Content Section */}
       {(isLoading || generatedContent) && (
-        <section className="container mx-auto px-4 py-16">
+        <section ref={resultsRef} className="container mx-auto px-4 py-16">
           <div className="text-center mb-12">
             <h2 className="text-4xl font-bold mb-4 dark:text-white">Your Generated Content</h2>
             <p className="text-gray-600 dark:text-gray-300 text-lg">Here's your AI-generated SOP and workflow</p>
           </div>
           
           {isLoading ? (
-            <LoadingSpinner message="AI is crafting your SOP and workflow..." />
+            <div className="flex justify-center">
+              <LoadingSpinner message="AI is crafting your SOP and workflow..." />
+            </div>
           ) : generatedContent && (
             <div className="grid md:grid-cols-2 gap-8 max-w-6xl mx-auto">
               {/* Generated SOP */}
@@ -296,6 +314,18 @@ const Index = () => {
                     isPreview={true}
                     onStartClick={() => setIsWorkflowModalOpen(true)}
                   />
+                  <div className="mt-4 flex gap-2">
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => setIsWorkflowModalOpen(true)}
+                    >
+                      🔍 View Full Workflow
+                    </Button>
+                    <Button variant="outline" size="sm">
+                      📄 Export Diagram
+                    </Button>
+                  </div>
                 </CardContent>
               </Card>
             </div>
