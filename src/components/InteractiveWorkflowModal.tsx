@@ -1,4 +1,3 @@
-
 import React, { useCallback, useState, useMemo } from 'react';
 import { X, Plus, Square, Circle, ArrowRight, Highlighter, Palette, Maximize, Minimize, ZoomIn, ZoomOut, Download } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -143,9 +142,11 @@ const InteractiveWorkflowModal: React.FC<InteractiveWorkflowModalProps> = ({
 
   if (!isOpen) return null;
 
-  // Convert workflow steps to React Flow format with safety checks
+  // Convert workflow steps to React Flow format with safety checks - fixed hook order
   const initialNodes: Node[] = useMemo(() => {
-    if (!steps || steps.length === 0) {
+    const safeSteps = steps || [];
+    
+    if (safeSteps.length === 0) {
       return [{
         id: 'default-1',
         type: 'custom',
@@ -159,7 +160,7 @@ const InteractiveWorkflowModal: React.FC<InteractiveWorkflowModalProps> = ({
       }];
     }
     
-    return steps.map((step, index) => ({
+    return safeSteps.map((step, index) => ({
       id: step.id,
       type: 'custom',
       position: { x: 100, y: index * 150 + 50 },
@@ -173,10 +174,10 @@ const InteractiveWorkflowModal: React.FC<InteractiveWorkflowModalProps> = ({
   }, [steps]);
 
   const initialEdges: Edge[] = useMemo(() => {
-    if (!steps || steps.length === 0) return [];
-    
+    const safeSteps = steps || [];
     const edges: Edge[] = [];
-    steps.forEach((step) => {
+    
+    safeSteps.forEach((step) => {
       if (step.next) {
         step.next.forEach((nextId) => {
           edges.push({
@@ -192,6 +193,7 @@ const InteractiveWorkflowModal: React.FC<InteractiveWorkflowModalProps> = ({
         });
       }
     });
+    
     return edges;
   }, [steps]);
 
