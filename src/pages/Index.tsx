@@ -1,9 +1,20 @@
+
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import AuthModal from "@/components/AuthModal";
 
 const Index = () => {
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+
+  const handleLogin = (email: string, password: string) => {
+    console.log("Login attempt:", { email, password });
+    // TODO: Implement actual login logic here
+  };
+
+  const handleSignup = (email: string, password: string, confirmPassword: string) => {
+    console.log("Signup attempt:", { email, password, confirmPassword });
+    // TODO: Implement actual signup logic here
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
@@ -49,7 +60,6 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Features Section */}
       <section id="features" className="py-16 bg-white dark:bg-gray-800">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <h3 className="text-3xl font-semibold text-gray-900 dark:text-white text-center mb-10">
@@ -84,7 +94,6 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Pricing Section */}
       <section id="pricing" className="py-16">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
           <h3 className="text-3xl font-semibold text-gray-900 dark:text-white text-center mb-10">
@@ -136,7 +145,6 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Footer */}
       <footer className="bg-gray-100 dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 py-8">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <p className="text-gray-600 dark:text-gray-300">
@@ -145,7 +153,12 @@ const Index = () => {
         </div>
       </footer>
 
-      <AuthModal isOpen={isAuthModalOpen} onClose={() => setIsAuthModalOpen(false)} />
+      <AuthModal 
+        isOpen={isAuthModalOpen} 
+        onClose={() => setIsAuthModalOpen(false)}
+        onLogin={handleLogin}
+        onSignup={handleSignup}
+      />
     </div>
   );
 };
