@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { X, CreditCard, Lock, HelpCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -35,6 +34,7 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
   const [saveCard, setSaveCard] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [showHelp, setShowHelp] = useState(false);
 
   if (!isOpen) return null;
 
@@ -137,6 +137,38 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
     const value = e.target.value.replace(/\D/g, '');
     if (value.length <= 4) {
       setCvc(value);
+    }
+  };
+
+  const handleNeedHelp = () => {
+    setShowHelp(true);
+  };
+
+  const handleApplePay = async () => {
+    setIsProcessing(true);
+    try {
+      // Simulate Apple Pay processing
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      console.log('Apple Pay payment initiated');
+      onClose();
+    } catch (error) {
+      setErrors({ payment: 'Apple Pay failed. Please try again.' });
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  const handleGooglePay = async () => {
+    setIsProcessing(true);
+    try {
+      // Simulate Google Pay processing
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      console.log('Google Pay payment initiated');
+      onClose();
+    } catch (error) {
+      setErrors({ payment: 'Google Pay failed. Please try again.' });
+    } finally {
+      setIsProcessing(false);
     }
   };
 
@@ -348,6 +380,7 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
                 <Button
                   variant="ghost"
                   size="sm"
+                  onClick={handleNeedHelp}
                   className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
                 >
                   <HelpCircle size={14} className="mr-1" />
@@ -356,28 +389,65 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
               </div>
             </div>
 
-            {/* Optional: Apple Pay / Google Pay */}
+            {/* Apple Pay / Google Pay */}
             <div className="text-center pt-4 border-t">
               <p className="text-xs text-gray-500 dark:text-gray-400 mb-3">Or pay with</p>
               <div className="flex gap-2 justify-center">
                 <Button
                   variant="outline"
                   size="sm"
+                  onClick={handleApplePay}
+                  disabled={isProcessing}
                   className="flex-1 max-w-[120px] border-gray-200 dark:border-gray-700"
-                  disabled
                 >
                   Apple Pay
                 </Button>
                 <Button
                   variant="outline"
                   size="sm"
+                  onClick={handleGooglePay}
+                  disabled={isProcessing}
                   className="flex-1 max-w-[120px] border-gray-200 dark:border-gray-700"
-                  disabled
                 >
                   Google Pay
                 </Button>
               </div>
             </div>
+
+            {/* Help Modal */}
+            {showHelp && (
+              <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-60">
+                <div className="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-md mx-4">
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-lg font-semibold dark:text-white">Need Help?</h3>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setShowHelp(false)}
+                      className="h-6 w-6 p-0"
+                    >
+                      <X size={14} />
+                    </Button>
+                  </div>
+                  <div className="space-y-3 text-sm text-gray-600 dark:text-gray-300">
+                    <p>Having trouble with your payment? Here are some common solutions:</p>
+                    <ul className="list-disc list-inside space-y-1">
+                      <li>Check that your card details are correct</li>
+                      <li>Ensure your card has sufficient funds</li>
+                      <li>Try a different payment method</li>
+                      <li>Contact your bank if the payment is being declined</li>
+                    </ul>
+                    <p>Still need help? Contact our support team at support@example.com</p>
+                  </div>
+                  <Button
+                    onClick={() => setShowHelp(false)}
+                    className="w-full mt-4"
+                  >
+                    Got it
+                  </Button>
+                </div>
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>
