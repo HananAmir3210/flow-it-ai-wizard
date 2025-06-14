@@ -1,5 +1,6 @@
+
 import React, { useCallback, useState, useMemo } from 'react';
-import { X, Plus, Square, Circle, ArrowRight, Highlighter, Palette } from 'lucide-react';
+import { X, Plus, Square, Circle, ArrowRight, Highlighter, Palette, Maximize, Minimize } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   ReactFlow,
@@ -42,10 +43,19 @@ const EditableNode = ({ data, selected, id }: { data: any; selected: boolean; id
 
   const getNodeStyle = (type: string, highlighted: boolean, color: string) => {
     const baseStyle = highlighted ? 'ring-2 ring-yellow-400 ' : '';
-    const colorStyle = color ? `bg-${color}-100 border-${color}-500 text-${color}-800` : '';
+    const colorClasses = color ? {
+      red: 'bg-red-100 border-red-500 text-red-800',
+      blue: 'bg-blue-100 border-blue-500 text-blue-800',
+      green: 'bg-green-100 border-green-500 text-green-800',
+      yellow: 'bg-yellow-100 border-yellow-500 text-yellow-800',
+      purple: 'bg-purple-100 border-purple-500 text-purple-800',
+      pink: 'bg-pink-100 border-pink-500 text-pink-800',
+      orange: 'bg-orange-100 border-orange-500 text-orange-800',
+      indigo: 'bg-indigo-100 border-indigo-500 text-indigo-800'
+    }[color] : '';
     
-    if (colorStyle) {
-      return baseStyle + colorStyle;
+    if (colorClasses) {
+      return baseStyle + colorClasses;
     }
     
     switch (type) {
@@ -61,12 +71,6 @@ const EditableNode = ({ data, selected, id }: { data: any; selected: boolean; id
         return baseStyle + 'bg-purple-100 border-purple-500 text-purple-800 rounded-full';
       case 'square':
         return baseStyle + 'bg-gray-100 border-gray-500 text-gray-800 rounded-none';
-      case 'triangle':
-        return baseStyle + 'bg-orange-100 border-orange-500 text-orange-800';
-      case 'star':
-        return baseStyle + 'bg-pink-100 border-pink-500 text-pink-800';
-      case 'hexagon':
-        return baseStyle + 'bg-indigo-100 border-indigo-500 text-indigo-800';
       default:
         return baseStyle + 'bg-gray-100 border-gray-500 text-gray-800';
     }
@@ -95,59 +99,91 @@ const EditableNode = ({ data, selected, id }: { data: any; selected: boolean; id
     }
   };
 
-  const getShapeContent = () => {
+  const renderSpecialShape = () => {
+    const commonClasses = `w-full h-full flex items-center justify-center text-xs font-medium ${getNodeStyle(data.type, data.highlighted, data.color)}`;
+    
     if (data.type === 'triangle') {
       return (
-        <div className="flex items-center justify-center transform rotate-0" style={{ clipPath: 'polygon(50% 0%, 0% 100%, 100% 100%)' }}>
-          {!isEditing && <span className="text-xs">{label}</span>}
+        <div 
+          className={`w-16 h-16 ${commonClasses}`}
+          style={{
+            clipPath: 'polygon(50% 0%, 0% 100%, 100% 100%)',
+            minWidth: '64px',
+            minHeight: '64px'
+          }}
+        >
+          <span className="mt-4">{label}</span>
         </div>
       );
     }
+    
     if (data.type === 'star') {
       return (
-        <div className="flex items-center justify-center" style={{ clipPath: 'polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%)' }}>
-          {!isEditing && <span className="text-xs">{label}</span>}
+        <div 
+          className={`w-16 h-16 ${commonClasses}`}
+          style={{
+            clipPath: 'polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%)',
+            minWidth: '64px',
+            minHeight: '64px'
+          }}
+        >
+          <span className="text-xs">{label}</span>
         </div>
       );
     }
+    
     if (data.type === 'hexagon') {
       return (
-        <div className="flex items-center justify-center" style={{ clipPath: 'polygon(30% 0%, 70% 0%, 100% 50%, 70% 100%, 30% 100%, 0% 50%)' }}>
-          {!isEditing && <span className="text-xs">{label}</span>}
+        <div 
+          className={`w-20 h-16 ${commonClasses}`}
+          style={{
+            clipPath: 'polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%)',
+            minWidth: '80px',
+            minHeight: '64px'
+          }}
+        >
+          <span className="text-xs">{label}</span>
         </div>
       );
     }
+    
     return null;
   };
 
+  // Render special shapes
+  if (['triangle', 'star', 'hexagon'].includes(data.type)) {
+    return (
+      <div onDoubleClick={handleDoubleClick} className="relative">
+        {renderSpecialShape()}
+        {selected && (
+          <div className="absolute -top-2 -right-2 w-4 h-4 bg-blue-500 rounded-full"></div>
+        )}
+      </div>
+    );
+  }
+
+  // Render normal nodes
   return (
     <div 
       className={`px-4 py-2 border-2 min-w-[120px] min-h-[40px] text-center cursor-pointer ${getNodeStyle(data.type, data.highlighted, data.color)} ${
         data.type === 'circle' ? 'rounded-full' : data.type === 'square' ? 'rounded-none' : 'rounded-lg'
       }`}
       onDoubleClick={handleDoubleClick}
-      style={{
-        backgroundColor: data.color ? `var(--${data.color}-100)` : undefined,
-        borderColor: data.color ? `var(--${data.color}-500)` : undefined,
-        color: data.color ? `var(--${data.color}-800)` : undefined,
-      }}
     >
-      {['triangle', 'star', 'hexagon'].includes(data.type) ? getShapeContent() : (
-        isEditing ? (
-          <form onSubmit={handleSubmit}>
-            <input
-              type="text"
-              value={label}
-              onChange={(e) => setLabel(e.target.value)}
-              onKeyDown={handleKeyDown}
-              onBlur={handleSubmit}
-              className="bg-transparent border-none outline-none text-center w-full"
-              autoFocus
-            />
-          </form>
-        ) : (
-          <div className="font-medium text-sm">{label}</div>
-        )
+      {isEditing ? (
+        <form onSubmit={handleSubmit}>
+          <input
+            type="text"
+            value={label}
+            onChange={(e) => setLabel(e.target.value)}
+            onKeyDown={handleKeyDown}
+            onBlur={handleSubmit}
+            className="bg-transparent border-none outline-none text-center w-full"
+            autoFocus
+          />
+        </form>
+      ) : (
+        <div className="font-medium text-sm">{label}</div>
       )}
       {selected && (
         <div className="absolute -top-2 -right-2 w-4 h-4 bg-blue-500 rounded-full"></div>
@@ -166,6 +202,8 @@ const InteractiveWorkflowModal: React.FC<InteractiveWorkflowModalProps> = ({
   steps, 
   title 
 }) => {
+  const [isFullScreen, setIsFullScreen] = useState(false);
+
   if (!isOpen) return null;
 
   // Convert workflow steps to React Flow format
@@ -269,6 +307,10 @@ const InteractiveWorkflowModal: React.FC<InteractiveWorkflowModalProps> = ({
     setIsConnecting(!isConnecting);
   };
 
+  const toggleFullScreen = () => {
+    setIsFullScreen(!isFullScreen);
+  };
+
   const changeNodeColor = (colorName: string) => {
     setNodes((nds) => 
       nds.map(node => 
@@ -280,11 +322,19 @@ const InteractiveWorkflowModal: React.FC<InteractiveWorkflowModalProps> = ({
     setShowColorPicker(false);
   };
 
+  const modalClasses = isFullScreen 
+    ? "fixed inset-0 z-50 bg-white dark:bg-gray-800" 
+    : "fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4";
+
+  const contentClasses = isFullScreen
+    ? "w-full h-full flex flex-col"
+    : "bg-white dark:bg-gray-800 rounded-lg shadow-2xl max-w-6xl w-full max-h-[90vh] overflow-hidden flex flex-col";
+
   return (
-    <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-2xl max-w-6xl w-full max-h-[90vh] overflow-hidden">
+    <div className={modalClasses}>
+      <div className={contentClasses}>
         {/* Title Section */}
-        <div className="p-6 border-b dark:border-gray-700 bg-white dark:bg-gray-800">
+        <div className="p-6 border-b dark:border-gray-700 bg-white dark:bg-gray-800 flex-shrink-0">
           <div className="text-center">
             <h1 className="text-2xl font-bold dark:text-white mb-2">
               {title}
@@ -295,8 +345,8 @@ const InteractiveWorkflowModal: React.FC<InteractiveWorkflowModalProps> = ({
           </div>
         </div>
 
-        {/* Simplified Toolbar */}
-        <div className="flex items-center justify-center gap-4 p-4 border-b dark:border-gray-700 bg-gray-50 dark:bg-gray-700">
+        {/* Toolbar */}
+        <div className="flex items-center justify-center gap-4 p-4 border-b dark:border-gray-700 bg-gray-50 dark:bg-gray-700 flex-shrink-0">
           <Button 
             variant="outline" 
             size="sm" 
@@ -325,13 +375,40 @@ const InteractiveWorkflowModal: React.FC<InteractiveWorkflowModalProps> = ({
             Square
           </Button>
           <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={() => addNewNode('triangle')}
+            className="flex items-center gap-2"
+          >
+            ▲
+            Triangle
+          </Button>
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={() => addNewNode('star')}
+            className="flex items-center gap-2"
+          >
+            ★
+            Star
+          </Button>
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={() => addNewNode('hexagon')}
+            className="flex items-center gap-2"
+          >
+            ⬡
+            Hexagon
+          </Button>
+          <Button 
             variant={isConnecting ? "default" : "outline"} 
             size="sm" 
             onClick={toggleConnecting}
             className="flex items-center gap-2"
           >
             <ArrowRight size={16} />
-            Arrow
+            {isConnecting ? 'Exit Connect' : 'Connect'}
           </Button>
           <Button 
             variant="outline" 
@@ -377,6 +454,15 @@ const InteractiveWorkflowModal: React.FC<InteractiveWorkflowModalProps> = ({
           <Button 
             variant="outline" 
             size="sm" 
+            onClick={toggleFullScreen}
+            className="flex items-center gap-2"
+          >
+            {isFullScreen ? <Minimize size={16} /> : <Maximize size={16} />}
+            {isFullScreen ? 'Exit Full' : 'Full Screen'}
+          </Button>
+          <Button 
+            variant="outline" 
+            size="sm" 
             onClick={onClose}
             className="ml-auto"
           >
@@ -385,7 +471,7 @@ const InteractiveWorkflowModal: React.FC<InteractiveWorkflowModalProps> = ({
         </div>
 
         {/* Workflow Canvas */}
-        <div className="h-[500px] overflow-hidden">
+        <div className={`overflow-hidden flex-1 ${isFullScreen ? 'h-full' : 'h-[500px]'}`}>
           <ReactFlow
             nodes={nodes}
             edges={edges}
@@ -413,11 +499,13 @@ const InteractiveWorkflowModal: React.FC<InteractiveWorkflowModalProps> = ({
         </div>
 
         {/* Footer with Instructions */}
-        <div className="border-t dark:border-gray-700 p-4 bg-gray-50 dark:bg-gray-700">
-          <div className="text-center text-sm text-gray-500 dark:text-gray-400">
-            💡 Double-click nodes to edit • Drag to rearrange • Shift+click to select multiple • Click Arrow then drag from node edges to connect • Select nodes and use Color to change appearance
+        {!isFullScreen && (
+          <div className="border-t dark:border-gray-700 p-4 bg-gray-50 dark:bg-gray-700 flex-shrink-0">
+            <div className="text-center text-sm text-gray-500 dark:text-gray-400">
+              💡 Double-click nodes to edit • Drag to rearrange • Shift+click to select multiple • Click Connect then drag from node edges to connect • Select nodes and use Color to change appearance
+            </div>
           </div>
-        </div>
+        )}
       </div>
     </div>
   );
