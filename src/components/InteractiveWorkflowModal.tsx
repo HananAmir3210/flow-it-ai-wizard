@@ -1,6 +1,6 @@
 
 import React, { useCallback, useState, useMemo } from 'react';
-import { X, Plus, Square, Circle, ArrowRight, Highlighter } from 'lucide-react';
+import { X, Plus, Square, Circle, ArrowRight, Highlighter, Palette } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   ReactFlow,
@@ -40,8 +40,14 @@ const EditableNode = ({ data, selected, id }: { data: any; selected: boolean; id
   const [label, setLabel] = useState(data.label);
   const { setNodes } = useReactFlow();
 
-  const getNodeStyle = (type: string, highlighted: boolean) => {
+  const getNodeStyle = (type: string, highlighted: boolean, color: string) => {
     const baseStyle = highlighted ? 'ring-2 ring-yellow-400 ' : '';
+    const colorStyle = color ? `bg-${color}-100 border-${color}-500 text-${color}-800` : '';
+    
+    if (colorStyle) {
+      return baseStyle + colorStyle;
+    }
+    
     switch (type) {
       case 'start':
         return baseStyle + 'bg-green-100 border-green-500 text-green-800';
@@ -55,8 +61,12 @@ const EditableNode = ({ data, selected, id }: { data: any; selected: boolean; id
         return baseStyle + 'bg-purple-100 border-purple-500 text-purple-800 rounded-full';
       case 'square':
         return baseStyle + 'bg-gray-100 border-gray-500 text-gray-800 rounded-none';
-      case 'arrow':
+      case 'triangle':
         return baseStyle + 'bg-orange-100 border-orange-500 text-orange-800';
+      case 'star':
+        return baseStyle + 'bg-pink-100 border-pink-500 text-pink-800';
+      case 'hexagon':
+        return baseStyle + 'bg-indigo-100 border-indigo-500 text-indigo-800';
       default:
         return baseStyle + 'bg-gray-100 border-gray-500 text-gray-800';
     }
@@ -86,11 +96,24 @@ const EditableNode = ({ data, selected, id }: { data: any; selected: boolean; id
   };
 
   const getShapeContent = () => {
-    if (data.type === 'arrow') {
+    if (data.type === 'triangle') {
       return (
-        <div className="flex items-center justify-center">
-          <ArrowRight size={20} />
-          {!isEditing && <span className="ml-2">{label}</span>}
+        <div className="flex items-center justify-center transform rotate-0" style={{ clipPath: 'polygon(50% 0%, 0% 100%, 100% 100%)' }}>
+          {!isEditing && <span className="text-xs">{label}</span>}
+        </div>
+      );
+    }
+    if (data.type === 'star') {
+      return (
+        <div className="flex items-center justify-center" style={{ clipPath: 'polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%)' }}>
+          {!isEditing && <span className="text-xs">{label}</span>}
+        </div>
+      );
+    }
+    if (data.type === 'hexagon') {
+      return (
+        <div className="flex items-center justify-center" style={{ clipPath: 'polygon(30% 0%, 70% 0%, 100% 50%, 70% 100%, 30% 100%, 0% 50%)' }}>
+          {!isEditing && <span className="text-xs">{label}</span>}
         </div>
       );
     }
@@ -99,12 +122,17 @@ const EditableNode = ({ data, selected, id }: { data: any; selected: boolean; id
 
   return (
     <div 
-      className={`px-4 py-2 border-2 min-w-[120px] text-center cursor-pointer ${getNodeStyle(data.type, data.highlighted)} ${
+      className={`px-4 py-2 border-2 min-w-[120px] min-h-[40px] text-center cursor-pointer ${getNodeStyle(data.type, data.highlighted, data.color)} ${
         data.type === 'circle' ? 'rounded-full' : data.type === 'square' ? 'rounded-none' : 'rounded-lg'
       }`}
       onDoubleClick={handleDoubleClick}
+      style={{
+        backgroundColor: data.color ? `var(--${data.color}-100)` : undefined,
+        borderColor: data.color ? `var(--${data.color}-500)` : undefined,
+        color: data.color ? `var(--${data.color}-800)` : undefined,
+      }}
     >
-      {data.type === 'arrow' ? getShapeContent() : (
+      {['triangle', 'star', 'hexagon'].includes(data.type) ? getShapeContent() : (
         isEditing ? (
           <form onSubmit={handleSubmit}>
             <input
@@ -149,7 +177,8 @@ const InteractiveWorkflowModal: React.FC<InteractiveWorkflowModalProps> = ({
       data: { 
         label: step.title, 
         type: step.type,
-        highlighted: false
+        highlighted: false,
+        color: null
       },
     })), [steps]
   );
@@ -165,6 +194,9 @@ const InteractiveWorkflowModal: React.FC<InteractiveWorkflowModalProps> = ({
             target: nextId,
             type: 'smoothstep',
             animated: true,
+            markerEnd: {
+              type: 'arrowclosed',
+            },
           });
         });
       }
@@ -176,9 +208,22 @@ const InteractiveWorkflowModal: React.FC<InteractiveWorkflowModalProps> = ({
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
   const [selectedNodes, setSelectedNodes] = useState<string[]>([]);
   const [isConnecting, setIsConnecting] = useState(false);
+  const [showColorPicker, setShowColorPicker] = useState(false);
+
+  const colors = ['red', 'blue', 'green', 'yellow', 'purple', 'pink', 'orange', 'indigo'];
 
   const onConnect = useCallback(
-    (params: Connection) => setEdges((eds) => addEdge(params, eds)),
+    (params: Connection) => {
+      const newEdge = {
+        ...params,
+        type: 'smoothstep',
+        animated: true,
+        markerEnd: {
+          type: 'arrowclosed',
+        },
+      };
+      setEdges((eds) => addEdge(newEdge, eds));
+    },
     [setEdges]
   );
 
@@ -186,15 +231,16 @@ const InteractiveWorkflowModal: React.FC<InteractiveWorkflowModalProps> = ({
     setSelectedNodes(nodes.map(node => node.id));
   }, []);
 
-  const addNewNode = (type: 'process' | 'circle' | 'square' | 'arrow' = 'process') => {
+  const addNewNode = (type: 'process' | 'circle' | 'square' | 'triangle' | 'star' | 'hexagon' = 'process') => {
     const newNode: Node = {
       id: `node-${Date.now()}`,
       type: 'custom',
-      position: { x: Math.random() * 300, y: Math.random() * 300 },
+      position: { x: Math.random() * 300 + 100, y: Math.random() * 300 + 100 },
       data: { 
-        label: type === 'arrow' ? 'Arrow' : 'New Step', 
+        label: type === 'process' ? 'New Step' : type.charAt(0).toUpperCase() + type.slice(1), 
         type: type,
-        highlighted: false
+        highlighted: false,
+        color: null
       },
     };
     setNodes((nds) => [...nds, newNode]);
@@ -214,6 +260,17 @@ const InteractiveWorkflowModal: React.FC<InteractiveWorkflowModalProps> = ({
     setIsConnecting(!isConnecting);
   };
 
+  const changeNodeColor = (color: string) => {
+    setNodes((nds) => 
+      nds.map(node => 
+        selectedNodes.includes(node.id) 
+          ? { ...node, data: { ...node.data, color } }
+          : node
+      )
+    );
+    setShowColorPicker(false);
+  };
+
   return (
     <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow-2xl max-w-6xl w-full max-h-[90vh] overflow-hidden">
@@ -229,7 +286,7 @@ const InteractiveWorkflowModal: React.FC<InteractiveWorkflowModalProps> = ({
           </div>
         </div>
 
-        {/* Toolbar */}
+        {/* Simplified Toolbar */}
         <div className="flex items-center justify-center gap-4 p-4 border-b dark:border-gray-700 bg-gray-50 dark:bg-gray-700">
           <Button 
             variant="outline" 
@@ -277,6 +334,32 @@ const InteractiveWorkflowModal: React.FC<InteractiveWorkflowModalProps> = ({
             <Highlighter size={16} />
             Highlight
           </Button>
+          <div className="relative">
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={() => setShowColorPicker(!showColorPicker)}
+              disabled={selectedNodes.length === 0}
+              className="flex items-center gap-2"
+            >
+              <Palette size={16} />
+              Color
+            </Button>
+            {showColorPicker && (
+              <div className="absolute top-full mt-2 bg-white border rounded-lg shadow-lg p-2 z-10">
+                <div className="grid grid-cols-4 gap-2">
+                  {colors.map((color) => (
+                    <button
+                      key={color}
+                      onClick={() => changeNodeColor(color)}
+                      className={`w-6 h-6 rounded border-2 hover:scale-110 transition-transform bg-${color}-500`}
+                      title={color}
+                    />
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
           <Button 
             variant="outline" 
             size="sm" 
@@ -301,6 +384,9 @@ const InteractiveWorkflowModal: React.FC<InteractiveWorkflowModalProps> = ({
             attributionPosition="bottom-left"
             multiSelectionKeyCode="Shift"
             connectionMode={isConnecting ? ConnectionMode.Loose : ConnectionMode.Strict}
+            panOnDrag={!isConnecting}
+            nodesDraggable={!isConnecting}
+            elementsSelectable={true}
           >
             <Controls />
             <MiniMap 
@@ -315,7 +401,7 @@ const InteractiveWorkflowModal: React.FC<InteractiveWorkflowModalProps> = ({
         {/* Footer with Instructions */}
         <div className="border-t dark:border-gray-700 p-4 bg-gray-50 dark:bg-gray-700">
           <div className="text-center text-sm text-gray-500 dark:text-gray-400">
-            💡 Double-click nodes to edit • Drag to rearrange • Shift+click to select multiple • Click Arrow then drag from edges to connect
+            💡 Double-click nodes to edit • Drag to rearrange • Shift+click to select multiple • Click Arrow then drag from node edges to connect • Select nodes and use Color to change appearance
           </div>
         </div>
       </div>
