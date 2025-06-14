@@ -69,8 +69,8 @@ const WorkflowVisualization: React.FC<WorkflowVisualizationProps> = ({
           )}
         </div>
         
-        {/* Action buttons at bottom - only show these once */}
-        <div className="flex flex-col gap-1 mt-2">
+        {/* Action buttons at bottom - reduced spacing */}
+        <div className="flex flex-col gap-1">
           {onStartClick && (
             <button
               onClick={(e) => {
