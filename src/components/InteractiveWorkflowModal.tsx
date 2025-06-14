@@ -1,6 +1,6 @@
 
 import React, { useCallback, useState, useMemo } from 'react';
-import { X, Download, Save, Plus, Settings, ZoomIn, ZoomOut, Maximize2, Square, Circle, ArrowRight, Highlighter, Trash2 } from 'lucide-react';
+import { X, Download, Save, Plus, Settings, ZoomIn, ZoomOut, Maximize2, Square, Circle, ArrowRight, Highlighter, Trash2, Link, Triangle, Star, Hexagon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   ReactFlow,
@@ -56,6 +56,12 @@ const EditableNode = ({ data, selected, id }: { data: any; selected: boolean; id
         return baseStyle + 'bg-gray-100 border-gray-500 text-gray-800 rounded-none';
       case 'arrow':
         return baseStyle + 'bg-orange-100 border-orange-500 text-orange-800';
+      case 'triangle':
+        return baseStyle + 'bg-pink-100 border-pink-500 text-pink-800';
+      case 'star':
+        return baseStyle + 'bg-indigo-100 border-indigo-500 text-indigo-800';
+      case 'hexagon':
+        return baseStyle + 'bg-teal-100 border-teal-500 text-teal-800';
       default:
         return baseStyle + 'bg-gray-100 border-gray-500 text-gray-800';
     }
@@ -93,6 +99,30 @@ const EditableNode = ({ data, selected, id }: { data: any; selected: boolean; id
         </div>
       );
     }
+    if (data.type === 'triangle') {
+      return (
+        <div className="flex items-center justify-center">
+          <Triangle size={20} />
+          {!isEditing && <span className="ml-2">{label}</span>}
+        </div>
+      );
+    }
+    if (data.type === 'star') {
+      return (
+        <div className="flex items-center justify-center">
+          <Star size={20} />
+          {!isEditing && <span className="ml-2">{label}</span>}
+        </div>
+      );
+    }
+    if (data.type === 'hexagon') {
+      return (
+        <div className="flex items-center justify-center">
+          <Hexagon size={20} />
+          {!isEditing && <span className="ml-2">{label}</span>}
+        </div>
+      );
+    }
     return null;
   };
 
@@ -103,7 +133,7 @@ const EditableNode = ({ data, selected, id }: { data: any; selected: boolean; id
       }`}
       onDoubleClick={handleDoubleClick}
     >
-      {data.type === 'arrow' ? getShapeContent() : (
+      {['arrow', 'triangle', 'star', 'hexagon'].includes(data.type) ? getShapeContent() : (
         isEditing ? (
           <form onSubmit={handleSubmit}>
             <input
@@ -175,6 +205,7 @@ const InteractiveWorkflowModal: React.FC<InteractiveWorkflowModalProps> = ({
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [selectedNodes, setSelectedNodes] = useState<string[]>([]);
+  const [isConnecting, setIsConnecting] = useState(false);
 
   const onConnect = useCallback(
     (params: Connection) => setEdges((eds) => addEdge(params, eds)),
@@ -185,13 +216,16 @@ const InteractiveWorkflowModal: React.FC<InteractiveWorkflowModalProps> = ({
     setSelectedNodes(nodes.map(node => node.id));
   }, []);
 
-  const addNewNode = (type: 'process' | 'circle' | 'square' | 'arrow' = 'process') => {
+  const addNewNode = (type: 'process' | 'circle' | 'square' | 'arrow' | 'triangle' | 'star' | 'hexagon' = 'process') => {
     const newNode: Node = {
       id: `node-${Date.now()}`,
       type: 'custom',
       position: { x: Math.random() * 300, y: Math.random() * 300 },
       data: { 
-        label: type === 'arrow' ? 'Arrow' : 'New Step', 
+        label: type === 'arrow' ? 'Arrow' : 
+               type === 'triangle' ? 'Triangle' :
+               type === 'star' ? 'Star' :
+               type === 'hexagon' ? 'Hexagon' : 'New Step', 
         type: type,
         highlighted: false
       },
@@ -215,6 +249,10 @@ const InteractiveWorkflowModal: React.FC<InteractiveWorkflowModalProps> = ({
           : node
       )
     );
+  };
+
+  const toggleConnecting = () => {
+    setIsConnecting(!isConnecting);
   };
 
   const saveWorkflow = () => {
@@ -242,26 +280,40 @@ const InteractiveWorkflowModal: React.FC<InteractiveWorkflowModalProps> = ({
       <div className={contentClasses}>
         {/* Header */}
         <div className="flex items-center justify-between p-4 border-b dark:border-gray-700 bg-white dark:bg-gray-800">
-          <div>
-            <h2 className="text-xl font-bold dark:text-white">{title} - Interactive Workflow Editor</h2>
+          <div className="flex-1">
+            <h2 className="text-xl font-bold dark:text-white whitespace-nowrap">{title} - Interactive Workflow Editor</h2>
             <p className="text-sm text-gray-600 dark:text-gray-300">Drag, edit, and customize your workflow • Double-click to edit text</p>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-wrap">
             <Button variant="outline" size="sm" onClick={() => addNewNode('process')}>
               <Plus size={16} />
               Step
             </Button>
             <Button variant="outline" size="sm" onClick={() => addNewNode('circle')}>
               <Circle size={16} />
-              Circle
             </Button>
             <Button variant="outline" size="sm" onClick={() => addNewNode('square')}>
               <Square size={16} />
-              Square
             </Button>
             <Button variant="outline" size="sm" onClick={() => addNewNode('arrow')}>
               <ArrowRight size={16} />
-              Arrow
+            </Button>
+            <Button variant="outline" size="sm" onClick={() => addNewNode('triangle')}>
+              <Triangle size={16} />
+            </Button>
+            <Button variant="outline" size="sm" onClick={() => addNewNode('star')}>
+              <Star size={16} />
+            </Button>
+            <Button variant="outline" size="sm" onClick={() => addNewNode('hexagon')}>
+              <Hexagon size={16} />
+            </Button>
+            <Button 
+              variant={isConnecting ? "default" : "outline"} 
+              size="sm" 
+              onClick={toggleConnecting}
+            >
+              <Link size={16} />
+              Connect
             </Button>
             <Button 
               variant="outline" 
@@ -270,7 +322,6 @@ const InteractiveWorkflowModal: React.FC<InteractiveWorkflowModalProps> = ({
               disabled={selectedNodes.length === 0}
             >
               <Highlighter size={16} />
-              Highlight
             </Button>
             <Button 
               variant="outline" 
@@ -279,19 +330,15 @@ const InteractiveWorkflowModal: React.FC<InteractiveWorkflowModalProps> = ({
               disabled={selectedNodes.length === 0}
             >
               <Trash2 size={16} />
-              Delete
             </Button>
             <Button variant="outline" size="sm" onClick={saveWorkflow}>
               <Save size={16} />
-              Save
             </Button>
             <Button variant="outline" size="sm" onClick={exportWorkflow}>
               <Download size={16} />
-              Export
             </Button>
             <Button variant="outline" size="sm" onClick={toggleFullscreen}>
               <Maximize2 size={16} />
-              {isFullscreen ? 'Exit' : 'Fullscreen'}
             </Button>
             <Button variant="outline" size="sm" onClick={onClose}>
               <X size={16} />
@@ -312,6 +359,7 @@ const InteractiveWorkflowModal: React.FC<InteractiveWorkflowModalProps> = ({
             fitView
             attributionPosition="bottom-left"
             multiSelectionKeyCode="Shift"
+            connectionMode={isConnecting ? 'loose' : 'strict'}
           >
             <Controls />
             <MiniMap 
@@ -328,7 +376,7 @@ const InteractiveWorkflowModal: React.FC<InteractiveWorkflowModalProps> = ({
           <div className="border-t dark:border-gray-700 p-4 bg-gray-50 dark:bg-gray-700">
             <div className="flex items-center justify-between">
               <div className="text-sm text-gray-500 dark:text-gray-400">
-                💡 Double-click nodes to edit • Drag to rearrange • Shift+click to select multiple • Click + drag from edges to connect
+                💡 Double-click nodes to edit • Drag to rearrange • Shift+click to select multiple • Click Connect then drag from edges to connect
               </div>
               <div className="flex gap-2">
                 <Button variant="outline" size="sm" onClick={exportWorkflow}>
