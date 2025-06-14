@@ -29,6 +29,9 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
 }) => {
   const [email, setEmail] = useState('');
   const [nameOnCard, setNameOnCard] = useState('');
+  const [cardNumber, setCardNumber] = useState('');
+  const [expiryDate, setExpiryDate] = useState('');
+  const [cvc, setCvc] = useState('');
   const [saveCard, setSaveCard] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -46,6 +49,18 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
     
     if (!nameOnCard.trim()) {
       newErrors.nameOnCard = 'Name on card is required';
+    }
+
+    if (!cardNumber.trim()) {
+      newErrors.cardNumber = 'Card number is required';
+    }
+
+    if (!expiryDate.trim()) {
+      newErrors.expiryDate = 'Expiry date is required';
+    }
+
+    if (!cvc.trim()) {
+      newErrors.cvc = 'CVC is required';
     }
     
     setErrors(newErrors);
@@ -71,6 +86,57 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
       setErrors({ payment: 'Payment failed. Please try again.' });
     } finally {
       setIsProcessing(false);
+    }
+  };
+
+  const formatCardNumber = (value: string) => {
+    // Remove all non-digits
+    const v = value.replace(/\s+/g, '').replace(/[^0-9]/gi, '');
+    
+    // Add spaces every 4 digits
+    const matches = v.match(/\d{4,16}/g);
+    const match = matches && matches[0] || '';
+    const parts = [];
+    for (let i = 0, len = match.length; i < len; i += 4) {
+      parts.push(match.substring(i, i + 4));
+    }
+    
+    if (parts.length) {
+      return parts.join(' ');
+    } else {
+      return v;
+    }
+  };
+
+  const formatExpiryDate = (value: string) => {
+    // Remove all non-digits
+    const v = value.replace(/\D/g, '');
+    
+    // Add slash after 2 digits
+    if (v.length >= 2) {
+      return v.substring(0, 2) + '/' + v.substring(2, 4);
+    }
+    return v;
+  };
+
+  const handleCardNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const formatted = formatCardNumber(e.target.value);
+    if (formatted.length <= 19) { // Max length with spaces
+      setCardNumber(formatted);
+    }
+  };
+
+  const handleExpiryChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const formatted = formatExpiryDate(e.target.value);
+    if (formatted.length <= 5) { // MM/YY format
+      setExpiryDate(formatted);
+    }
+  };
+
+  const handleCvcChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value.replace(/\D/g, '');
+    if (value.length <= 4) {
+      setCvc(value);
     }
   };
 
@@ -177,33 +243,56 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
                 )}
               </div>
 
-              {/* Stripe Elements Placeholder */}
+              {/* Card Information */}
               <div className="space-y-3">
                 <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
                   Card Information
                 </label>
                 
                 {/* Card Number */}
-                <div className="border rounded-md p-3 bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
-                  <div className="flex items-center gap-2">
-                    <CreditCard size={16} className="text-gray-400" />
-                    <span className="text-gray-400">1234 1234 1234 1234</span>
+                <div className="space-y-1">
+                  <div className="relative">
+                    <Input
+                      type="text"
+                      placeholder="1234 1234 1234 1234"
+                      value={cardNumber}
+                      onChange={handleCardNumberChange}
+                      className={`pl-10 ${errors.cardNumber ? 'border-red-500' : ''}`}
+                    />
+                    <CreditCard size={16} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
                   </div>
+                  {errors.cardNumber && (
+                    <p className="text-xs text-red-500">{errors.cardNumber}</p>
+                  )}
                 </div>
                 
                 {/* Expiry and CVC */}
                 <div className="grid grid-cols-2 gap-3">
-                  <div className="border rounded-md p-3 bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
-                    <span className="text-gray-400">MM / YY</span>
+                  <div className="space-y-1">
+                    <Input
+                      type="text"
+                      placeholder="MM/YY"
+                      value={expiryDate}
+                      onChange={handleExpiryChange}
+                      className={errors.expiryDate ? 'border-red-500' : ''}
+                    />
+                    {errors.expiryDate && (
+                      <p className="text-xs text-red-500">{errors.expiryDate}</p>
+                    )}
                   </div>
-                  <div className="border rounded-md p-3 bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
-                    <span className="text-gray-400">CVC</span>
+                  <div className="space-y-1">
+                    <Input
+                      type="text"
+                      placeholder="CVC"
+                      value={cvc}
+                      onChange={handleCvcChange}
+                      className={errors.cvc ? 'border-red-500' : ''}
+                    />
+                    {errors.cvc && (
+                      <p className="text-xs text-red-500">{errors.cvc}</p>
+                    )}
                   </div>
                 </div>
-                
-                <p className="text-xs text-gray-500 dark:text-gray-400">
-                  * Stripe Elements will be integrated here for secure card input
-                </p>
               </div>
 
               {/* Save Card Option */}
@@ -242,7 +331,7 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
             <div className="space-y-3 pt-4 border-t">
               <Button
                 onClick={handlePayment}
-                disabled={isProcessing || !email || !nameOnCard}
+                disabled={isProcessing || !email || !nameOnCard || !cardNumber || !expiryDate || !cvc}
                 className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold py-3"
               >
                 {isProcessing ? (
