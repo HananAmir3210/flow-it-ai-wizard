@@ -1,4 +1,3 @@
-
 import React, { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -11,6 +10,8 @@ import WorkflowModal from "@/components/WorkflowModal";
 import LoadingSpinner from "@/components/LoadingSpinner";
 import AuthModal from "@/components/AuthModal";
 import FeatureModal from "@/components/FeatureModal";
+import SOPModal from "@/components/SOPModal";
+import InteractiveWorkflowModal from "@/components/InteractiveWorkflowModal";
 
 const Index = () => {
   const [goalInput, setGoalInput] = useState("");
@@ -24,6 +25,8 @@ const Index = () => {
   const [isFeatureModalOpen, setIsFeatureModalOpen] = useState(false);
   const [selectedFeature, setSelectedFeature] = useState<any>(null);
   const [activeSection, setActiveSection] = useState<string>("");
+  const [isSOPModalOpen, setIsSOPModalOpen] = useState(false);
+  const [isInteractiveWorkflowOpen, setIsInteractiveWorkflowOpen] = useState(false);
 
   // Refs for smooth scrolling
   const featuresRef = useRef<HTMLElement>(null);
@@ -261,8 +264,11 @@ const Index = () => {
             </div>
           ) : generatedContent && (
             <div className="grid md:grid-cols-2 gap-8 max-w-6xl mx-auto">
-              {/* Generated SOP */}
-              <Card className="border-2 hover:shadow-lg transition-shadow dark:bg-gray-800 dark:border-gray-700">
+              {/* Generated SOP - Now Clickable */}
+              <Card 
+                className="border-2 hover:shadow-lg transition-all duration-300 dark:bg-gray-800 dark:border-gray-700 cursor-pointer transform hover:scale-105"
+                onClick={() => setIsSOPModalOpen(true)}
+              >
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2 dark:text-white">
                     📋 {generatedContent.sop.title}
@@ -272,21 +278,19 @@ const Index = () => {
                 <CardContent>
                   <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 text-sm max-h-96 overflow-y-auto">
                     <div className="space-y-4">
-                      {generatedContent.sop.steps.map((step) => (
+                      {generatedContent.sop.steps.slice(0, 5).map((step) => (
                         <div key={step.number} className="border-l-4 border-blue-500 pl-4">
                           <div className="font-semibold text-gray-900 dark:text-gray-100">
                             {step.number}. {step.title}
                           </div>
                           <div className="text-gray-700 dark:text-gray-300 mt-1">{step.description}</div>
-                          {step.details && (
-                            <ul className="list-disc list-inside text-gray-600 dark:text-gray-400 text-xs mt-2 ml-2">
-                              {step.details.map((detail, idx) => (
-                                <li key={idx}>{detail}</li>
-                              ))}
-                            </ul>
-                          )}
                         </div>
                       ))}
+                      {generatedContent.sop.steps.length > 5 && (
+                        <div className="text-gray-500 dark:text-gray-400 text-center">
+                          + {generatedContent.sop.steps.length - 5} more steps... Click to view all
+                        </div>
+                      )}
                     </div>
                   </div>
                   <div className="mt-4 flex gap-2">
@@ -300,8 +304,11 @@ const Index = () => {
                 </CardContent>
               </Card>
 
-              {/* Generated Workflow */}
-              <Card className="border-2 hover:shadow-lg transition-shadow dark:bg-gray-800 dark:border-gray-700">
+              {/* Generated Workflow - Now Clickable */}
+              <Card 
+                className="border-2 hover:shadow-lg transition-all duration-300 dark:bg-gray-800 dark:border-gray-700 cursor-pointer transform hover:scale-105"
+                onClick={() => setIsInteractiveWorkflowOpen(true)}
+              >
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2 dark:text-white">
                     🔄 Visual Workflow
@@ -312,15 +319,18 @@ const Index = () => {
                   <WorkflowVisualization 
                     steps={generatedContent.workflow} 
                     isPreview={true}
-                    onStartClick={() => setIsWorkflowModalOpen(true)}
+                    onStartClick={() => setIsInteractiveWorkflowOpen(true)}
                   />
                   <div className="mt-4 flex gap-2">
                     <Button 
                       variant="outline" 
                       size="sm"
-                      onClick={() => setIsWorkflowModalOpen(true)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setIsInteractiveWorkflowOpen(true);
+                      }}
                     >
-                      🔍 View Full Workflow
+                      🔍 Edit & Customize
                     </Button>
                     <Button variant="outline" size="sm">
                       📄 Export Diagram
@@ -556,14 +566,29 @@ const Index = () => {
         </div>
       </footer>
 
-      {/* Workflow Modal */}
+      {/* Modals */}
       {generatedContent && (
-        <WorkflowModal
-          isOpen={isWorkflowModalOpen}
-          onClose={() => setIsWorkflowModalOpen(false)}
-          steps={generatedContent.workflow}
-          title={generatedContent.sop.title}
-        />
+        <>
+          <WorkflowModal
+            isOpen={isWorkflowModalOpen}
+            onClose={() => setIsWorkflowModalOpen(false)}
+            steps={generatedContent.workflow}
+            title={generatedContent.sop.title}
+          />
+          
+          <SOPModal
+            isOpen={isSOPModalOpen}
+            onClose={() => setIsSOPModalOpen(false)}
+            sop={generatedContent.sop}
+          />
+          
+          <InteractiveWorkflowModal
+            isOpen={isInteractiveWorkflowOpen}
+            onClose={() => setIsInteractiveWorkflowOpen(false)}
+            steps={generatedContent.workflow}
+            title={generatedContent.sop.title}
+          />
+        </>
       )}
 
       {/* Auth Modal */}
