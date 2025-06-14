@@ -52,8 +52,9 @@ const WorkflowVisualization: React.FC<WorkflowVisualizationProps> = ({
 
   if (isPreview) {
     return (
-      <div className="bg-gradient-to-br from-blue-50 to-purple-50 rounded-lg p-6 h-48 flex flex-col items-center justify-center relative">
-        <div className="flex flex-col items-center gap-3 mb-4">
+      <div className="bg-gradient-to-br from-blue-50 to-purple-50 rounded-lg p-6 h-48 flex flex-col relative">
+        {/* Workflow steps */}
+        <div className="flex-1 flex flex-col items-center justify-center gap-3">
           {steps.slice(0, 3).map((step, index) => (
             <React.Fragment key={step.id}>
               <div className={`flex items-center gap-2 px-3 py-2 rounded-lg border-2 text-sm ${getStepColor(step.type)}`}>
@@ -68,22 +69,22 @@ const WorkflowVisualization: React.FC<WorkflowVisualizationProps> = ({
           )}
         </div>
         
-        {/* Fixed positioning for buttons */}
-        <div className="flex gap-2 mt-auto">
+        {/* Action buttons at bottom */}
+        <div className="flex flex-col gap-2 mt-4">
           {onStartClick && (
             <button
               onClick={(e) => {
                 e.stopPropagation();
                 onStartClick();
               }}
-              className="flex items-center gap-1 px-3 py-1 bg-blue-500 text-white rounded text-xs hover:bg-blue-600 transition-colors"
+              className="flex items-center justify-center gap-2 px-4 py-2 bg-blue-500 text-white rounded text-sm hover:bg-blue-600 transition-colors w-full"
             >
               🔍 Edit & Customize
             </button>
           )}
           <button
             onClick={(e) => e.stopPropagation()}
-            className="flex items-center gap-1 px-3 py-1 bg-gray-500 text-white rounded text-xs hover:bg-gray-600 transition-colors"
+            className="flex items-center justify-center gap-2 px-4 py-2 bg-gray-500 text-white rounded text-sm hover:bg-gray-600 transition-colors w-full"
           >
             📄 Export Diagram
           </button>
