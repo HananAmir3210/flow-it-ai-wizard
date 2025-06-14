@@ -1,4 +1,3 @@
-
 import React, { useCallback, useState, useMemo } from 'react';
 import { X, Plus, Square, Circle, ArrowRight, Highlighter, Palette } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -211,7 +210,16 @@ const InteractiveWorkflowModal: React.FC<InteractiveWorkflowModalProps> = ({
   const [isConnecting, setIsConnecting] = useState(false);
   const [showColorPicker, setShowColorPicker] = useState(false);
 
-  const colors = ['red', 'blue', 'green', 'yellow', 'purple', 'pink', 'orange', 'indigo'];
+  const colors = [
+    { name: 'red', value: '#ef4444' },
+    { name: 'blue', value: '#3b82f6' },
+    { name: 'green', value: '#10b981' },
+    { name: 'yellow', value: '#f59e0b' },
+    { name: 'purple', value: '#8b5cf6' },
+    { name: 'pink', value: '#ec4899' },
+    { name: 'orange', value: '#f97316' },
+    { name: 'indigo', value: '#6366f1' }
+  ];
 
   const onConnect = useCallback(
     (params: Connection) => {
@@ -261,11 +269,11 @@ const InteractiveWorkflowModal: React.FC<InteractiveWorkflowModalProps> = ({
     setIsConnecting(!isConnecting);
   };
 
-  const changeNodeColor = (color: string) => {
+  const changeNodeColor = (colorName: string) => {
     setNodes((nds) => 
       nds.map(node => 
         selectedNodes.includes(node.id) 
-          ? { ...node, data: { ...node.data, color } }
+          ? { ...node, data: { ...node.data, color: colorName } }
           : node
       )
     );
@@ -347,15 +355,20 @@ const InteractiveWorkflowModal: React.FC<InteractiveWorkflowModalProps> = ({
               Color
             </Button>
             {showColorPicker && (
-              <div className="absolute top-full mt-2 bg-white border rounded-lg shadow-lg p-2 z-10">
+              <div className="absolute top-full mt-2 bg-white dark:bg-gray-800 border rounded-lg shadow-lg p-3 z-10 min-w-[160px]">
                 <div className="grid grid-cols-4 gap-2">
                   {colors.map((color) => (
                     <button
-                      key={color}
-                      onClick={() => changeNodeColor(color)}
-                      className={`w-6 h-6 rounded border-2 hover:scale-110 transition-transform bg-${color}-500`}
-                      title={color}
-                    />
+                      key={color.name}
+                      onClick={() => changeNodeColor(color.name)}
+                      className="w-8 h-8 rounded border-2 border-gray-300 hover:scale-110 transition-transform relative group"
+                      style={{ backgroundColor: color.value }}
+                      title={color.name}
+                    >
+                      <span className="absolute -bottom-6 left-1/2 transform -translate-x-1/2 text-xs text-gray-600 dark:text-gray-300 opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
+                        {color.name}
+                      </span>
+                    </button>
                   ))}
                 </div>
               </div>
