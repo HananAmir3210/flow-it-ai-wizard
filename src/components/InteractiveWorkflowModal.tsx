@@ -1,4 +1,3 @@
-
 import React, { useCallback, useState, useMemo } from 'react';
 import { X, Download, Save, Plus, Settings, ZoomIn, ZoomOut, Maximize2, Square, Circle, ArrowRight, Highlighter, Trash2, Link, Triangle, Star, Hexagon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -16,6 +15,7 @@ import {
   NodeTypes,
   BackgroundVariant,
   useReactFlow,
+  ConnectionMode,
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 
@@ -359,7 +359,7 @@ const InteractiveWorkflowModal: React.FC<InteractiveWorkflowModalProps> = ({
             fitView
             attributionPosition="bottom-left"
             multiSelectionKeyCode="Shift"
-            connectionMode={isConnecting ? 'loose' : 'strict'}
+            connectionMode={isConnecting ? ConnectionMode.Loose : ConnectionMode.Strict}
           >
             <Controls />
             <MiniMap 
