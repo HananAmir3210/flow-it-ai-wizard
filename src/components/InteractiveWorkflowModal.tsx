@@ -1,3 +1,4 @@
+
 import React, { useCallback, useState, useMemo } from 'react';
 import { X, Plus, Square, Circle, ArrowRight, Highlighter, Palette, Maximize, Minimize, ZoomIn, ZoomOut, Download } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -137,12 +138,11 @@ const InteractiveWorkflowModal: React.FC<InteractiveWorkflowModalProps> = ({
   steps = [], 
   title = "Workflow Editor"
 }) => {
+  // All hooks must be called before any conditional logic
   const [isFullScreen, setIsFullScreen] = useState(false);
   const [zoom, setZoom] = useState(1);
 
-  if (!isOpen) return null;
-
-  // Convert workflow steps to React Flow format with safety checks - fixed hook order
+  // Convert workflow steps to React Flow format with safety checks
   const initialNodes: Node[] = useMemo(() => {
     const safeSteps = steps || [];
     
@@ -297,6 +297,9 @@ const InteractiveWorkflowModal: React.FC<InteractiveWorkflowModalProps> = ({
     );
     setShowColorPicker(false);
   };
+
+  // Now handle the conditional rendering AFTER all hooks have been called
+  if (!isOpen) return null;
 
   const modalClasses = isFullScreen 
     ? "fixed inset-0 z-50 bg-white dark:bg-gray-800" 
