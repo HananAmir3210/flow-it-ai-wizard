@@ -52,41 +52,56 @@ const WorkflowVisualization: React.FC<WorkflowVisualizationProps> = ({
 
   if (isPreview) {
     return (
-      <div className="bg-gradient-to-br from-blue-50 to-purple-50 rounded-lg p-4 h-48 flex items-center justify-center">
-        <div className="flex flex-col items-center gap-4">
+      <div className="bg-gradient-to-br from-blue-50 to-purple-50 rounded-lg p-6 h-48 flex flex-col items-center justify-center relative">
+        <div className="flex flex-col items-center gap-3 mb-4">
           {steps.slice(0, 3).map((step, index) => (
             <React.Fragment key={step.id}>
               <div className={`flex items-center gap-2 px-3 py-2 rounded-lg border-2 text-sm ${getStepColor(step.type)}`}>
                 {getStepIcon(step.type)}
                 {step.title}
               </div>
-              {index < 2 && <ArrowDown className="text-gray-400" size={20} />}
+              {index < 2 && <ArrowDown className="text-gray-400" size={16} />}
             </React.Fragment>
           ))}
-          <div className="text-gray-500 text-xs mt-2">+ Interactive diagram</div>
+          {steps.length > 3 && (
+            <div className="text-gray-500 text-xs">+ Interactive diagram</div>
+          )}
+        </div>
+        
+        {/* Fixed positioning for buttons */}
+        <div className="flex gap-2 mt-auto">
           {onStartClick && (
             <button
-              onClick={onStartClick}
-              className="mt-2 px-3 py-1 bg-blue-500 text-white rounded text-xs hover:bg-blue-600 transition-colors"
+              onClick={(e) => {
+                e.stopPropagation();
+                onStartClick();
+              }}
+              className="flex items-center gap-1 px-3 py-1 bg-blue-500 text-white rounded text-xs hover:bg-blue-600 transition-colors"
             >
-              View Full Workflow
+              🔍 Edit & Customize
             </button>
           )}
+          <button
+            onClick={(e) => e.stopPropagation()}
+            className="flex items-center gap-1 px-3 py-1 bg-gray-500 text-white rounded text-xs hover:bg-gray-600 transition-colors"
+          >
+            📄 Export Diagram
+          </button>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="flex flex-col items-center gap-4 p-6">
+    <div className="flex flex-col items-center gap-6 p-8">
       {steps.map((step, index) => (
         <React.Fragment key={step.id}>
-          <div className={`flex items-center gap-3 px-4 py-3 rounded-lg border-2 ${getStepColor(step.type)} min-w-[200px] justify-center`}>
+          <div className={`flex items-center gap-3 px-6 py-4 rounded-lg border-2 ${getStepColor(step.type)} min-w-[250px] justify-center shadow-sm`}>
             {getStepIcon(step.type)}
-            <span className="font-medium">{step.title}</span>
+            <span className="font-medium text-base">{step.title}</span>
           </div>
           {index < steps.length - 1 && (
-            <ArrowDown className="text-gray-400" size={24} />
+            <ArrowDown className="text-gray-400" size={28} />
           )}
         </React.Fragment>
       ))}
