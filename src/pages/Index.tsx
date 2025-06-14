@@ -12,6 +12,7 @@ import AuthModal from "@/components/AuthModal";
 import FeatureModal from "@/components/FeatureModal";
 import SOPModal from "@/components/SOPModal";
 import InteractiveWorkflowModal from "@/components/InteractiveWorkflowModal";
+import PaymentModal from "@/components/PaymentModal";
 
 const Index = () => {
   const [goalInput, setGoalInput] = useState("");
@@ -27,6 +28,8 @@ const Index = () => {
   const [activeSection, setActiveSection] = useState<string>("");
   const [isSOPModalOpen, setIsSOPModalOpen] = useState(false);
   const [isInteractiveWorkflowOpen, setIsInteractiveWorkflowOpen] = useState(false);
+  const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
+  const [selectedPlan, setSelectedPlan] = useState<any>(null);
 
   // Refs for smooth scrolling
   const featuresRef = useRef<HTMLElement>(null);
@@ -145,6 +148,11 @@ const Index = () => {
   const openFeatureModal = (featureKey: keyof typeof features) => {
     setSelectedFeature(features[featureKey]);
     setIsFeatureModalOpen(true);
+  };
+
+  const openPaymentModal = (plan: { name: string; price: string; interval?: string; features?: string[] }) => {
+    setSelectedPlan(plan);
+    setIsPaymentModalOpen(true);
   };
 
   return (
@@ -531,7 +539,15 @@ const Index = () => {
                   <li>✓ Priority support</li>
                   <li>✓ Custom branding</li>
                 </ul>
-                <Button className="w-full bg-blue-500 hover:bg-blue-600" onClick={() => scrollToSection(promptRef)}>
+                <Button 
+                  className="w-full bg-blue-500 hover:bg-blue-600" 
+                  onClick={() => openPaymentModal({
+                    name: "Pro",
+                    price: "$29",
+                    interval: "month",
+                    features: ["Unlimited SOPs", "Advanced workflows", "Team collaboration", "Priority support", "Custom branding"]
+                  })}
+                >
                   Start Pro Trial
                 </Button>
               </CardContent>
@@ -604,6 +620,13 @@ const Index = () => {
         isOpen={isFeatureModalOpen}
         onClose={() => setIsFeatureModalOpen(false)}
         feature={selectedFeature}
+      />
+
+      {/* Payment Modal */}
+      <PaymentModal
+        isOpen={isPaymentModalOpen}
+        onClose={() => setIsPaymentModalOpen(false)}
+        selectedPlan={selectedPlan}
       />
     </div>
   );
