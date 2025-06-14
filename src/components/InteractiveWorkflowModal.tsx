@@ -1,6 +1,6 @@
 
 import React, { useCallback, useState, useMemo } from 'react';
-import { X, Plus, Square, Circle, ArrowRight, Highlighter, Palette, Maximize, Minimize } from 'lucide-react';
+import { X, Plus, Square, Circle, ArrowRight, Highlighter, Palette, Maximize, Minimize, ZoomIn, ZoomOut, Download } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   ReactFlow,
@@ -99,70 +99,6 @@ const EditableNode = ({ data, selected, id }: { data: any; selected: boolean; id
     }
   };
 
-  const renderSpecialShape = () => {
-    const commonClasses = `w-full h-full flex items-center justify-center text-xs font-medium ${getNodeStyle(data.type, data.highlighted, data.color)}`;
-    
-    if (data.type === 'triangle') {
-      return (
-        <div 
-          className={`w-16 h-16 ${commonClasses}`}
-          style={{
-            clipPath: 'polygon(50% 0%, 0% 100%, 100% 100%)',
-            minWidth: '64px',
-            minHeight: '64px'
-          }}
-        >
-          <span className="mt-4">{label}</span>
-        </div>
-      );
-    }
-    
-    if (data.type === 'star') {
-      return (
-        <div 
-          className={`w-16 h-16 ${commonClasses}`}
-          style={{
-            clipPath: 'polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%)',
-            minWidth: '64px',
-            minHeight: '64px'
-          }}
-        >
-          <span className="text-xs">{label}</span>
-        </div>
-      );
-    }
-    
-    if (data.type === 'hexagon') {
-      return (
-        <div 
-          className={`w-20 h-16 ${commonClasses}`}
-          style={{
-            clipPath: 'polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%)',
-            minWidth: '80px',
-            minHeight: '64px'
-          }}
-        >
-          <span className="text-xs">{label}</span>
-        </div>
-      );
-    }
-    
-    return null;
-  };
-
-  // Render special shapes
-  if (['triangle', 'star', 'hexagon'].includes(data.type)) {
-    return (
-      <div onDoubleClick={handleDoubleClick} className="relative">
-        {renderSpecialShape()}
-        {selected && (
-          <div className="absolute -top-2 -right-2 w-4 h-4 bg-blue-500 rounded-full"></div>
-        )}
-      </div>
-    );
-  }
-
-  // Render normal nodes
   return (
     <div 
       className={`px-4 py-2 border-2 min-w-[120px] min-h-[40px] text-center cursor-pointer ${getNodeStyle(data.type, data.highlighted, data.color)} ${
@@ -203,6 +139,7 @@ const InteractiveWorkflowModal: React.FC<InteractiveWorkflowModalProps> = ({
   title 
 }) => {
   const [isFullScreen, setIsFullScreen] = useState(false);
+  const [zoom, setZoom] = useState(1);
 
   if (!isOpen) return null;
 
@@ -278,7 +215,7 @@ const InteractiveWorkflowModal: React.FC<InteractiveWorkflowModalProps> = ({
     setSelectedNodes(nodes.map(node => node.id));
   }, []);
 
-  const addNewNode = (type: 'process' | 'circle' | 'square' | 'triangle' | 'star' | 'hexagon' = 'process') => {
+  const addNewNode = (type: 'process' | 'circle' | 'square' = 'process') => {
     const newNode: Node = {
       id: `node-${Date.now()}`,
       type: 'custom',
@@ -303,12 +240,33 @@ const InteractiveWorkflowModal: React.FC<InteractiveWorkflowModalProps> = ({
     );
   };
 
+  const deleteSelectedNodes = () => {
+    setNodes((nds) => nds.filter(node => !selectedNodes.includes(node.id)));
+    setEdges((eds) => eds.filter(edge => 
+      !selectedNodes.includes(edge.source) && !selectedNodes.includes(edge.target)
+    ));
+    setSelectedNodes([]);
+  };
+
   const toggleConnecting = () => {
     setIsConnecting(!isConnecting);
   };
 
   const toggleFullScreen = () => {
     setIsFullScreen(!isFullScreen);
+  };
+
+  const handleZoomIn = () => {
+    setZoom(Math.min(2, zoom + 0.1));
+  };
+
+  const handleZoomOut = () => {
+    setZoom(Math.max(0.5, zoom - 0.1));
+  };
+
+  const handleDownload = () => {
+    console.log('Downloading workflow...');
+    // TODO: Implement download functionality
   };
 
   const changeNodeColor = (colorName: string) => {
@@ -342,11 +300,14 @@ const InteractiveWorkflowModal: React.FC<InteractiveWorkflowModalProps> = ({
             <h2 className="text-lg text-gray-600 dark:text-gray-300 font-medium">
               SOP – Interactive Workflow Editor
             </h2>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+              Drag, edit, and customize your workflow • Double-click to edit text
+            </p>
           </div>
         </div>
 
         {/* Toolbar */}
-        <div className="flex items-center justify-center gap-4 p-4 border-b dark:border-gray-700 bg-gray-50 dark:bg-gray-700 flex-shrink-0">
+        <div className="flex items-center justify-center gap-2 p-4 border-b dark:border-gray-700 bg-gray-50 dark:bg-gray-700 flex-shrink-0 flex-wrap">
           <Button 
             variant="outline" 
             size="sm" 
@@ -375,40 +336,13 @@ const InteractiveWorkflowModal: React.FC<InteractiveWorkflowModalProps> = ({
             Square
           </Button>
           <Button 
-            variant="outline" 
-            size="sm" 
-            onClick={() => addNewNode('triangle')}
-            className="flex items-center gap-2"
-          >
-            ▲
-            Triangle
-          </Button>
-          <Button 
-            variant="outline" 
-            size="sm" 
-            onClick={() => addNewNode('star')}
-            className="flex items-center gap-2"
-          >
-            ★
-            Star
-          </Button>
-          <Button 
-            variant="outline" 
-            size="sm" 
-            onClick={() => addNewNode('hexagon')}
-            className="flex items-center gap-2"
-          >
-            ⬡
-            Hexagon
-          </Button>
-          <Button 
             variant={isConnecting ? "default" : "outline"} 
             size="sm" 
             onClick={toggleConnecting}
             className="flex items-center gap-2"
           >
             <ArrowRight size={16} />
-            {isConnecting ? 'Exit Connect' : 'Connect'}
+            Arrow
           </Button>
           <Button 
             variant="outline" 
@@ -419,6 +353,15 @@ const InteractiveWorkflowModal: React.FC<InteractiveWorkflowModalProps> = ({
           >
             <Highlighter size={16} />
             Highlight
+          </Button>
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={deleteSelectedNodes}
+            disabled={selectedNodes.length === 0}
+            className="flex items-center gap-2 text-red-600 hover:text-red-700"
+          >
+            Delete
           </Button>
           <div className="relative">
             <Button 
@@ -451,6 +394,40 @@ const InteractiveWorkflowModal: React.FC<InteractiveWorkflowModalProps> = ({
               </div>
             )}
           </div>
+          
+          {/* Zoom Controls */}
+          <div className="flex items-center gap-1 border rounded-md">
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              onClick={handleZoomOut}
+              className="h-8 px-2"
+            >
+              <ZoomOut size={16} />
+            </Button>
+            <span className="text-sm px-2 min-w-[50px] text-center">{Math.round(zoom * 100)}%</span>
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              onClick={handleZoomIn}
+              className="h-8 px-2"
+            >
+              <ZoomIn size={16} />
+            </Button>
+          </div>
+
+          {/* Save and Export */}
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={handleDownload}
+            className="flex items-center gap-2"
+          >
+            <Download size={16} />
+            Export
+          </Button>
+          
+          {/* Full Screen Toggle */}
           <Button 
             variant="outline" 
             size="sm" 
@@ -458,8 +435,10 @@ const InteractiveWorkflowModal: React.FC<InteractiveWorkflowModalProps> = ({
             className="flex items-center gap-2"
           >
             {isFullScreen ? <Minimize size={16} /> : <Maximize size={16} />}
-            {isFullScreen ? 'Exit Full' : 'Full Screen'}
+            Fullscreen
           </Button>
+          
+          {/* Close Button */}
           <Button 
             variant="outline" 
             size="sm" 
@@ -471,7 +450,7 @@ const InteractiveWorkflowModal: React.FC<InteractiveWorkflowModalProps> = ({
         </div>
 
         {/* Workflow Canvas */}
-        <div className={`overflow-hidden flex-1 ${isFullScreen ? 'h-full' : 'h-[500px]'}`}>
+        <div className={`overflow-hidden flex-1 ${isFullScreen ? 'h-full' : 'h-[500px]'}`} style={{ transform: `scale(${zoom})`, transformOrigin: 'top left' }}>
           <ReactFlow
             nodes={nodes}
             edges={edges}
@@ -502,7 +481,7 @@ const InteractiveWorkflowModal: React.FC<InteractiveWorkflowModalProps> = ({
         {!isFullScreen && (
           <div className="border-t dark:border-gray-700 p-4 bg-gray-50 dark:bg-gray-700 flex-shrink-0">
             <div className="text-center text-sm text-gray-500 dark:text-gray-400">
-              💡 Double-click nodes to edit • Drag to rearrange • Shift+click to select multiple • Click Connect then drag from node edges to connect • Select nodes and use Color to change appearance
+              💡 Double-click nodes to edit • Drag to rearrange • Shift+click to select multiple • Click Arrow then drag from node edges to connect • Select nodes and use Color to change appearance
             </div>
           </div>
         )}
