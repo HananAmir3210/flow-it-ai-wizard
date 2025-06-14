@@ -38,7 +38,7 @@ interface InteractiveWorkflowModalProps {
 // Custom editable node component
 const EditableNode = ({ data, selected, id }: { data: any; selected: boolean; id: string }) => {
   const [isEditing, setIsEditing] = useState(false);
-  const [label, setLabel] = useState(data.label);
+  const [label, setLabel] = useState(data?.label || 'New Node');
   const { setNodes } = useReactFlow();
 
   const getNodeStyle = (type: string, highlighted: boolean, color: string) => {
@@ -95,14 +95,14 @@ const EditableNode = ({ data, selected, id }: { data: any; selected: boolean; id
       handleSubmit(e);
     } else if (e.key === 'Escape') {
       setIsEditing(false);
-      setLabel(data.label);
+      setLabel(data?.label || 'New Node');
     }
   };
 
   return (
     <div 
-      className={`px-4 py-2 border-2 min-w-[120px] min-h-[40px] text-center cursor-pointer ${getNodeStyle(data.type, data.highlighted, data.color)} ${
-        data.type === 'circle' ? 'rounded-full' : data.type === 'square' ? 'rounded-none' : 'rounded-lg'
+      className={`px-4 py-2 border-2 min-w-[120px] min-h-[40px] text-center cursor-pointer ${getNodeStyle(data?.type || 'process', data?.highlighted || false, data?.color)} ${
+        data?.type === 'circle' ? 'rounded-full' : data?.type === 'square' ? 'rounded-none' : 'rounded-lg'
       }`}
       onDoubleClick={handleDoubleClick}
     >
@@ -135,30 +135,46 @@ const nodeTypes: NodeTypes = {
 const InteractiveWorkflowModal: React.FC<InteractiveWorkflowModalProps> = ({ 
   isOpen, 
   onClose, 
-  steps, 
-  title 
+  steps = [], 
+  title = "Workflow Editor"
 }) => {
   const [isFullScreen, setIsFullScreen] = useState(false);
   const [zoom, setZoom] = useState(1);
 
   if (!isOpen) return null;
 
-  // Convert workflow steps to React Flow format
-  const initialNodes: Node[] = useMemo(() => 
-    steps.map((step, index) => ({
+  // Convert workflow steps to React Flow format with safety checks
+  const initialNodes: Node[] = useMemo(() => {
+    if (!steps || steps.length === 0) {
+      return [{
+        id: 'default-1',
+        type: 'custom',
+        position: { x: 100, y: 100 },
+        data: { 
+          label: 'Start Here', 
+          type: 'start',
+          highlighted: false,
+          color: null
+        },
+      }];
+    }
+    
+    return steps.map((step, index) => ({
       id: step.id,
       type: 'custom',
       position: { x: 100, y: index * 150 + 50 },
       data: { 
-        label: step.title, 
-        type: step.type,
+        label: step.title || `Step ${index + 1}`, 
+        type: step.type || 'process',
         highlighted: false,
         color: null
       },
-    })), [steps]
-  );
+    }));
+  }, [steps]);
 
   const initialEdges: Edge[] = useMemo(() => {
+    if (!steps || steps.length === 0) return [];
+    
     const edges: Edge[] = [];
     steps.forEach((step) => {
       if (step.next) {
@@ -401,7 +417,7 @@ const InteractiveWorkflowModal: React.FC<InteractiveWorkflowModalProps> = ({
               variant="ghost" 
               size="sm" 
               onClick={handleZoomOut}
-              className="h-8 px-2"
+              className="h-8 px-2 flex items-center gap-1"
             >
               <ZoomOut size={16} />
             </Button>
@@ -410,13 +426,13 @@ const InteractiveWorkflowModal: React.FC<InteractiveWorkflowModalProps> = ({
               variant="ghost" 
               size="sm" 
               onClick={handleZoomIn}
-              className="h-8 px-2"
+              className="h-8 px-2 flex items-center gap-1"
             >
               <ZoomIn size={16} />
             </Button>
           </div>
 
-          {/* Save and Export */}
+          {/* Download Button */}
           <Button 
             variant="outline" 
             size="sm" 
@@ -435,7 +451,7 @@ const InteractiveWorkflowModal: React.FC<InteractiveWorkflowModalProps> = ({
             className="flex items-center gap-2"
           >
             {isFullScreen ? <Minimize size={16} /> : <Maximize size={16} />}
-            Fullscreen
+            {isFullScreen ? 'Exit' : 'Fullscreen'}
           </Button>
           
           {/* Close Button */}
@@ -443,14 +459,15 @@ const InteractiveWorkflowModal: React.FC<InteractiveWorkflowModalProps> = ({
             variant="outline" 
             size="sm" 
             onClick={onClose}
-            className="ml-auto"
+            className="ml-auto flex items-center gap-2"
           >
             <X size={16} />
+            Close
           </Button>
         </div>
 
         {/* Workflow Canvas */}
-        <div className={`overflow-hidden flex-1 ${isFullScreen ? 'h-full' : 'h-[500px]'}`} style={{ transform: `scale(${zoom})`, transformOrigin: 'top left' }}>
+        <div className={`overflow-hidden flex-1 ${isFullScreen ? 'h-full' : 'h-[500px]'}`}>
           <ReactFlow
             nodes={nodes}
             edges={edges}
