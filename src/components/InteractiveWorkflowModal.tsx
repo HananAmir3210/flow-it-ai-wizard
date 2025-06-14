@@ -196,7 +196,7 @@ const InteractiveWorkflowModal: React.FC<InteractiveWorkflowModalProps> = ({
             type: 'smoothstep',
             animated: true,
             markerEnd: {
-              type: 'arrowclosed',
+              type: MarkerType.ArrowClosed,
             },
           });
         });
