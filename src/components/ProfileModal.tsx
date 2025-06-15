@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -156,7 +155,7 @@ const ProfileModal = ({
                         className="text-center"
                       />
                       <div className="flex gap-2 justify-center">
-                        <Button size="sm" onClick={handleSaveProfile}>
+                        <Button size="sm" onClick={handleSaveProfile} className={isDarkMode ? 'bg-blue-600 hover:bg-blue-700 text-white' : ''}>
                           Save
                         </Button>
                         <Button 
@@ -166,6 +165,7 @@ const ProfileModal = ({
                             setIsEditing(false);
                             setEditedName(user.name);
                           }}
+                          className={isDarkMode ? 'bg-gray-800 border-gray-600 text-gray-200 hover:bg-gray-700 hover:text-white' : ''}
                         >
                           Cancel
                         </Button>
@@ -178,7 +178,7 @@ const ProfileModal = ({
                         variant="ghost" 
                         size="sm" 
                         onClick={() => setIsEditing(true)}
-                        className="text-blue-600 hover:text-blue-700"
+                        className={`text-blue-600 hover:text-blue-700 ${isDarkMode ? 'text-blue-400 hover:text-blue-300 hover:bg-gray-800' : ''}`}
                       >
                         <Edit3 className="w-4 h-4 mr-1" />
                         Edit Profile
@@ -227,7 +227,7 @@ const ProfileModal = ({
               {/* Logout Button */}
               <Button 
                 variant="ghost" 
-                className={`w-full justify-start text-red-600 hover:text-red-700 ${isDarkMode ? 'hover:bg-red-900/20' : 'hover:bg-red-50'}`}
+                className={`w-full justify-start text-red-600 hover:text-red-700 ${isDarkMode ? 'hover:bg-red-900/20 text-red-400 hover:text-red-300' : 'hover:bg-red-50'}`}
                 onClick={handleLogout}
               >
                 <LogOut className="w-4 h-4 mr-2" />
@@ -247,7 +247,7 @@ const ProfileModal = ({
                   variant="ghost" 
                   size="sm" 
                   onClick={handleBackToProfile}
-                  className="mr-3 p-1"
+                  className={`mr-3 p-1 ${isDarkMode ? 'text-gray-300 hover:text-white hover:bg-gray-800' : ''}`}
                 >
                   <ArrowLeft className="w-4 h-4" />
                 </Button>
@@ -298,7 +298,7 @@ const ProfileModal = ({
                         type="button"
                         variant="ghost"
                         size="sm"
-                        className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                        className={`absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent ${isDarkMode ? 'text-gray-400 hover:text-gray-200' : ''}`}
                         onClick={() => setShowPasswords(prev => ({ ...prev, current: !prev.current }))}
                       >
                         {showPasswords.current ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
@@ -319,7 +319,7 @@ const ProfileModal = ({
                         type="button"
                         variant="ghost"
                         size="sm"
-                        className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                        className={`absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent ${isDarkMode ? 'text-gray-400 hover:text-gray-200' : ''}`}
                         onClick={() => setShowPasswords(prev => ({ ...prev, new: !prev.new }))}
                       >
                         {showPasswords.new ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
@@ -340,7 +340,7 @@ const ProfileModal = ({
                         type="button"
                         variant="ghost"
                         size="sm"
-                        className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                        className={`absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent ${isDarkMode ? 'text-gray-400 hover:text-gray-200' : ''}`}
                         onClick={() => setShowPasswords(prev => ({ ...prev, confirm: !prev.confirm }))}
                       >
                         {showPasswords.confirm ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
@@ -348,7 +348,7 @@ const ProfileModal = ({
                     </div>
                   </div>
 
-                  <Button onClick={handlePasswordChange} className="w-full">
+                  <Button onClick={handlePasswordChange} className={`w-full ${isDarkMode ? 'bg-blue-600 hover:bg-blue-700 text-white' : ''}`}>
                     Update Password
                   </Button>
                 </div>
@@ -453,7 +453,7 @@ const ProfileModal = ({
                 <Separator />
 
                 {/* Save Settings */}
-                <Button onClick={handleSaveAccountSettings} className="w-full">
+                <Button onClick={handleSaveAccountSettings} className={`w-full ${isDarkMode ? 'bg-blue-600 hover:bg-blue-700 text-white' : ''}`}>
                   Save Changes
                 </Button>
 
@@ -465,7 +465,7 @@ const ProfileModal = ({
                   <Button 
                     variant="outline" 
                     onClick={handleDeleteAccount}
-                    className={`w-full text-red-600 border-red-300 ${isDarkMode ? 'hover:bg-red-900/20' : 'hover:bg-red-50'}`}
+                    className={`w-full text-red-600 border-red-300 ${isDarkMode ? 'hover:bg-red-900/20 bg-gray-800 border-gray-600 text-red-400 hover:text-red-300' : 'hover:bg-red-50'}`}
                   >
                     <Trash2 className="w-4 h-4 mr-2" />
                     Delete Account
