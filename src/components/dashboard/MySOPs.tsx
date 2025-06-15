@@ -1,11 +1,10 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Search, Eye, Edit, Trash2, Download } from 'lucide-react';
+import { Search, Eye, Edit, Trash2, Download, Workflow } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
@@ -200,7 +199,15 @@ const MySOPs: React.FC<MySOPsProps> = ({ onEdit }) => {
             <CardHeader>
               <div className="flex items-start justify-between">
                 <CardTitle className="text-lg line-clamp-2">{sop.title}</CardTitle>
-                <Badge variant="outline">{sop.category}</Badge>
+                <div className="flex items-center gap-2">
+                  <Badge variant="outline">{sop.category}</Badge>
+                  {sop.workflow_data && (
+                    <Badge variant="secondary" className="text-xs">
+                      <Workflow className="h-3 w-3 mr-1" />
+                      Workflow
+                    </Badge>
+                  )}
+                </div>
               </div>
               <p className="text-sm text-muted-foreground">
                 Created: {new Date(sop.created_at).toLocaleDateString()}

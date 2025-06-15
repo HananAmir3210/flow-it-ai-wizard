@@ -104,6 +104,7 @@ export type Database = {
           title: string
           updated_at: string | null
           user_id: string
+          workflow_data: Json | null
         }
         Insert: {
           category: Database["public"]["Enums"]["sop_category"]
@@ -115,6 +116,7 @@ export type Database = {
           title: string
           updated_at?: string | null
           user_id: string
+          workflow_data?: Json | null
         }
         Update: {
           category?: Database["public"]["Enums"]["sop_category"]
@@ -126,6 +128,7 @@ export type Database = {
           title?: string
           updated_at?: string | null
           user_id?: string
+          workflow_data?: Json | null
         }
         Relationships: []
       }

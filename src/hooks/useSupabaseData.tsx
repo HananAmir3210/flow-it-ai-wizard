@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
@@ -19,6 +18,7 @@ export const useSupabaseData = () => {
     category: SOPCategory;
     generatedContent: string;
     tags?: string[];
+    workflow_data?: any;
   }) => {
     if (!user) return { error: 'Not authenticated' };
     
@@ -32,7 +32,8 @@ export const useSupabaseData = () => {
           description: data.description,
           category: data.category,
           generated_content: data.generatedContent,
-          tags: data.tags || []
+          tags: data.tags || [],
+          workflow_data: data.workflow_data || null
         })
         .select()
         .single();
@@ -41,7 +42,7 @@ export const useSupabaseData = () => {
       
       toast({
         title: "SOP Created",
-        description: "Your SOP has been saved successfully.",
+        description: "Your SOP and workflow have been saved successfully.",
       });
       
       return { data: sop };
@@ -74,7 +75,7 @@ export const useSupabaseData = () => {
       
       toast({
         title: "SOP Updated",
-        description: "Your SOP has been updated successfully.",
+        description: "Your SOP and workflow have been updated successfully.",
       });
       
       return { data };

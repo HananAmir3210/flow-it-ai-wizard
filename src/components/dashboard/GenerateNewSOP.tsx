@@ -1,27 +1,44 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Loader2, FileText, Workflow, Save, Download, Eye } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/hooks/useAuth';
-import WorkflowVisualization from '@/components/WorkflowVisualization';
-import WorkflowModal from '@/components/WorkflowModal';
+import { useSupabaseData } from '@/hooks/useSupabaseData';
+import SOPPreviewModal from '@/components/modals/SOPPreviewModal';
+import WorkflowWhiteboard from '@/components/WorkflowWhiteboard';
 import type { Database } from '@/integrations/supabase/types';
 
-type SOPCategory = Database['public']['Enums']['sop_category'];
 type SOP = Database['public']['Tables']['sops']['Row'];
+type SOPCategory = Database['public']['Enums']['sop_category'];
 
 interface WorkflowStep {
   id: string;
   title: string;
+  description: string;
   type: 'start' | 'process' | 'decision' | 'end';
-  next?: string[];
+  x: number;
+  y: number;
+  connections: string[];
+}
+
+interface GeneratedContent {
+  sop: {
+    title: string;
+    content: string;
+    steps: Array<{
+      number: number;
+      title: string;
+      description: string;
+      details: string[];
+    }>;
+  };
+  workflow: WorkflowStep[];
 }
 
 interface GenerateNewSOPProps {
@@ -35,144 +52,90 @@ const GenerateNewSOP: React.FC<GenerateNewSOPProps> = ({
   onSOPCreated, 
   onClearEdit 
 }) => {
-  const [goal, setGoal] = useState('');
-  const [category, setCategory] = useState<SOPCategory | ''>('');
-  const [title, setTitle] = useState('');
-  const [tags, setTags] = useState('');
-  const [tools, setTools] = useState('');
-  const [format, setFormat] = useState('numbered steps');
-  const [tone, setTone] = useState('Professional and instructional');
+  const [title, setTitle] = useState(editingSOP?.title || '');
+  const [description, setDescription] = useState(editingSOP?.description || '');
+  const [category, setCategory] = useState<SOPCategory>(editingSOP?.category || 'Operations');
+  const [tags, setTags] = useState<string[]>(editingSOP?.tags || []);
+  const [tagInput, setTagInput] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
-  const [generatedSOP, setGeneratedSOP] = useState('');
-  const [generatedWorkflow, setGeneratedWorkflow] = useState<WorkflowStep[]>([]);
-  const [isWorkflowModalOpen, setIsWorkflowModalOpen] = useState(false);
-  const { toast } = useToast();
-  const { user } = useAuth();
+  const [generatedContent, setGeneratedContent] = useState<GeneratedContent | null>(null);
+  const [isPreviewOpen, setIsPreviewOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState('sop');
 
-  // Populate form when editing
-  useEffect(() => {
+  const { toast } = useToast();
+  const { createSOP, updateSOP, loading } = useSupabaseData();
+
+  // Initialize with existing SOP data if editing
+  React.useEffect(() => {
     if (editingSOP) {
       setTitle(editingSOP.title);
-      setGoal(editingSOP.description || '');
+      setDescription(editingSOP.description || '');
       setCategory(editingSOP.category);
-      setTags(editingSOP.tags?.join(', ') || '');
-      setGeneratedSOP(editingSOP.generated_content || '');
-      const desc = editingSOP.description || '';
-      if (desc.includes('Tools:')) {
-        const toolsMatch = desc.match(/Tools:\s*([^\n]*)/);
-        if (toolsMatch) setTools(toolsMatch[1]);
+      setTags(editingSOP.tags || []);
+      
+      if (editingSOP.generated_content && editingSOP.workflow_data) {
+        try {
+          const content = JSON.parse(editingSOP.generated_content);
+          const workflow = editingSOP.workflow_data as WorkflowStep[];
+          setGeneratedContent({ sop: content, workflow });
+        } catch (error) {
+          console.error('Error parsing existing SOP data:', error);
+        }
       }
     }
   }, [editingSOP]);
 
-  const generateWorkflowFromSOP = (sopContent: string): WorkflowStep[] => {
-    // Extract steps from SOP content and convert to workflow
-    const lines = sopContent.split('\n').filter(line => line.trim());
-    const steps: WorkflowStep[] = [];
-    
-    // Add start step
-    steps.push({
-      id: 'start',
-      title: 'Start Process',
-      type: 'start',
-      next: ['step1']
-    });
-
-    // Extract numbered steps or bullet points
-    let stepCounter = 1;
-    lines.forEach((line, index) => {
-      if (line.match(/^\d+\./) || line.match(/^[-*]\s/)) {
-        const stepTitle = line.replace(/^\d+\.\s*/, '').replace(/^[-*]\s*/, '').trim();
-        if (stepTitle.length > 0 && stepTitle.length < 100) {
-          const stepId = `step${stepCounter}`;
-          const nextStepId = stepCounter < 10 ? `step${stepCounter + 1}` : 'end';
-          
-          steps.push({
-            id: stepId,
-            title: stepTitle,
-            type: stepTitle.toLowerCase().includes('decision') || stepTitle.includes('?') ? 'decision' : 'process',
-            next: [nextStepId]
-          });
-          stepCounter++;
-        }
-      }
-    });
-
-    // Add end step
-    if (steps.length > 1) {
-      const lastStepId = steps[steps.length - 1].id;
-      steps[steps.length - 1].next = ['end'];
+  const addTag = () => {
+    if (tagInput.trim() && !tags.includes(tagInput.trim())) {
+      setTags([...tags, tagInput.trim()]);
+      setTagInput('');
     }
-    
-    steps.push({
-      id: 'end',
-      title: 'Process Complete',
-      type: 'end'
-    });
-
-    return steps.length > 2 ? steps : [
-      { id: 'start', title: 'Start Process', type: 'start', next: ['process1'] },
-      { id: 'process1', title: 'Execute Main Task', type: 'process', next: ['end'] },
-      { id: 'end', title: 'Process Complete', type: 'end' }
-    ];
   };
 
-  const handleGenerate = async () => {
-    if (!goal || !category) {
+  const removeTag = (tagToRemove: string) => {
+    setTags(tags.filter(tag => tag !== tagToRemove));
+  };
+
+  const generateSOPAndWorkflow = async () => {
+    if (!title.trim() || !description.trim()) {
       toast({
-        title: "Missing information",
-        description: "Please fill in the goal and category fields.",
+        title: "Missing Information",
+        description: "Please provide both title and description.",
         variant: "destructive",
       });
       return;
     }
 
     setIsGenerating(true);
-    
     try {
-      const { data, error } = await supabase.functions.invoke('generate-sop', {
-        body: {
-          goal,
-          department: category,
-          tools,
-          format,
-          tone
-        }
+      const response = await fetch('/api/generate-enhanced-sop', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          title: title.trim(),
+          description: description.trim(),
+          category,
+          tags
+        }),
       });
 
-      if (error) {
-        console.error('Supabase function error:', error);
-        toast({
-          title: "Generation Failed",
-          description: "Failed to generate SOP. Please try again.",
-          variant: "destructive",
-        });
-        return;
+      if (!response.ok) {
+        throw new Error('Failed to generate SOP and workflow');
       }
 
-      if (data?.generatedSOP) {
-        setGeneratedSOP(data.generatedSOP);
-        
-        // Generate workflow from SOP content
-        const workflowSteps = generateWorkflowFromSOP(data.generatedSOP);
-        setGeneratedWorkflow(workflowSteps);
-        
-        toast({
-          title: "SOP & Workflow Generated Successfully!",
-          description: "Your Standard Operating Procedure and visual workflow have been created using AI.",
-        });
-      } else {
-        toast({
-          title: "Generation Failed",
-          description: "No content was generated. Please try again.",
-          variant: "destructive",
-        });
-      }
+      const result = await response.json();
+      setGeneratedContent(result);
+      setActiveTab('sop');
+      
+      toast({
+        title: "Generated Successfully!",
+        description: "Your SOP and workflow have been created. Review them in the tabs below.",
+      });
     } catch (error) {
       console.error('Generation error:', error);
       toast({
         title: "Generation Failed",
-        description: "Failed to generate SOP. Please try again.",
+        description: "Unable to generate SOP and workflow. Please try again.",
         variant: "destructive",
       });
     } finally {
@@ -180,11 +143,11 @@ const GenerateNewSOP: React.FC<GenerateNewSOPProps> = ({
     }
   };
 
-  const handleSave = async () => {
-    if (!generatedSOP || !user) {
+  const saveSOP = async () => {
+    if (!generatedContent) {
       toast({
-        title: "Nothing to save",
-        description: "Please generate an SOP first.",
+        title: "Nothing to Save",
+        description: "Please generate content first.",
         variant: "destructive",
       });
       return;
@@ -192,97 +155,63 @@ const GenerateNewSOP: React.FC<GenerateNewSOPProps> = ({
 
     try {
       const sopData = {
-        title: title || `${category} SOP: ${goal}`,
-        description: `Goal: ${goal}${tools ? `\nTools: ${tools}` : ''}${format ? `\nFormat: ${format}` : ''}${tone ? `\nTone: ${tone}` : ''}`,
-        category: category as SOPCategory,
-        generated_content: generatedSOP,
-        tags: tags ? tags.split(',').map(tag => tag.trim()).filter(Boolean) : [],
-        user_id: user.id
+        title,
+        description,
+        category,
+        generatedContent: JSON.stringify(generatedContent.sop),
+        tags,
       };
 
-      // Save SOP
+      let result;
       if (editingSOP) {
-        const { error } = await supabase
-          .from('sops')
-          .update(sopData)
-          .eq('id', editingSOP.id)
-          .eq('user_id', user.id);
-
-        if (error) throw error;
+        result = await updateSOP(editingSOP.id, {
+          ...sopData,
+          workflow_data: generatedContent.workflow,
+        });
       } else {
-        const { error } = await supabase
-          .from('sops')
-          .insert(sopData);
-
-        if (error) throw error;
+        result = await createSOP({
+          ...sopData,
+          workflow_data: generatedContent.workflow,
+        } as any);
       }
 
-      // Save Workflow if generated
-      if (generatedWorkflow.length > 0) {
-        const workflowData = {
-          user_id: user.id,
-          title: `${title || goal} - Workflow`,
-          description: `Auto-generated workflow for: ${goal}`,
-          thumbnail_url: '/placeholder.svg'
-        };
-
-        const { error: workflowError } = await supabase
-          .from('workflows')
-          .insert(workflowData);
-
-        if (workflowError) {
-          console.error('Workflow save error:', workflowError);
-        }
+      if (result.error) {
+        throw new Error(result.error.message);
       }
 
       toast({
-        title: editingSOP ? "SOP Updated!" : "SOP & Workflow Saved!",
-        description: editingSOP ? "Your SOP has been successfully updated." : "Your SOP and workflow have been saved successfully.",
+        title: editingSOP ? "SOP Updated" : "SOP Saved",
+        description: `Your SOP and workflow have been ${editingSOP ? 'updated' : 'saved'} successfully.`,
       });
 
+      if (onSOPCreated) onSOPCreated();
+      if (onClearEdit) onClearEdit();
+      
       // Reset form
-      setGoal('');
-      setCategory('');
       setTitle('');
-      setTags('');
-      setTools('');
-      setFormat('numbered steps');
-      setTone('Professional and instructional');
-      setGeneratedSOP('');
-      setGeneratedWorkflow([]);
-
-      if (onSOPCreated) {
-        onSOPCreated();
-      }
-      if (onClearEdit) {
-        onClearEdit();
-      }
-
+      setDescription('');
+      setCategory('Operations');
+      setTags([]);
+      setGeneratedContent(null);
     } catch (error: any) {
       toast({
         title: "Save Failed",
-        description: error.message,
+        description: error.message || "Unable to save SOP. Please try again.",
         variant: "destructive",
       });
     }
   };
 
-  const handleExportSOP = () => {
-    if (!generatedSOP) {
-      toast({
-        title: "Nothing to export",
-        description: "Please generate an SOP first.",
-        variant: "destructive",
-      });
-      return;
-    }
+  const exportSOP = () => {
+    if (!generatedContent) return;
 
-    const content = `# ${title || `${category} SOP: ${goal}`}\n\n${generatedSOP}`;
+    const content = `# ${title}\n\n## Description\n${description}\n\n## Category\n${category}\n\n${generatedContent.sop.content}\n\n## Tags\n${tags.join(', ')}\n\nGenerated on: ${new Date().toLocaleDateString()}`;
+    
     const blob = new Blob([content], { type: 'text/markdown' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `${(title || goal).replace(/[^a-z0-9]/gi, '_').toLowerCase()}.md`;
+    a.download = `${title.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.md`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -294,257 +223,197 @@ const GenerateNewSOP: React.FC<GenerateNewSOPProps> = ({
     });
   };
 
-  const handleClearEdit = () => {
-    setTitle('');
-    setGoal('');
-    setCategory('');
-    setTags('');
-    setTools('');
-    setFormat('numbered steps');
-    setTone('Professional and instructional');
-    setGeneratedSOP('');
-    setGeneratedWorkflow([]);
-    if (onClearEdit) {
-      onClearEdit();
-    }
-  };
-
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl md:text-3xl font-bold">
-          {editingSOP ? 'Edit SOP' : 'Generate SOP & Workflow'}
-        </h1>
-        {editingSOP && (
-          <Button variant="outline" onClick={handleClearEdit}>
-            Cancel Edit
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div>
+          <h1 className="text-2xl md:text-3xl font-bold">
+            {editingSOP ? 'Edit SOP & Workflow' : 'Generate SOP & Workflow'}
+          </h1>
+          <p className="text-muted-foreground mt-1">
+            Create comprehensive SOPs with matching visual workflows using AI
+          </p>
+        </div>
+        {editingSOP && onClearEdit && (
+          <Button variant="outline" onClick={onClearEdit}>
+            Create New SOP
           </Button>
         )}
       </div>
 
-      <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
-        {/* Input Section */}
-        <Card className="xl:col-span-1">
-          <CardHeader>
-            <CardTitle>AI SOP & Workflow Generator</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div>
-              <Label htmlFor="title">SOP Title (Optional)</Label>
+      {/* Input Form */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <FileText className="h-5 w-5" />
+            SOP Details
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Title *</label>
               <Input
-                id="title"
-                placeholder="e.g., Customer Service Protocol"
+                placeholder="e.g., Customer Onboarding Process"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
               />
             </div>
-
-            <div>
-              <Label htmlFor="goal">Goal/Task Description *</Label>
-              <Textarea
-                id="goal"
-                placeholder="e.g., Automate the client onboarding process for a digital marketing agency"
-                value={goal}
-                onChange={(e) => setGoal(e.target.value)}
-                className="min-h-32"
-              />
-            </div>
-
-            <div>
-              <Label htmlFor="category">Department/Function *</Label>
-              <Select value={category} onValueChange={(value) => setCategory(value as SOPCategory)}>
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Category</label>
+              <Select value={category} onValueChange={(value: SOPCategory) => setCategory(value)}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Select a category" />
+                  <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="Marketing">Marketing</SelectItem>
-                  <SelectItem value="HR">Human Resources</SelectItem>
+                  <SelectItem value="HR">HR</SelectItem>
                   <SelectItem value="Operations">Operations</SelectItem>
                   <SelectItem value="Finance">Finance</SelectItem>
                   <SelectItem value="Customer Service">Customer Service</SelectItem>
-                  <SelectItem value="IT">Information Technology</SelectItem>
+                  <SelectItem value="IT">IT</SelectItem>
                   <SelectItem value="Sales">Sales</SelectItem>
                   <SelectItem value="Quality Assurance">Quality Assurance</SelectItem>
                 </SelectContent>
               </Select>
             </div>
+          </div>
 
-            <div>
-              <Label htmlFor="tools">Tools/Platforms Used</Label>
+          <div className="space-y-2">
+            <label className="text-sm font-medium">Description *</label>
+            <Textarea
+              placeholder="Describe the process you want to create an SOP for. Be specific about the goals, stakeholders, and key requirements..."
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              rows={4}
+            />
+          </div>
+
+          <div className="space-y-2">
+            <label className="text-sm font-medium">Tags</label>
+            <div className="flex gap-2">
               <Input
-                id="tools"
-                placeholder="e.g., HubSpot, Slack, Google Sheets"
-                value={tools}
-                onChange={(e) => setTools(e.target.value)}
+                placeholder="Add a tag and press Enter"
+                value={tagInput}
+                onChange={(e) => setTagInput(e.target.value)}
+                onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addTag())}
               />
+              <Button onClick={addTag} variant="outline">Add</Button>
             </div>
-
-            <div>
-              <Label htmlFor="format">Preferred Format</Label>
-              <Select value={format} onValueChange={setFormat}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="numbered steps">Numbered Steps</SelectItem>
-                  <SelectItem value="bullet points">Bullet Points</SelectItem>
-                  <SelectItem value="tabular format">Tabular Format</SelectItem>
-                  <SelectItem value="flowchart style">Flowchart Style</SelectItem>
-                </SelectContent>
-              </Select>
+            <div className="flex flex-wrap gap-2 mt-2">
+              {tags.map((tag) => (
+                <Badge key={tag} variant="secondary" className="cursor-pointer" onClick={() => removeTag(tag)}>
+                  {tag} ×
+                </Badge>
+              ))}
             </div>
+          </div>
 
-            <div>
-              <Label htmlFor="tone">Tone</Label>
-              <Select value={tone} onValueChange={setTone}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="Professional and instructional">Professional</SelectItem>
-                  <SelectItem value="Beginner-friendly">Beginner-friendly</SelectItem>
-                  <SelectItem value="Technical and detailed">Technical</SelectItem>
-                  <SelectItem value="Casual and conversational">Casual</SelectItem>
-                </SelectContent>
-              </Select>
+          <Button 
+            onClick={generateSOPAndWorkflow} 
+            disabled={isGenerating || !title.trim() || !description.trim()}
+            className="w-full"
+          >
+            {isGenerating ? (
+              <>
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                Generating SOP & Workflow...
+              </>
+            ) : (
+              <>
+                <Workflow className="h-4 w-4 mr-2" />
+                Generate SOP & Workflow
+              </>
+            )}
+          </Button>
+        </CardContent>
+      </Card>
+
+      {/* Generated Content */}
+      {generatedContent && (
+        <Card>
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <CardTitle>Generated Content</CardTitle>
+              <div className="flex gap-2">
+                <Button variant="outline" size="sm" onClick={() => setIsPreviewOpen(true)}>
+                  <Eye className="h-4 w-4 mr-1" />
+                  Preview
+                </Button>
+                <Button variant="outline" size="sm" onClick={exportSOP}>
+                  <Download className="h-4 w-4 mr-1" />
+                  Export
+                </Button>
+                <Button onClick={saveSOP} disabled={loading}>
+                  {loading ? (
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  ) : (
+                    <Save className="h-4 w-4 mr-2" />
+                  )}
+                  {editingSOP ? 'Update SOP' : 'Save SOP'}
+                </Button>
+              </div>
             </div>
-
-            <div>
-              <Label htmlFor="tags">Tags (Optional)</Label>
-              <Input
-                id="tags"
-                placeholder="e.g., onboarding, customer, process"
-                value={tags}
-                onChange={(e) => setTags(e.target.value)}
-              />
-              <p className="text-xs text-muted-foreground mt-1">
-                Separate tags with commas
-              </p>
-            </div>
-
-            <Button 
-              onClick={handleGenerate}
-              disabled={!goal || !category || isGenerating}
-              className="w-full"
-            >
-              {isGenerating ? 'Generating SOP & Workflow...' : 'Generate SOP & Workflow with AI'}
-            </Button>
-          </CardContent>
-        </Card>
-
-        {/* Results Section */}
-        <div className="xl:col-span-2">
-          {isGenerating ? (
-            <Card>
-              <CardContent className="flex items-center justify-center h-96">
-                <div className="text-center space-y-4">
-                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
-                  <p className="text-lg font-medium">Generating SOP & Workflow with AI...</p>
-                  <p className="text-sm text-muted-foreground">This may take a few moments</p>
-                </div>
-              </CardContent>
-            </Card>
-          ) : (generatedSOP || generatedWorkflow.length > 0) ? (
-            <Tabs defaultValue="sop" className="space-y-4">
+          </CardHeader>
+          <CardContent>
+            <Tabs value={activeTab} onValueChange={setActiveTab}>
               <TabsList className="grid w-full grid-cols-2">
-                <TabsTrigger value="sop">📄 SOP Content</TabsTrigger>
-                <TabsTrigger value="workflow">🔄 Visual Workflow</TabsTrigger>
+                <TabsTrigger value="sop">
+                  <FileText className="h-4 w-4 mr-2" />
+                  SOP Document
+                </TabsTrigger>
+                <TabsTrigger value="workflow">
+                  <Workflow className="h-4 w-4 mr-2" />
+                  Visual Workflow
+                </TabsTrigger>
               </TabsList>
               
-              <TabsContent value="sop">
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Generated SOP</CardTitle>
-                  </CardHeader>
-                  <CardContent>
+              <TabsContent value="sop" className="mt-4">
+                <div className="prose max-w-none">
+                  <div className="bg-gray-50 p-6 rounded-lg">
+                    <h2 className="text-xl font-bold mb-4">{generatedContent.sop.title}</h2>
                     <div className="space-y-4">
-                      <div className="max-h-96 overflow-y-auto bg-muted p-4 rounded-lg">
-                        <pre className="whitespace-pre-wrap text-sm font-sans">{generatedSOP}</pre>
-                      </div>
-                      <div className="flex flex-col sm:flex-row gap-2">
-                        <Button onClick={handleSave} className="flex-1">
-                          {editingSOP ? 'Update SOP' : 'Save SOP & Workflow'}
-                        </Button>
-                        <Button variant="outline" onClick={handleExportSOP} className="flex-1">
-                          Export SOP
-                        </Button>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </TabsContent>
-              
-              <TabsContent value="workflow">
-                <Card>
-                  <CardHeader>
-                    <div className="flex items-center justify-between">
-                      <CardTitle>Generated Workflow</CardTitle>
-                      <Button 
-                        variant="outline" 
-                        onClick={() => setIsWorkflowModalOpen(true)}
-                        disabled={generatedWorkflow.length === 0}
-                      >
-                        View Full Workflow
-                      </Button>
-                    </div>
-                  </CardHeader>
-                  <CardContent>
-                    {generatedWorkflow.length > 0 ? (
-                      <div className="space-y-4">
-                        <div className="bg-muted p-4 rounded-lg max-h-96 overflow-y-auto">
-                          <WorkflowVisualization 
-                            steps={generatedWorkflow.slice(0, 5)} 
-                            isPreview={true}
-                            onStartClick={() => setIsWorkflowModalOpen(true)}
-                          />
-                          {generatedWorkflow.length > 5 && (
-                            <div className="text-center mt-4 text-sm text-muted-foreground">
-                              + {generatedWorkflow.length - 5} more steps (click "View Full Workflow" to see all)
-                            </div>
+                      {generatedContent.sop.steps.map((step, index) => (
+                        <div key={index} className="border-l-4 border-blue-500 pl-4">
+                          <h3 className="font-semibold text-lg">
+                            Step {step.number}: {step.title}
+                          </h3>
+                          <p className="text-gray-700 mb-2">{step.description}</p>
+                          {step.details.length > 0 && (
+                            <ul className="list-disc list-inside text-sm text-gray-600">
+                              {step.details.map((detail, idx) => (
+                                <li key={idx}>{detail}</li>
+                              ))}
+                            </ul>
                           )}
                         </div>
-                        <div className="flex flex-col sm:flex-row gap-2">
-                          <Button onClick={handleSave} className="flex-1">
-                            {editingSOP ? 'Update SOP' : 'Save SOP & Workflow'}
-                          </Button>
-                          <Button 
-                            variant="outline" 
-                            onClick={() => setIsWorkflowModalOpen(true)}
-                            className="flex-1"
-                          >
-                            Open Interactive Workflow
-                          </Button>
-                        </div>
-                      </div>
-                    ) : (
-                      <div className="flex items-center justify-center h-64 text-muted-foreground">
-                        <p>Workflow will be generated automatically with your SOP</p>
-                      </div>
-                    )}
-                  </CardContent>
-                </Card>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </TabsContent>
+              
+              <TabsContent value="workflow" className="mt-4">
+                <WorkflowWhiteboard 
+                  steps={generatedContent.workflow}
+                  title={title}
+                  readonly={false}
+                />
               </TabsContent>
             </Tabs>
-          ) : (
-            <Card>
-              <CardContent className="flex items-center justify-center h-96 text-muted-foreground">
-                <div className="text-center space-y-2">
-                  <p className="text-lg">AI-generated SOP and Workflow will appear here</p>
-                  <p className="text-sm">Fill in the form and click "Generate SOP & Workflow with AI" to get started</p>
-                </div>
-              </CardContent>
-            </Card>
-          )}
-        </div>
-      </div>
+          </CardContent>
+        </Card>
+      )}
 
-      {/* Workflow Modal */}
-      <WorkflowModal
-        isOpen={isWorkflowModalOpen}
-        onClose={() => setIsWorkflowModalOpen(false)}
-        steps={generatedWorkflow}
-        title={title || `${category} Workflow: ${goal}`}
-      />
+      {/* Preview Modal */}
+      {generatedContent && (
+        <SOPPreviewModal
+          isOpen={isPreviewOpen}
+          onClose={() => setIsPreviewOpen(false)}
+          sop={generatedContent.sop}
+          workflow={generatedContent.workflow}
+        />
+      )}
     </div>
   );
 };
