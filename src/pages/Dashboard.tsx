@@ -13,6 +13,7 @@ import BillingSection from '@/components/dashboard/BillingSection';
 import SupportSection from '@/components/dashboard/SupportSection';
 import ProfileModal from '@/components/ProfileModal';
 import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/hooks/useAuth';
 
 const menuItems = [
   { id: 'overview', label: 'Dashboard Overview', icon: Home },
@@ -30,22 +31,18 @@ const Dashboard = () => {
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
-
-  const mockUser = {
-    name: "Hanan",
-    email: "hanan@example.com"
-  };
+  const { signOut, user } = useAuth();
 
   const renderContent = () => {
     switch (activeSection) {
       case 'overview':
-        return <DashboardOverview onNavigate={setActiveSection} />;
+        return <DashboardOverview />;
       case 'sops':
         return <MySOPs />;
       case 'workflows':
         return <VisualWorkflows />;
       case 'generate':
-        return <GenerateNewSOP onSOPCreated={() => setActiveSection('sops')} />;
+        return <GenerateNewSOP />;
       case 'settings':
         return <AccountSettings />;
       case 'billing':
@@ -53,17 +50,17 @@ const Dashboard = () => {
       case 'support':
         return <SupportSection />;
       default:
-        return <DashboardOverview onNavigate={setActiveSection} />;
+        return <DashboardOverview />;
     }
   };
 
-  const handleLogout = () => {
-    console.log('Logging out...');
-    toast({
-      title: "Logged out",
-      description: "You have been successfully logged out.",
-    });
-    navigate('/');
+  const handleLogout = async () => {
+    try {
+      await signOut();
+      navigate('/');
+    } catch (error) {
+      console.error('Logout error:', error);
+    }
   };
 
   const toggleTheme = () => {
@@ -119,7 +116,7 @@ const Dashboard = () => {
               <SidebarTrigger />
               <div className="flex-1" />
               <div className="text-sm text-muted-foreground hidden sm:block">
-                Welcome back, Hanan 👋
+                Welcome back, {user?.email?.split('@')[0] || 'User'} 👋
               </div>
               <Button 
                 variant="outline" 
@@ -152,7 +149,7 @@ const Dashboard = () => {
       <ProfileModal
         isOpen={isProfileModalOpen}
         onClose={() => setIsProfileModalOpen(false)}
-        user={mockUser}
+        user={{ name: user?.email?.split('@')[0] || 'User', email: user?.email || '' }}
         isDarkMode={isDarkMode}
         onToggleDarkMode={toggleTheme}
         onLogout={handleLogout}

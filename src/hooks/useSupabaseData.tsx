@@ -3,6 +3,9 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
+import type { Database } from '@/integrations/supabase/types';
+
+type SOPCategory = Database['public']['Enums']['sop_category'];
 
 export const useSupabaseData = () => {
   const { user } = useAuth();
@@ -13,7 +16,7 @@ export const useSupabaseData = () => {
   const createSOP = async (data: {
     title: string;
     description: string;
-    category: string;
+    category: SOPCategory;
     generatedContent: string;
     tags?: string[];
   }) => {
