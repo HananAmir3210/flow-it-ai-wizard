@@ -6,7 +6,7 @@ export const exportWorkflowToPNG = async (workflowTitle: string, elementId?: str
     // Find the workflow canvas element
     const workflowElement = elementId 
       ? document.getElementById(elementId)
-      : document.querySelector('.react-flow__viewport');
+      : document.querySelector('.react-flow__viewport') as HTMLElement;
     
     if (!workflowElement) {
       throw new Error('Workflow element not found');
