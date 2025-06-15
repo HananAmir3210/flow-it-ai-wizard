@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { SidebarProvider, Sidebar, SidebarContent, SidebarHeader, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarTrigger, SidebarInset } from '@/components/ui/sidebar';
@@ -6,7 +5,6 @@ import { Button } from '@/components/ui/button';
 import { Home, Clipboard, Layout, Settings, CreditCard, HelpCircle, LogOut, Moon, Sun, User } from 'lucide-react';
 import DashboardOverview from '@/components/dashboard/DashboardOverview';
 import MySOPs from '@/components/dashboard/MySOPs';
-import VisualWorkflows from '@/components/dashboard/VisualWorkflows';
 import GenerateNewSOP from '@/components/dashboard/GenerateNewSOP';
 import AccountSettings from '@/components/dashboard/AccountSettings';
 import BillingSection from '@/components/dashboard/BillingSection';
@@ -21,7 +19,6 @@ type SOP = Database['public']['Tables']['sops']['Row'];
 const menuItems = [
   { id: 'overview', label: 'Dashboard Overview', icon: Home },
   { id: 'sops', label: 'My SOPs', icon: Clipboard },
-  { id: 'workflows', label: 'Visual Workflows', icon: Layout },
   { id: 'generate', label: 'Generate SOP & Workflow', icon: Layout },
   { id: 'settings', label: 'Account Settings', icon: Settings },
   { id: 'billing', label: 'Billing', icon: CreditCard },
@@ -44,7 +41,7 @@ const Dashboard = () => {
           <DashboardOverview 
             onNavigateToSOPs={() => setActiveSection('sops')}
             onNavigateToGenerate={() => setActiveSection('generate')}
-            onNavigateToWorkflows={() => setActiveSection('workflows')}
+            onNavigateToWorkflows={() => setActiveSection('generate')}
           />
         );
       case 'sops':
@@ -56,8 +53,6 @@ const Dashboard = () => {
             }}
           />
         );
-      case 'workflows':
-        return <VisualWorkflows />;
       case 'generate':
         return (
           <GenerateNewSOP 
