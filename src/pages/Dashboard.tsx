@@ -121,11 +121,21 @@ const Dashboard = () => {
               <div className="text-sm text-muted-foreground hidden sm:block">
                 Welcome back, Hanan 👋
               </div>
-              <Button variant="outline" size="sm" onClick={() => setIsProfileModalOpen(true)}>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={() => setIsProfileModalOpen(true)}
+                className={`${isDarkMode ? 'text-gray-300 hover:text-white' : ''}`}
+              >
                 <User className="h-4 w-4" />
                 <span className="ml-2 hidden sm:inline">Profile</span>
               </Button>
-              <Button variant="outline" size="sm" onClick={toggleTheme}>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={toggleTheme}
+                className={`${isDarkMode ? 'text-gray-300 hover:text-white' : ''}`}
+              >
                 {isDarkMode ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
                 <span className="ml-2 hidden sm:inline">Theme</span>
               </Button>
