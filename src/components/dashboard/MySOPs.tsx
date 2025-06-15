@@ -5,8 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Search, Eye, Edit, Trash2, Plus } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
+import { Search, Eye, Edit, Trash2 } from 'lucide-react';
 
 const sopsData = [
   {
@@ -42,7 +41,6 @@ const sopsData = [
 const MySOPs = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterCategory, setFilterCategory] = useState('all');
-  const { toast } = useToast();
 
   const filteredSOPs = sopsData.filter(sop => {
     const matchesSearch = sop.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -51,47 +49,11 @@ const MySOPs = () => {
     return matchesSearch && matchesCategory;
   });
 
-  const handleCreateNew = () => {
-    console.log('Creating new SOP...');
-    toast({
-      title: "Create New SOP",
-      description: "Redirecting to SOP generator...",
-    });
-  };
-
-  const handleView = (sopId: number, title: string) => {
-    console.log('Viewing SOP:', sopId);
-    toast({
-      title: "Opening SOP",
-      description: `Viewing "${title}"`,
-    });
-  };
-
-  const handleEdit = (sopId: number, title: string) => {
-    console.log('Editing SOP:', sopId);
-    toast({
-      title: "Edit Mode",
-      description: `Editing "${title}"`,
-    });
-  };
-
-  const handleDelete = (sopId: number, title: string) => {
-    console.log('Deleting SOP:', sopId);
-    toast({
-      title: "SOP Deleted",
-      description: `"${title}" has been deleted successfully.`,
-      variant: "destructive",
-    });
-  };
-
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold">My SOPs</h1>
-        <Button onClick={handleCreateNew}>
-          <Plus className="h-4 w-4 mr-2" />
-          Create New SOP
-        </Button>
+        <Button>Create New SOP</Button>
       </div>
 
       {/* Filters */}
@@ -142,30 +104,15 @@ const MySOPs = () => {
                   ))}
                 </div>
                 <div className="flex gap-2">
-                  <Button 
-                    size="sm" 
-                    variant="outline" 
-                    className="flex-1"
-                    onClick={() => handleView(sop.id, sop.title)}
-                  >
+                  <Button size="sm" variant="outline" className="flex-1">
                     <Eye className="h-4 w-4 mr-1" />
                     View
                   </Button>
-                  <Button 
-                    size="sm" 
-                    variant="outline" 
-                    className="flex-1"
-                    onClick={() => handleEdit(sop.id, sop.title)}
-                  >
+                  <Button size="sm" variant="outline" className="flex-1">
                     <Edit className="h-4 w-4 mr-1" />
                     Edit
                   </Button>
-                  <Button 
-                    size="sm" 
-                    variant="outline" 
-                    className="text-destructive hover:text-destructive"
-                    onClick={() => handleDelete(sop.id, sop.title)}
-                  >
+                  <Button size="sm" variant="outline" className="text-destructive hover:text-destructive">
                     <Trash2 className="h-4 w-4" />
                   </Button>
                 </div>

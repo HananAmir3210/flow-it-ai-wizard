@@ -6,32 +6,15 @@ import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { useToast } from '@/hooks/use-toast';
 
 const GenerateNewSOP = () => {
   const [prompt, setPrompt] = useState('');
   const [category, setCategory] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
   const [generatedSOP, setGeneratedSOP] = useState('');
-  const { toast } = useToast();
 
   const handleGenerate = async () => {
-    if (!prompt.trim() || !category) {
-      toast({
-        title: "Missing Information",
-        description: "Please provide both a description and select a category.",
-        variant: "destructive",
-      });
-      return;
-    }
-
     setIsGenerating(true);
-    
-    toast({
-      title: "Generating SOP",
-      description: "AI is creating your Standard Operating Procedure...",
-    });
-
     // Simulate API call
     setTimeout(() => {
       setGeneratedSOP(`
@@ -81,59 +64,12 @@ This SOP applies to all team members involved in ${prompt.toLowerCase()}.
 - Version 1.0: Initial creation
       `);
       setIsGenerating(false);
-      
-      toast({
-        title: "SOP Generated Successfully",
-        description: "Your Standard Operating Procedure is ready!",
-      });
     }, 2000);
   };
 
   const handleSave = () => {
-    if (!generatedSOP) {
-      toast({
-        title: "No SOP to Save",
-        description: "Please generate an SOP first.",
-        variant: "destructive",
-      });
-      return;
-    }
-
     console.log('Saving SOP:', { prompt, category, content: generatedSOP });
-    
-    toast({
-      title: "SOP Saved",
-      description: "Your SOP has been saved to My SOPs.",
-    });
-  };
-
-  const handleGenerateWorkflow = () => {
-    if (!generatedSOP) {
-      toast({
-        title: "No SOP Available",
-        description: "Please generate an SOP first to create a workflow.",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    console.log('Generating workflow for SOP...');
-    
-    toast({
-      title: "Generating Workflow",
-      description: "Creating visual workflow from your SOP...",
-    });
-  };
-
-  const handleReset = () => {
-    setPrompt('');
-    setCategory('');
-    setGeneratedSOP('');
-    
-    toast({
-      title: "Form Reset",
-      description: "All fields have been cleared.",
-    });
+    // Implement save logic
   };
 
   return (
@@ -177,22 +113,13 @@ This SOP applies to all team members involved in ${prompt.toLowerCase()}.
               </Select>
             </div>
 
-            <div className="flex gap-2">
-              <Button 
-                onClick={handleGenerate}
-                disabled={!prompt || !category || isGenerating}
-                className="flex-1"
-              >
-                {isGenerating ? 'Generating SOP...' : 'Generate SOP'}
-              </Button>
-              <Button 
-                variant="outline"
-                onClick={handleReset}
-                disabled={isGenerating}
-              >
-                Reset
-              </Button>
-            </div>
+            <Button 
+              onClick={handleGenerate}
+              disabled={!prompt || !category || isGenerating}
+              className="w-full"
+            >
+              {isGenerating ? 'Generating SOP...' : 'Generate SOP'}
+            </Button>
           </CardContent>
         </Card>
 
@@ -215,7 +142,7 @@ This SOP applies to all team members involved in ${prompt.toLowerCase()}.
                   <Button onClick={handleSave} className="flex-1">
                     Save to My SOPs
                   </Button>
-                  <Button variant="outline" className="flex-1" onClick={handleGenerateWorkflow}>
+                  <Button variant="outline" className="flex-1">
                     Generate Workflow
                   </Button>
                 </div>
