@@ -6,7 +6,8 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-import { MessageCircle, Mail, Phone, Book, Loader2, ExternalLink } from 'lucide-react';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { MessageCircle, Mail, Phone, Book, Loader2, ExternalLink, X } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
@@ -20,6 +21,14 @@ const SupportSection = () => {
   const [loading, setLoading] = useState(false);
   const [tickets, setTickets] = useState<SupportTicket[]>([]);
   const [ticketsLoading, setTicketsLoading] = useState(false);
+  const [liveChatOpen, setLiveChatOpen] = useState(false);
+  const [knowledgeBaseOpen, setKnowledgeBaseOpen] = useState(false);
+
+  // Live chat state
+  const [chatMessages, setChatMessages] = useState<Array<{ id: string; message: string; sender: 'user' | 'support'; timestamp: Date }>>([
+    { id: '1', message: 'Hello! How can I help you today?', sender: 'support', timestamp: new Date() }
+  ]);
+  const [newMessage, setNewMessage] = useState('');
 
   const [ticket, setTicket] = useState({
     subject: '',
@@ -115,28 +124,70 @@ const SupportSection = () => {
   };
 
   const openLiveChat = () => {
-    toast({
-      title: "Live Chat",
-      description: "Live chat feature would open here in a real application",
-    });
+    setLiveChatOpen(true);
+  };
+
+  const sendChatMessage = () => {
+    if (!newMessage.trim()) return;
+
+    const userMessage = {
+      id: Date.now().toString(),
+      message: newMessage,
+      sender: 'user' as const,
+      timestamp: new Date()
+    };
+
+    setChatMessages(prev => [...prev, userMessage]);
+    setNewMessage('');
+
+    // Simulate support response
+    setTimeout(() => {
+      const supportMessage = {
+        id: (Date.now() + 1).toString(),
+        message: "Thank you for your message. A support agent will respond shortly. In the meantime, you might find our knowledge base helpful.",
+        sender: 'support' as const,
+        timestamp: new Date()
+      };
+      setChatMessages(prev => [...prev, supportMessage]);
+    }, 1500);
   };
 
   const openEmailSupport = () => {
-    window.open('mailto:support@aisopgenerator.com?subject=Support Request', '_blank');
+    const subject = encodeURIComponent('Support Request - AI SOP Generator');
+    const body = encodeURIComponent(`Hi Support Team,
+
+I need assistance with:
+
+Please describe your issue here...
+
+Best regards,
+${user?.email || 'User'}`);
+    
+    window.open(`mailto:support@aisopgenerator.com?subject=${subject}&body=${body}`, '_blank');
+    
+    toast({
+      title: "Email Client Opened",
+      description: "Your default email client should open with a pre-filled support request.",
+    });
   };
 
   const openPhoneSupport = () => {
+    const phoneNumber = '+1-555-123-4567';
+    
+    // Try to open phone dialer on mobile devices
+    if (navigator.userAgent.match(/Android/i) || navigator.userAgent.match(/iPhone/i)) {
+      window.open(`tel:${phoneNumber}`, '_self');
+    }
+    
     toast({
       title: "Phone Support",
-      description: "Phone: +1 (555) 123-4567 | Available 9 AM - 5 PM EST",
+      description: `Call us at ${phoneNumber}\nAvailable Monday-Friday, 9 AM - 5 PM EST`,
+      duration: 5000,
     });
   };
 
   const openKnowledgeBase = () => {
-    toast({
-      title: "Knowledge Base",
-      description: "Knowledge base would open here in a real application",
-    });
+    setKnowledgeBaseOpen(true);
   };
 
   const formatDate = (dateString: string) => {
@@ -169,6 +220,45 @@ const SupportSection = () => {
     }
   };
 
+  const knowledgeBaseArticles = [
+    {
+      id: 1,
+      title: "Getting Started with AI SOP Generator",
+      category: "Getting Started",
+      content: "Learn how to create your first SOP using our AI-powered platform. This comprehensive guide covers account setup, basic navigation, and creating your first Standard Operating Procedure."
+    },
+    {
+      id: 2,
+      title: "How to Export SOPs to Different Formats",
+      category: "Features",
+      content: "Export your SOPs to PDF, Word, HTML, and other formats. Learn about formatting options, custom branding features, and batch export capabilities."
+    },
+    {
+      id: 3,
+      title: "Managing Team Collaboration",
+      category: "Team Features",
+      content: "Set up team workspaces, assign roles and permissions, share SOPs with team members, and track collaborative editing sessions."
+    },
+    {
+      id: 4,
+      title: "Billing and Subscription Management",
+      category: "Account",
+      content: "Understand our pricing plans, manage your subscription, update payment methods, and access billing history."
+    },
+    {
+      id: 5,
+      title: "API Documentation and Integration",
+      category: "Developer",
+      content: "Integrate AI SOP Generator with your existing tools using our REST API. Includes authentication, endpoints reference, and code examples."
+    },
+    {
+      id: 6,
+      title: "Troubleshooting Common Issues",
+      category: "Troubleshooting",
+      content: "Solutions to frequently encountered problems including login issues, generation errors, export problems, and performance optimization tips."
+    }
+  ];
+
   return (
     <div className="space-y-6">
       <h1 className="text-3xl font-bold">Support</h1>
@@ -181,23 +271,95 @@ const SupportSection = () => {
               <CardTitle>Get Help</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <Button variant="outline" className="w-full justify-start" onClick={openLiveChat}>
-                <MessageCircle className="h-4 w-4 mr-2" />
-                Live Chat
-              </Button>
+              <Dialog open={liveChatOpen} onOpenChange={setLiveChatOpen}>
+                <DialogTrigger asChild>
+                  <Button variant="outline" className="w-full justify-start" onClick={openLiveChat}>
+                    <MessageCircle className="h-4 w-4 mr-2" />
+                    Live Chat
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="max-w-md">
+                  <DialogHeader>
+                    <DialogTitle>Live Chat Support</DialogTitle>
+                    <DialogDescription>
+                      Chat with our support team in real-time
+                    </DialogDescription>
+                  </DialogHeader>
+                  <div className="space-y-4">
+                    <div className="h-64 border rounded-lg p-4 overflow-y-auto space-y-2">
+                      {chatMessages.map((msg) => (
+                        <div key={msg.id} className={`flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}>
+                          <div className={`max-w-[80%] p-2 rounded-lg text-sm ${
+                            msg.sender === 'user' 
+                              ? 'bg-blue-500 text-white' 
+                              : 'bg-gray-100 text-gray-900'
+                          }`}>
+                            {msg.message}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                    <div className="flex gap-2">
+                      <Input
+                        placeholder="Type your message..."
+                        value={newMessage}
+                        onChange={(e) => setNewMessage(e.target.value)}
+                        onKeyPress={(e) => e.key === 'Enter' && sendChatMessage()}
+                      />
+                      <Button onClick={sendChatMessage} size="sm">
+                        Send
+                      </Button>
+                    </div>
+                  </div>
+                </DialogContent>
+              </Dialog>
+
               <Button variant="outline" className="w-full justify-start" onClick={openEmailSupport}>
                 <Mail className="h-4 w-4 mr-2" />
                 Email Support
                 <ExternalLink className="h-3 w-3 ml-auto" />
               </Button>
+
               <Button variant="outline" className="w-full justify-start" onClick={openPhoneSupport}>
                 <Phone className="h-4 w-4 mr-2" />
                 Phone Support
               </Button>
-              <Button variant="outline" className="w-full justify-start" onClick={openKnowledgeBase}>
-                <Book className="h-4 w-4 mr-2" />
-                Knowledge Base
-              </Button>
+
+              <Dialog open={knowledgeBaseOpen} onOpenChange={setKnowledgeBaseOpen}>
+                <DialogTrigger asChild>
+                  <Button variant="outline" className="w-full justify-start" onClick={openKnowledgeBase}>
+                    <Book className="h-4 w-4 mr-2" />
+                    Knowledge Base
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="max-w-2xl max-h-[80vh]">
+                  <DialogHeader>
+                    <DialogTitle>Knowledge Base</DialogTitle>
+                    <DialogDescription>
+                      Browse our comprehensive help articles
+                    </DialogDescription>
+                  </DialogHeader>
+                  <div className="space-y-4 overflow-y-auto">
+                    {knowledgeBaseArticles.map((article) => (
+                      <Card key={article.id} className="cursor-pointer hover:shadow-md transition-shadow">
+                        <CardHeader className="pb-2">
+                          <div className="flex items-center justify-between">
+                            <CardTitle className="text-sm">{article.title}</CardTitle>
+                            <Badge variant="secondary" className="text-xs">
+                              {article.category}
+                            </Badge>
+                          </div>
+                        </CardHeader>
+                        <CardContent className="pt-0">
+                          <p className="text-sm text-muted-foreground">
+                            {article.content}
+                          </p>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                </DialogContent>
+              </Dialog>
             </CardContent>
           </Card>
 
@@ -206,19 +368,51 @@ const SupportSection = () => {
               <CardTitle>Quick Links</CardTitle>
             </CardHeader>
             <CardContent className="space-y-2">
-              <Button variant="link" className="h-auto p-0 justify-start">
+              <Button 
+                variant="link" 
+                className="h-auto p-0 justify-start" 
+                onClick={() => {
+                  setKnowledgeBaseOpen(true);
+                  toast({
+                    title: "Knowledge Base",
+                    description: "Opening Getting Started section...",
+                  });
+                }}
+              >
                 Getting Started Guide
               </Button>
-              <Button variant="link" className="h-auto p-0 justify-start">
+              <Button 
+                variant="link" 
+                className="h-auto p-0 justify-start"
+                onClick={() => {
+                  window.open('https://youtube.com/watch?v=dQw4w9WgXcQ', '_blank');
+                }}
+              >
                 Video Tutorials
               </Button>
-              <Button variant="link" className="h-auto p-0 justify-start">
+              <Button 
+                variant="link" 
+                className="h-auto p-0 justify-start"
+                onClick={() => {
+                  setKnowledgeBaseOpen(true);
+                  toast({
+                    title: "API Documentation",
+                    description: "Opening developer resources...",
+                  });
+                }}
+              >
                 API Documentation
               </Button>
-              <Button variant="link" className="h-auto p-0 justify-start">
+              <Button 
+                variant="link" 
+                className="h-auto p-0 justify-start"
+                onClick={() => {
+                  window.open('https://community.aisopgenerator.com', '_blank');
+                }}
+              >
                 Community Forum
               </Button>
-            </CardContent>
+            </div>
           </Card>
         </div>
 
