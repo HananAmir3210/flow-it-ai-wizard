@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -123,7 +122,7 @@ const ProfileModal = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-md overflow-hidden p-0">
+      <DialogContent className={`sm:max-w-md overflow-hidden p-0 ${isDarkMode ? 'bg-gray-900 border-gray-700' : ''}`}>
         <DialogHeader className="sr-only">
           <DialogTitle>Profile</DialogTitle>
           <DialogDescription>Manage your profile settings</DialogDescription>
@@ -188,7 +187,7 @@ const ProfileModal = ({
                 </div>
                 
                 {/* Email */}
-                <p className="text-sm text-gray-500 mt-2">{user.email}</p>
+                <p className={`text-sm mt-2 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>{user.email}</p>
               </div>
 
               {/* Account Button */}
@@ -207,9 +206,9 @@ const ProfileModal = ({
               <div className="flex items-center justify-between py-2 mb-4">
                 <div className="flex items-center space-x-2">
                   {isDarkMode ? (
-                    <Moon className="w-4 h-4 text-gray-600" />
+                    <Moon className={`w-4 h-4 ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`} />
                   ) : (
-                    <Sun className="w-4 h-4 text-gray-600" />
+                    <Sun className={`w-4 h-4 ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`} />
                   )}
                   <Label htmlFor="dark-mode" className="text-sm font-medium">
                     Dark Mode
@@ -227,7 +226,7 @@ const ProfileModal = ({
               {/* Logout Button */}
               <Button 
                 variant="ghost" 
-                className="w-full justify-start text-red-600 hover:text-red-700 hover:bg-red-50" 
+                className={`w-full justify-start text-red-600 hover:text-red-700 ${isDarkMode ? 'hover:bg-red-900/20' : 'hover:bg-red-50'}`}
                 onClick={handleLogout}
               >
                 <LogOut className="w-4 h-4 mr-2" />
@@ -257,7 +256,7 @@ const ProfileModal = ({
               <div className="space-y-6">
                 {/* Personal Information */}
                 <div className="space-y-4">
-                  <h3 className="text-sm font-medium text-gray-900">Personal Information</h3>
+                  <h3 className={`text-sm font-medium ${isDarkMode ? 'text-gray-100' : 'text-gray-900'}`}>Personal Information</h3>
                   
                   <div className="space-y-2">
                     <Label htmlFor="fullName">Full Name</Label>
@@ -283,7 +282,7 @@ const ProfileModal = ({
 
                 {/* Change Password */}
                 <div className="space-y-4">
-                  <h3 className="text-sm font-medium text-gray-900">Change Password</h3>
+                  <h3 className={`text-sm font-medium ${isDarkMode ? 'text-gray-100' : 'text-gray-900'}`}>Change Password</h3>
                   
                   <div className="space-y-2">
                     <Label htmlFor="currentPassword">Current Password</Label>
@@ -357,7 +356,7 @@ const ProfileModal = ({
 
                 {/* Preferences */}
                 <div className="space-y-4">
-                  <h3 className="text-sm font-medium text-gray-900">Preferences</h3>
+                  <h3 className={`text-sm font-medium ${isDarkMode ? 'text-gray-100' : 'text-gray-900'}`}>Preferences</h3>
                   
                   <div className="space-y-2">
                     <Label htmlFor="language">Language</Label>
@@ -403,7 +402,7 @@ const ProfileModal = ({
 
                 {/* Notification Settings */}
                 <div className="space-y-4">
-                  <h3 className="text-sm font-medium text-gray-900">Notifications</h3>
+                  <h3 className={`text-sm font-medium ${isDarkMode ? 'text-gray-100' : 'text-gray-900'}`}>Notifications</h3>
                   
                   <div className="space-y-3">
                     <div className="flex items-center space-x-2">
@@ -465,7 +464,7 @@ const ProfileModal = ({
                   <Button 
                     variant="outline" 
                     onClick={handleDeleteAccount}
-                    className="w-full text-red-600 border-red-300 hover:bg-red-50"
+                    className={`w-full text-red-600 border-red-300 ${isDarkMode ? 'hover:bg-red-900/20' : 'hover:bg-red-50'}`}
                   >
                     <Trash2 className="w-4 h-4 mr-2" />
                     Delete Account
