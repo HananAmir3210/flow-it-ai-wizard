@@ -1,3 +1,4 @@
+
 import React from "react";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -193,7 +194,7 @@ const ProfileModal = ({
               {/* Account Button */}
               <Button 
                 variant="outline" 
-                className="w-full justify-start mb-4" 
+                className={`w-full justify-start mb-4 ${isDarkMode ? 'bg-gray-800 border-gray-600 text-gray-200 hover:bg-gray-700 hover:text-white' : ''}`}
                 onClick={handleViewAccountSettings}
               >
                 <Settings className="w-4 h-4 mr-2" />
