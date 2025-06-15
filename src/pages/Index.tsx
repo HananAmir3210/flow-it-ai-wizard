@@ -29,15 +29,7 @@ const Index = () => {
   };
 
   const handleDashboardNavigation = () => {
-    // Add smooth slide-in transition and navigate to dashboard
-    document.body.style.transition = 'transform 0.5s cubic-bezier(0.4, 0, 0.2, 1)';
-    document.body.style.transform = 'translateX(-100%)';
-    
-    setTimeout(() => {
-      navigate('/dashboard');
-      document.body.style.transform = 'translateX(0)';
-      document.body.style.transition = '';
-    }, 500);
+    navigate('/dashboard');
   };
 
   const handleSOPGeneration = async () => {
@@ -99,7 +91,7 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 transition-all duration-500 ease-in-out">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
       {/* Header */}
       <header className="container mx-auto px-4 py-6">
         <nav className="flex items-center justify-between">
