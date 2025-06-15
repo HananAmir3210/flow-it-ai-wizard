@@ -18,6 +18,10 @@ export type Database = {
           payment_method_last4: string | null
           plan_end_date: string | null
           plan_start_date: string | null
+          stripe_customer_id: string | null
+          stripe_subscription_id: string | null
+          subscription_status: string | null
+          trial_end_date: string | null
           updated_at: string | null
           user_id: string
         }
@@ -29,6 +33,10 @@ export type Database = {
           payment_method_last4?: string | null
           plan_end_date?: string | null
           plan_start_date?: string | null
+          stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
+          subscription_status?: string | null
+          trial_end_date?: string | null
           updated_at?: string | null
           user_id: string
         }
@@ -40,6 +48,10 @@ export type Database = {
           payment_method_last4?: string | null
           plan_end_date?: string | null
           plan_start_date?: string | null
+          stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
+          subscription_status?: string | null
+          trial_end_date?: string | null
           updated_at?: string | null
           user_id?: string
         }
@@ -53,6 +65,8 @@ export type Database = {
           invoice_date: string | null
           invoice_number: string
           status: string | null
+          stripe_invoice_id: string | null
+          subscription_id: string | null
           user_id: string
         }
         Insert: {
@@ -62,6 +76,8 @@ export type Database = {
           invoice_date?: string | null
           invoice_number: string
           status?: string | null
+          stripe_invoice_id?: string | null
+          subscription_id?: string | null
           user_id: string
         }
         Update: {
@@ -71,6 +87,8 @@ export type Database = {
           invoice_date?: string | null
           invoice_number?: string
           status?: string | null
+          stripe_invoice_id?: string | null
+          subscription_id?: string | null
           user_id?: string
         }
         Relationships: []
@@ -108,6 +126,42 @@ export type Database = {
           title?: string
           updated_at?: string | null
           user_id?: string
+        }
+        Relationships: []
+      }
+      subscribers: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          stripe_customer_id: string | null
+          subscribed: boolean
+          subscription_end: string | null
+          subscription_tier: string | null
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          stripe_customer_id?: string | null
+          subscribed?: boolean
+          subscription_end?: string | null
+          subscription_tier?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          stripe_customer_id?: string | null
+          subscribed?: boolean
+          subscription_end?: string | null
+          subscription_tier?: string | null
+          updated_at?: string
+          user_id?: string | null
         }
         Relationships: []
       }
