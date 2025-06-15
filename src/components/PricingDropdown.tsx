@@ -64,7 +64,7 @@ const PricingDropdown: React.FC<PricingDropdownProps> = ({ isOpen, onClose }) =>
               </CardDescription>
             </CardHeader>
             <CardContent className="px-6 pb-6">
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 {plans.map((plan, index) => (
                   <div 
                     key={index}
@@ -113,15 +113,6 @@ const PricingDropdown: React.FC<PricingDropdownProps> = ({ isOpen, onClose }) =>
                     </Button>
                   </div>
                 ))}
-              </div>
-              
-              <div className="text-center pt-6 border-t border-gray-200 dark:border-gray-700">
-                <button 
-                  className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 text-sm font-semibold underline underline-offset-4 transition-colors duration-200"
-                  onClick={handleCompareFeatures}
-                >
-                  Compare All Features →
-                </button>
               </div>
             </CardContent>
           </Card>
