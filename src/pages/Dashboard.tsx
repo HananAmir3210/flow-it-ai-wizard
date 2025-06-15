@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { SidebarProvider, Sidebar, SidebarContent, SidebarHeader, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarTrigger, SidebarInset } from '@/components/ui/sidebar';
@@ -157,7 +158,9 @@ const Dashboard = () => {
                 className={`${isDarkMode ? 'text-gray-300 hover:text-white' : ''}`}
               >
                 {isDarkMode ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
-                <span className="ml-2 hidden sm:inline">Theme</span>
+                <span className={`ml-2 hidden sm:inline ${isDarkMode ? 'text-gray-200' : ''}`}>
+                  {isDarkMode ? 'Light' : 'Dark'} Mode
+                </span>
               </Button>
             </header>
             
