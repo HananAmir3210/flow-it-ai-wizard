@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { SidebarProvider, Sidebar, SidebarContent, SidebarHeader, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarTrigger, SidebarInset } from '@/components/ui/sidebar';
 import { Button } from '@/components/ui/button';
 import { Home, Clipboard, Repeat, Layout, Settings, CreditCard, HelpCircle, LogOut } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
 import DashboardOverview from '@/components/dashboard/DashboardOverview';
 import MySOPs from '@/components/dashboard/MySOPs';
 import VisualWorkflows from '@/components/dashboard/VisualWorkflows';
@@ -23,6 +24,8 @@ const menuItems = [
 
 const Dashboard = () => {
   const [activeSection, setActiveSection] = useState('overview');
+  const [isDarkMode, setIsDarkMode] = useState(false);
+  const { toast } = useToast();
 
   const renderContent = () => {
     switch (activeSection) {
@@ -47,7 +50,20 @@ const Dashboard = () => {
 
   const handleLogout = () => {
     console.log('Logging out...');
+    toast({
+      title: "Logged Out",
+      description: "You have been successfully logged out.",
+    });
     // Implement logout logic here
+  };
+
+  const handleThemeToggle = () => {
+    setIsDarkMode(!isDarkMode);
+    toast({
+      title: "Theme Changed",
+      description: `Switched to ${!isDarkMode ? 'dark' : 'light'} mode.`,
+    });
+    // Implement theme toggle logic here
   };
 
   return (
@@ -94,8 +110,8 @@ const Dashboard = () => {
             <header className="sticky top-0 z-10 flex h-16 items-center gap-2 border-b bg-background px-4">
               <SidebarTrigger />
               <div className="flex-1" />
-              <Button variant="outline" size="sm">
-                🌙 Theme
+              <Button variant="outline" size="sm" onClick={handleThemeToggle}>
+                {isDarkMode ? '☀️' : '🌙'} Theme
               </Button>
             </header>
             
