@@ -1,3 +1,4 @@
+
 import React from "react";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -173,7 +174,7 @@ const ProfileModal = ({
                     </div>
                   ) : (
                     <div className="space-y-2">
-                      <h3 className="text-lg font-semibold">{user.name}</h3>
+                      <h3 className={`text-lg font-semibold ${isDarkMode ? 'text-gray-200' : ''}`}>{user.name}</h3>
                       <Button 
                         variant="ghost" 
                         size="sm" 
@@ -211,7 +212,7 @@ const ProfileModal = ({
                   ) : (
                     <Sun className={`w-4 h-4 ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`} />
                   )}
-                  <Label htmlFor="dark-mode" className="text-sm font-medium">
+                  <Label htmlFor="dark-mode" className={`text-sm font-medium ${isDarkMode ? 'text-gray-200' : ''}`}>
                     Dark Mode
                   </Label>
                 </div>
