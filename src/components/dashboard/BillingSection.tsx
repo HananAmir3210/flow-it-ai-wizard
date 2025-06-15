@@ -3,11 +3,17 @@ import React, { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Check, Loader2, CreditCard, Calendar, RefreshCw, AlertCircle } from 'lucide-react';
+import { Check, Loader2, CreditCard, Calendar, RefreshCw } from 'lucide-react';
 import { useBilling } from '@/hooks/useBilling';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
+
+// Stripe Price IDs - Replace with your actual Stripe price IDs
+const STRIPE_PRICES = {
+  Pro: 'price_1QdyV0DKyUdKMlwO4P4iBbLy', // Replace with your actual Pro price ID
+  Team: 'price_1QdyV0DKyUdKMlwO4P4iBbLz', // Replace with your actual Team price ID
+};
 
 const plans = [
   {
@@ -22,14 +28,14 @@ const plans = [
     price: '$29',
     period: '/month',
     features: ['Unlimited SOPs', 'Advanced workflows', 'Priority support', 'Team collaboration'],
-    priceId: 'mock_pro_price',
+    priceId: STRIPE_PRICES.Pro,
   },
   {
     name: 'Team',
     price: '$99',
     period: '/month',
     features: ['Everything in Pro', 'Admin controls', 'Advanced analytics', 'Custom integrations'],
-    priceId: 'mock_team_price',
+    priceId: STRIPE_PRICES.Team,
   },
 ];
 
@@ -106,22 +112,6 @@ const BillingSection = () => {
         </Button>
       </div>
 
-      {/* Mock Payment Notice */}
-      <Card className="border-amber-200 bg-amber-50 dark:bg-amber-950/20">
-        <CardContent className="pt-6">
-          <div className="flex items-start gap-3">
-            <AlertCircle className="h-5 w-5 text-amber-600 dark:text-amber-500 mt-0.5" />
-            <div>
-              <h3 className="font-semibold text-amber-800 dark:text-amber-200">Demo Mode</h3>
-              <p className="text-sm text-amber-700 dark:text-amber-300">
-                This is a demonstration billing system. No real payments are processed. 
-                In production, this would integrate with payment providers like Stripe, PayPal, or local payment gateways.
-              </p>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
       {/* Current Plan */}
       <Card>
         <CardHeader>
@@ -157,7 +147,7 @@ const BillingSection = () => {
                   className="flex items-center gap-2"
                 >
                   <CreditCard className="h-4 w-4" />
-                  Cancel
+                  Manage
                 </Button>
               )}
             </div>
@@ -199,7 +189,7 @@ const BillingSection = () => {
                     onClick={() => handlePlanUpgrade(plan.name, plan.priceId)}
                   >
                     {loading && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
-                    {isCurrent ? 'Current Plan' : 'Subscribe'}
+                    {isCurrent ? 'Current Plan' : 'Upgrade'}
                   </Button>
                 </CardContent>
               </Card>
@@ -218,13 +208,13 @@ const BillingSection = () => {
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-4">
                 <div className="w-12 h-8 bg-gradient-to-r from-blue-500 to-blue-600 rounded flex items-center justify-center text-white text-xs font-bold">
-                  DEMO
+                  CARD
                 </div>
                 <div>
                   <p className="font-medium">
                     {billingData.payment_method_last4 ? 
                       `•••• •••• •••• ${billingData.payment_method_last4}` : 
-                      'Demo payment method'
+                      'Payment method on file'
                     }
                   </p>
                   {billingData.payment_method_expiry && (
@@ -240,7 +230,7 @@ const BillingSection = () => {
                 disabled={loading}
               >
                 {loading && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
-                Cancel Subscription
+                Update
               </Button>
             </div>
           </CardContent>
