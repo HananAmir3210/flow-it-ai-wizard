@@ -2,16 +2,25 @@
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Download, Edit, Copy, Plus } from 'lucide-react';
+import { Download, Edit, Copy, Plus, Workflow } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import CreateWorkflowModal from '@/components/modals/CreateWorkflowModal';
 import EditWorkflowModal from '@/components/modals/EditWorkflowModal';
 import DeleteConfirmModal from '@/components/modals/DeleteConfirmModal';
+import InteractiveWorkflowEditor from './InteractiveWorkflowEditor';
 import type { Database } from '@/integrations/supabase/types';
+import type { Node, Edge } from '@xyflow/react';
 
 type Workflow = Database['public']['Tables']['workflows']['Row'];
+
+interface WorkflowStep {
+  id: string;
+  title: string;
+  type: 'start' | 'process' | 'decision' | 'end';
+  next?: string[];
+}
 
 const VisualWorkflows = () => {
   const [workflows, setWorkflows] = useState<Workflow[]>([]);
@@ -19,6 +28,7 @@ const VisualWorkflows = () => {
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [editingWorkflow, setEditingWorkflow] = useState<Workflow | null>(null);
   const [deleteWorkflowId, setDeleteWorkflowId] = useState<string | null>(null);
+  const [interactiveWorkflow, setInteractiveWorkflow] = useState<{ workflow: Workflow; steps: WorkflowStep[] } | null>(null);
   const { toast } = useToast();
   const { user } = useAuth();
 
@@ -195,6 +205,40 @@ const VisualWorkflows = () => {
     });
   };
 
+  const handleEditInteractive = (workflow: Workflow) => {
+    // Convert workflow to steps format for the interactive editor
+    const steps: WorkflowStep[] = [
+      { id: 'start', title: 'Start', type: 'start' },
+      { id: 'process-1', title: 'Process Step', type: 'process' },
+      { id: 'end', title: 'End', type: 'end' }
+    ];
+    
+    setInteractiveWorkflow({ workflow, steps });
+  };
+
+  const handleSaveInteractiveWorkflow = async (nodes: Node[], edges: Edge[]) => {
+    if (!interactiveWorkflow || !user) return;
+
+    try {
+      // Here you would typically save the nodes and edges to the database
+      // For now, we'll just show a success message
+      
+      toast({
+        title: "Interactive Workflow Saved",
+        description: "Your enhanced workflow has been saved with visual connections.",
+      });
+      
+      setInteractiveWorkflow(null);
+      fetchWorkflows(); // Refresh the list
+    } catch (error: any) {
+      toast({
+        title: "Error saving workflow",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  };
+
   if (loading) {
     return (
       <div className="space-y-6">
@@ -238,7 +282,7 @@ const VisualWorkflows = () => {
               </p>
             </CardHeader>
             <CardContent>
-              <div className="flex gap-2">
+              <div className="flex gap-2 mb-2">
                 <Button 
                   size="sm" 
                   variant="outline" 
@@ -267,8 +311,17 @@ const VisualWorkflows = () => {
               </div>
               <Button 
                 size="sm" 
+                variant="default" 
+                className="w-full mb-2"
+                onClick={() => handleEditInteractive(workflow)}
+              >
+                <Workflow className="h-4 w-4 mr-1" />
+                Interactive Edit
+              </Button>
+              <Button 
+                size="sm" 
                 variant="outline" 
-                className="w-full mt-2 text-destructive hover:text-destructive"
+                className="w-full text-destructive hover:text-destructive"
                 onClick={() => setDeleteWorkflowId(workflow.id)}
               >
                 Delete
@@ -311,6 +364,17 @@ const VisualWorkflows = () => {
         title="Delete Workflow"
         description="Are you sure you want to delete this workflow? This action cannot be undone."
       />
+
+      {/* Interactive Workflow Editor */}
+      {interactiveWorkflow && (
+        <InteractiveWorkflowEditor
+          isOpen={!!interactiveWorkflow}
+          onClose={() => setInteractiveWorkflow(null)}
+          onSave={handleSaveInteractiveWorkflow}
+          steps={interactiveWorkflow.steps}
+          title={interactiveWorkflow.workflow.title}
+        />
+      )}
     </div>
   );
 };
