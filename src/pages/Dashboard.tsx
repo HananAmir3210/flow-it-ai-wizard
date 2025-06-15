@@ -1,5 +1,5 @@
-
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { SidebarProvider, Sidebar, SidebarContent, SidebarHeader, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarTrigger, SidebarInset } from '@/components/ui/sidebar';
 import { Button } from '@/components/ui/button';
 import { Home, Clipboard, Repeat, Layout, Settings, CreditCard, HelpCircle, LogOut } from 'lucide-react';
@@ -23,6 +23,7 @@ const menuItems = [
 
 const Dashboard = () => {
   const [activeSection, setActiveSection] = useState('overview');
+  const navigate = useNavigate();
 
   const renderContent = () => {
     switch (activeSection) {
@@ -47,11 +48,18 @@ const Dashboard = () => {
 
   const handleLogout = () => {
     console.log('Logging out...');
-    // Implement logout logic here
+    // Add slide-out transition and navigate to landing page
+    document.body.style.transition = 'transform 0.3s ease-out';
+    document.body.style.transform = 'translateX(100%)';
+    
+    setTimeout(() => {
+      navigate('/');
+      document.body.style.transform = 'translateX(0)';
+    }, 300);
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background transition-transform duration-300 ease-out">
       <SidebarProvider>
         <div className="flex min-h-screen w-full">
           <Sidebar className="border-r">

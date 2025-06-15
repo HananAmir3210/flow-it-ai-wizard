@@ -1,5 +1,5 @@
-
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import AuthModal from "@/components/AuthModal";
@@ -11,7 +11,6 @@ import WorkflowModal from "@/components/WorkflowModal";
 import InteractiveWorkflowModal from "@/components/InteractiveWorkflowModal";
 import LoadingSpinner from "@/components/LoadingSpinner";
 import { useToast } from "@/hooks/use-toast";
-import { Link } from "react-router-dom";
 
 const Index = () => {
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
@@ -23,9 +22,21 @@ const Index = () => {
   const [isInteractiveWorkflowModalOpen, setIsInteractiveWorkflowModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   const handleGetStarted = () => {
     setIsAuthModalOpen(true);
+  };
+
+  const handleDashboardNavigation = () => {
+    // Add slide-in transition and navigate to dashboard
+    document.body.style.transition = 'transform 0.3s ease-out';
+    document.body.style.transform = 'translateX(-100%)';
+    
+    setTimeout(() => {
+      navigate('/dashboard');
+      document.body.style.transform = 'translateX(0)';
+    }, 300);
   };
 
   const handleSOPGeneration = async () => {
@@ -87,7 +98,7 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 transition-transform duration-300 ease-out">
       {/* Header */}
       <header className="container mx-auto px-4 py-6">
         <nav className="flex items-center justify-between">
@@ -103,9 +114,9 @@ const Index = () => {
             <Button variant="ghost" onClick={() => setIsProfileModalOpen(true)}>
               Profile
             </Button>
-            <Link to="/dashboard">
-              <Button variant="outline">Dashboard</Button>
-            </Link>
+            <Button variant="outline" onClick={handleDashboardNavigation}>
+              Dashboard
+            </Button>
             <Button onClick={handleGetStarted}>Get Started</Button>
           </div>
         </nav>
