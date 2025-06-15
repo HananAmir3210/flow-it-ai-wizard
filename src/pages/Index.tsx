@@ -13,6 +13,7 @@ import FeatureModal from "@/components/FeatureModal";
 import SOPModal from "@/components/SOPModal";
 import InteractiveWorkflowModal from "@/components/InteractiveWorkflowModal";
 import PaymentModal from "@/components/PaymentModal";
+import ProfileModal from "@/components/ProfileModal";
 
 const Index = () => {
   const [goalInput, setGoalInput] = useState("");
@@ -30,6 +31,7 @@ const Index = () => {
   const [isInteractiveWorkflowOpen, setIsInteractiveWorkflowOpen] = useState(false);
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState<any>(null);
+  const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
 
   // Refs for smooth scrolling
   const featuresRef = useRef<HTMLElement>(null);
@@ -155,6 +157,11 @@ const Index = () => {
     setIsPaymentModalOpen(true);
   };
 
+  const handleViewAccount = () => {
+    // This would navigate to account page when implemented
+    console.log("Navigate to account page");
+  };
+
   return (
     <div className={`min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 ${isDarkMode ? 'dark' : ''}`}>
       {/* Navigation */}
@@ -183,12 +190,13 @@ const Index = () => {
             </Button>
             {user ? (
               <div className="flex items-center gap-2">
-                <div className="flex items-center gap-2 px-3 py-1 bg-gray-100 dark:bg-gray-800 rounded-full">
+                <Button
+                  variant="ghost"
+                  className="flex items-center gap-2 px-3 py-1 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full"
+                  onClick={() => setIsProfileModalOpen(true)}
+                >
                   <User size={16} />
                   <span className="text-sm dark:text-gray-300">{user.name}</span>
-                </div>
-                <Button variant="outline" size="sm" onClick={handleLogout}>
-                  Logout
                 </Button>
               </div>
             ) : (
@@ -627,6 +635,17 @@ const Index = () => {
         isOpen={isPaymentModalOpen}
         onClose={() => setIsPaymentModalOpen(false)}
         selectedPlan={selectedPlan}
+      />
+
+      {/* Profile Modal */}
+      <ProfileModal
+        isOpen={isProfileModalOpen}
+        onClose={() => setIsProfileModalOpen(false)}
+        user={user}
+        isDarkMode={isDarkMode}
+        onToggleDarkMode={toggleDarkMode}
+        onLogout={handleLogout}
+        onViewAccount={handleViewAccount}
       />
     </div>
   );
