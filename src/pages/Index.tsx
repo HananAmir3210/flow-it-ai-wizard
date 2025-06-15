@@ -1,651 +1,190 @@
-import React, { useState, useRef } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { ArrowDown, ArrowUp, Youtube, Menu, X, User } from "lucide-react";
-import { generateSOPFromPrompt, SOPResponse } from "@/utils/openai";
-import WorkflowVisualization from "@/components/WorkflowVisualization";
-import WorkflowModal from "@/components/WorkflowModal";
-import LoadingSpinner from "@/components/LoadingSpinner";
 import AuthModal from "@/components/AuthModal";
 import FeatureModal from "@/components/FeatureModal";
-import SOPModal from "@/components/SOPModal";
-import InteractiveWorkflowModal from "@/components/InteractiveWorkflowModal";
-import PaymentModal from "@/components/PaymentModal";
 import ProfileModal from "@/components/ProfileModal";
+import SOPModal from "@/components/SOPModal";
+import PaymentModal from "@/components/PaymentModal";
+import WorkflowModal from "@/components/WorkflowModal";
+import InteractiveWorkflowModal from "@/components/InteractiveWorkflowModal";
+import LoadingSpinner from "@/components/LoadingSpinner";
+import { useToast } from "@/hooks/use-toast";
+import { Link } from "react-router-dom";
 
 const Index = () => {
-  const [goalInput, setGoalInput] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
-  const [generatedContent, setGeneratedContent] = useState<SOPResponse | null>(null);
-  const [isWorkflowModalOpen, setIsWorkflowModalOpen] = useState(false);
-  const [isDarkMode, setIsDarkMode] = useState(false);
-  const [promptHistory, setPromptHistory] = useState<string[]>([]);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
-  const [user, setUser] = useState<{ name: string; email: string } | null>(null);
   const [isFeatureModalOpen, setIsFeatureModalOpen] = useState(false);
-  const [selectedFeature, setSelectedFeature] = useState<any>(null);
-  const [activeSection, setActiveSection] = useState<string>("");
-  const [isSOPModalOpen, setIsSOPModalOpen] = useState(false);
-  const [isInteractiveWorkflowOpen, setIsInteractiveWorkflowOpen] = useState(false);
-  const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
-  const [selectedPlan, setSelectedPlan] = useState<any>(null);
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
+  const [isSOPModalOpen, setIsSOPModalOpen] = useState(false);
+  const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
+  const [isWorkflowModalOpen, setIsWorkflowModalOpen] = useState(false);
+  const [isInteractiveWorkflowModalOpen, setIsInteractiveWorkflowModalOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const { toast } = useToast();
 
-  // Refs for smooth scrolling
-  const featuresRef = useRef<HTMLElement>(null);
-  const pricingRef = useRef<HTMLElement>(null);
-  const promptRef = useRef<HTMLDivElement>(null);
-  const resultsRef = useRef<HTMLElement>(null);
-
-  // Feature data
-  const features = {
-    aiAnalysis: {
-      title: "AI-Powered Analysis",
-      description: "Advanced AI breaks down complex goals into actionable steps",
-      details: "Our AI transforms your goal into step-by-step SOPs using industry knowledge and automation logic. It analyzes your input, identifies key components, and creates detailed procedures that follow best practices.",
-      example: "Input: 'Automate client onboarding' → Output: 20-step SOP including consultation setup, contract automation, tool configuration, and follow-up sequences."
-    },
-    visualWorkflows: {
-      title: "Visual Workflows",
-      description: "Interactive flowcharts make complex processes easy to understand",
-      details: "Convert your SOPs into beautiful, interactive flowcharts that your team can follow visually. Each step is clearly mapped with decision points, parallel processes, and clear next actions.",
-      example: "Your client onboarding SOP becomes a visual flowchart showing the path from initial contact → consultation → contract → setup → launch, with decision points for different client types."
-    },
-    exportShare: {
-      title: "Export & Share",
-      description: "Download PDFs or share links with your team instantly",
-      details: "Export your SOPs and workflows in multiple formats. Share via secure links, download as PDFs for offline use, or integrate with your existing documentation systems.",
-      example: "Export your onboarding SOP as a PDF for new hires, or share a live link that updates automatically when you make changes to the process."
-    }
+  const handleGetStarted = () => {
+    setIsAuthModalOpen(true);
   };
 
-  // Load prompt history from localStorage on component mount
-  React.useEffect(() => {
-    const history = localStorage.getItem('prompt-history');
-    if (history) {
-      setPromptHistory(JSON.parse(history));
-    }
-
-    // Intersection Observer for active section tracking
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            setActiveSection(entry.target.id);
-          }
-        });
-      },
-      { threshold: 0.3, rootMargin: '-80px 0px -80px 0px' }
-    );
-
-    const sections = document.querySelectorAll('section[id]');
-    sections.forEach((section) => observer.observe(section));
-
-    return () => observer.disconnect();
-  }, []);
-
-  const handleGenerateSOP = async () => {
-    if (!goalInput.trim()) {
-      alert("Please enter a goal to generate a workflow.");
-      return;
-    }
-    
+  const handleSOPGeneration = async () => {
     setIsLoading(true);
-    setGeneratedContent(null); // Clear previous results
-    
-    try {
-      console.log("Starting SOP generation for:", goalInput);
-      const response = await generateSOPFromPrompt(goalInput);
-      console.log("Generated content:", response);
-      
-      setGeneratedContent(response);
-      
-      // Save to prompt history
-      const newHistory = [goalInput, ...promptHistory.slice(0, 9)]; // Keep last 10
-      setPromptHistory(newHistory);
-      localStorage.setItem('prompt-history', JSON.stringify(newHistory));
-      
-      // Scroll to results section after generation
-      setTimeout(() => {
-        resultsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      }, 100);
-      
-    } catch (error) {
-      console.error('Error generating SOP:', error);
-      alert('Failed to generate SOP. Please try again.');
-    } finally {
-      setIsLoading(false);
-    }
+    await new Promise(resolve => setTimeout(resolve, 2000));
+    setIsLoading(false);
+    setIsSOPModalOpen(true);
+    toast({
+      title: "SOP Generated!",
+      description: "Your Standard Operating Procedure has been created successfully.",
+    });
   };
 
-  const scrollToSection = (ref: React.RefObject<HTMLElement>) => {
-    ref.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  };
-
-  const toggleDarkMode = () => {
-    setIsDarkMode(!isDarkMode);
-    document.documentElement.classList.toggle('dark');
-  };
-
-  const handleLogin = (email: string, password: string) => {
-    // Placeholder login logic
-    console.log('Login:', email, password);
-    setUser({ name: email.split('@')[0], email });
-    setIsAuthModalOpen(false);
-  };
-
-  const handleSignup = (email: string, password: string, confirmPassword: string) => {
-    // Placeholder signup logic
-    console.log('Signup:', email, password, confirmPassword);
-    setUser({ name: email.split('@')[0], email });
-    setIsAuthModalOpen(false);
-  };
-
-  const handleLogout = () => {
-    setUser(null);
-  };
-
-  const openFeatureModal = (featureKey: keyof typeof features) => {
-    setSelectedFeature(features[featureKey]);
-    setIsFeatureModalOpen(true);
-  };
-
-  const openPaymentModal = (plan: { name: string; price: string; interval?: string; features?: string[] }) => {
-    setSelectedPlan(plan);
-    setIsPaymentModalOpen(true);
-  };
-
-  const handleViewAccount = () => {
-    // This would navigate to account page when implemented
-    console.log("Navigate to account page");
-  };
+  const workflowSteps = [
+    { id: '1', title: 'Start Process', type: 'start' as const, next: ['2'] },
+    { id: '2', title: 'Gather Requirements', type: 'process' as const, next: ['3'] },
+    { id: '3', title: 'Quality Check?', type: 'decision' as const, next: ['4', '5'] },
+    { id: '4', title: 'Approve', type: 'process' as const, next: ['6'] },
+    { id: '5', title: 'Revise', type: 'process' as const, next: ['2'] },
+    { id: '6', title: 'Complete', type: 'end' as const }
+  ];
 
   return (
-    <div className={`min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 ${isDarkMode ? 'dark' : ''}`}>
-      {/* Navigation */}
-      <nav className="border-b bg-white/80 dark:bg-gray-900/80 backdrop-blur-md sticky top-0 z-50">
-        <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-          <div className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-            AI SOP Generator
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
+      {/* Header */}
+      <header className="container mx-auto px-4 py-6">
+        <nav className="flex items-center justify-between">
+          <div className="flex items-center space-x-2">
+            <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg"></div>
+            <span className="text-xl font-bold text-gray-900">AI SOP Generator</span>
           </div>
-          <div className="flex gap-4 items-center">
-            <Button 
-              variant="ghost"
-              onClick={() => scrollToSection(featuresRef)}
-              className={`dark:text-gray-300 dark:hover:text-white ${activeSection === 'features' ? 'bg-accent' : ''}`}
-            >
+          <div className="flex items-center space-x-4">
+            <Button variant="ghost" onClick={() => setIsFeatureModalOpen(true)}>
               Features
             </Button>
-            <Button 
-              variant="ghost"
-              onClick={() => scrollToSection(pricingRef)}
-              className={`dark:text-gray-300 dark:hover:text-white ${activeSection === 'pricing' ? 'bg-accent' : ''}`}
-            >
-              Pricing
+            <Button variant="ghost">Pricing</Button>
+            <Button variant="ghost" onClick={() => setIsProfileModalOpen(true)}>
+              Profile
             </Button>
-            <Button onClick={() => scrollToSection(promptRef)}>
-              Get Started
-            </Button>
-            {user ? (
-              <div className="flex items-center gap-2">
-                <Button
-                  variant="ghost"
-                  className="flex items-center gap-2 px-3 py-1 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full"
-                  onClick={() => setIsProfileModalOpen(true)}
-                >
-                  <User size={16} />
-                  <span className="text-sm dark:text-gray-300">{user.name}</span>
-                </Button>
-              </div>
-            ) : (
-              <Button variant="outline" onClick={() => setIsAuthModalOpen(true)}>
-                Login / Sign Up
-              </Button>
-            )}
-            <Button 
-              variant="outline" 
-              size="sm"
-              onClick={toggleDarkMode}
-            >
-              {isDarkMode ? '☀️' : '🌙'}
-            </Button>
+            <Link to="/dashboard">
+              <Button variant="outline">Dashboard</Button>
+            </Link>
+            <Button onClick={handleGetStarted}>Get Started</Button>
           </div>
-        </div>
-      </nav>
+        </nav>
+      </header>
 
       {/* Hero Section */}
-      <section className="container mx-auto px-4 py-20 text-center">
-        <div className="max-w-4xl mx-auto">
-          <h1 className="text-5xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-gray-900 via-blue-800 to-purple-800 dark:from-gray-100 dark:via-blue-300 dark:to-purple-300 bg-clip-text text-transparent">
-            Turn your goal into a workflow — in seconds
+      <main className="container mx-auto px-4 py-16">
+        <div className="text-center mb-16">
+          <h1 className="text-5xl font-bold text-gray-900 mb-6">
+            Create Professional SOPs with
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600"> AI Power</span>
           </h1>
-          <p className="text-xl text-gray-600 dark:text-gray-300 mb-12 max-w-2xl mx-auto leading-relaxed">
-            Transform any business goal into a detailed step-by-step SOP and visual workflow diagram. 
-            Let AI handle the planning while you focus on execution.
+          <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto">
+            Transform your business processes into clear, actionable Standard Operating Procedures in minutes, not hours. 
+            Our AI understands your workflow and creates comprehensive documentation automatically.
           </p>
-          
-          {/* Input Section */}
-          <div ref={promptRef} className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-8 mb-16 max-w-2xl mx-auto border border-gray-100 dark:border-gray-700">
-            <div className="flex flex-col gap-4">
-              <Input
-                placeholder="e.g., automate my client onboarding process"
-                value={goalInput}
-                onChange={(e) => setGoalInput(e.target.value)}
-                className="text-lg py-4 px-6 border-2 focus:border-blue-500 rounded-xl dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400"
-                onKeyPress={(e) => e.key === 'Enter' && handleGenerateSOP()}
-              />
-              <Button 
-                onClick={handleGenerateSOP}
-                disabled={!goalInput.trim() || isLoading}
-                className="py-4 text-lg font-semibold bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 transition-all duration-300 transform hover:scale-105"
-              >
-                {isLoading ? "Generating..." : "Generate SOP & Workflow"}
-              </Button>
-              
-              {/* Prompt History */}
-              {promptHistory.length > 0 && (
-                <div className="text-left">
-                  <p className="text-sm text-gray-500 dark:text-gray-400 mb-2">Recent prompts:</p>
-                  <div className="flex flex-wrap gap-2">
-                    {promptHistory.slice(0, 3).map((prompt, index) => (
-                      <button
-                        key={index}
-                        onClick={() => setGoalInput(prompt)}
-                        className="text-xs px-3 py-1 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-full transition-colors dark:text-gray-300"
-                      >
-                        {prompt.length > 30 ? prompt.substring(0, 30) + '...' : prompt}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
+          <div className="flex justify-center space-x-4">
+            <Button size="lg" onClick={handleSOPGeneration} disabled={isLoading}>
+              {isLoading ? <LoadingSpinner /> : "Generate Your First SOP"}
+            </Button>
+            <Button size="lg" variant="outline" onClick={() => setIsWorkflowModalOpen(true)}>
+              View Sample Workflow
+            </Button>
           </div>
         </div>
-      </section>
 
-      {/* Generated Content Section */}
-      {(isLoading || generatedContent) && (
-        <section ref={resultsRef} className="container mx-auto px-4 py-16">
-          <div className="text-center mb-12">
-            <h2 className="text-4xl font-bold mb-4 dark:text-white">Your Generated Content</h2>
-            <p className="text-gray-600 dark:text-gray-300 text-lg">Here's your AI-generated SOP and workflow</p>
-          </div>
-          
-          {isLoading ? (
-            <div className="flex justify-center">
-              <LoadingSpinner message="AI is crafting your SOP and workflow..." />
-            </div>
-          ) : generatedContent && (
-            <div className="grid md:grid-cols-2 gap-8 max-w-6xl mx-auto">
-              {/* Generated SOP - Now Clickable */}
-              <Card 
-                className="border-2 hover:shadow-lg transition-all duration-300 dark:bg-gray-800 dark:border-gray-700 cursor-pointer transform hover:scale-105"
-                onClick={() => setIsSOPModalOpen(true)}
-              >
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2 dark:text-white">
-                    📋 {generatedContent.sop.title}
-                  </CardTitle>
-                  <CardDescription className="dark:text-gray-300">AI-generated step-by-step procedure</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 text-sm max-h-96 overflow-y-auto">
-                    <div className="space-y-4">
-                      {generatedContent.sop.steps.slice(0, 5).map((step) => (
-                        <div key={step.number} className="border-l-4 border-blue-500 pl-4">
-                          <div className="font-semibold text-gray-900 dark:text-gray-100">
-                            {step.number}. {step.title}
-                          </div>
-                          <div className="text-gray-700 dark:text-gray-300 mt-1">{step.description}</div>
-                        </div>
-                      ))}
-                      {generatedContent.sop.steps.length > 5 && (
-                        <div className="text-gray-500 dark:text-gray-400 text-center">
-                          + {generatedContent.sop.steps.length - 5} more steps... Click to view all
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                  <div className="mt-4 flex gap-2">
-                    <Button variant="outline" size="sm">
-                      📄 Export PDF
-                    </Button>
-                    <Button variant="outline" size="sm">
-                      🔗 Share Link
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
+        {/* Feature Cards */}
+        <div className="grid md:grid-cols-3 gap-8 mb-16">
+          <Card className="hover:shadow-lg transition-shadow">
+            <CardHeader>
+              <CardTitle className="flex items-center">
+                <span className="text-2xl mr-2">🤖</span>
+                AI-Powered Generation
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <CardDescription>
+                Our advanced AI analyzes your process description and creates detailed, professional SOPs tailored to your specific needs.
+              </CardDescription>
+            </CardContent>
+          </Card>
 
-              {/* Generated Workflow - Now Clickable */}
-              <Card 
-                className="border-2 hover:shadow-lg transition-all duration-300 dark:bg-gray-800 dark:border-gray-700 cursor-pointer transform hover:scale-105"
-                onClick={() => setIsInteractiveWorkflowOpen(true)}
-              >
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2 dark:text-white">
-                    🔄 Visual Workflow
-                  </CardTitle>
-                  <CardDescription className="dark:text-gray-300">Interactive flowchart diagram</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <WorkflowVisualization 
-                    steps={generatedContent.workflow} 
-                    isPreview={true}
-                    onStartClick={() => setIsInteractiveWorkflowOpen(true)}
-                  />
-                  <div className="mt-4 flex gap-2">
-                    <Button 
-                      variant="outline" 
-                      size="sm"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setIsInteractiveWorkflowOpen(true);
-                      }}
-                    >
-                      🔍 Edit & Customize
-                    </Button>
-                    <Button variant="outline" size="sm">
-                      📄 Export Diagram
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-          )}
-        </section>
-      )}
+          <Card className="hover:shadow-lg transition-shadow">
+            <CardHeader>
+              <CardTitle className="flex items-center">
+                <span className="text-2xl mr-2">📊</span>
+                Visual Workflows
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <CardDescription>
+                Automatically generate flowcharts and visual representations of your processes to make complex procedures easy to understand.
+              </CardDescription>
+            </CardContent>
+          </Card>
 
-      {/* Preview Section (original static content) */}
-      {!generatedContent && !isLoading && (
-        <section className="container mx-auto px-4 py-16">
-          <div className="text-center mb-12">
-            <h2 className="text-4xl font-bold mb-4 dark:text-white">See it in action</h2>
-            <p className="text-gray-600 dark:text-gray-300 text-lg">Here's what you get in seconds</p>
-          </div>
-          
-          <div className="grid md:grid-cols-2 gap-8 max-w-6xl mx-auto">
-            {/* SOP Preview */}
-            <Card className="border-2 hover:shadow-lg transition-shadow dark:bg-gray-800 dark:border-gray-700">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2 dark:text-white">
-                  📋 Generated SOP
-                </CardTitle>
-                <CardDescription className="dark:text-gray-300">Detailed step-by-step procedures</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 text-sm">
-                  <div className="font-semibold mb-2 dark:text-gray-100">Client Onboarding SOP</div>
-                  <div className="space-y-2 text-gray-700 dark:text-gray-300">
-                    <div>1. Initial client consultation and needs assessment</div>
-                    <div>2. Send welcome package and contracts</div>
-                    <div>3. Set up project management tools</div>
-                    <div>4. Schedule kickoff meeting</div>
-                    <div>5. Create project timeline and milestones</div>
-                    <div className="text-gray-500 dark:text-gray-400">+ 15 more detailed steps...</div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+          <Card className="hover:shadow-lg transition-shadow">
+            <CardHeader>
+              <CardTitle className="flex items-center">
+                <span className="text-2xl mr-2">🔄</span>
+                Interactive Editing
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <CardDescription>
+                Edit and customize your SOPs with our intuitive interface. Add steps, modify content, and export in multiple formats.
+              </CardDescription>
+            </CardContent>
+          </Card>
+        </div>
 
-            {/* Workflow Preview */}
-            <Card className="border-2 hover:shadow-lg transition-shadow dark:bg-gray-800 dark:border-gray-700">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2 dark:text-white">
-                  🔄 Visual Workflow
-                </CardTitle>
-                <CardDescription className="dark:text-gray-300">Interactive flowchart diagram</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="bg-gradient-to-br from-blue-50 to-purple-50 dark:from-blue-900 dark:to-purple-900 rounded-lg p-4 h-48 flex items-center justify-center">
-                  <div className="flex flex-col items-center gap-4">
-                    <div className="bg-blue-500 text-white px-4 py-2 rounded-lg text-sm">Start</div>
-                    <ArrowDown className="text-gray-400" size={20} />
-                    <div className="bg-white dark:bg-gray-800 border-2 border-blue-200 dark:border-blue-400 px-4 py-2 rounded-lg text-sm dark:text-gray-200">Consultation</div>
-                    <ArrowDown className="text-gray-400" size={20} />
-                    <div className="bg-white dark:bg-gray-800 border-2 border-purple-200 dark:border-purple-400 px-4 py-2 rounded-lg text-sm dark:text-gray-200">Setup Tools</div>
-                    <div className="text-gray-500 dark:text-gray-400 text-xs">+ Interactive diagram</div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        </section>
-      )}
-
-      {/* Features Section */}
-      <section id="features" ref={featuresRef} className="bg-white dark:bg-gray-900 py-20">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold mb-4 dark:text-white">Everything you need to systematize your business</h2>
-            <p className="text-gray-600 dark:text-gray-300 text-lg max-w-2xl mx-auto">
-              From goal to execution-ready workflow in one seamless process
-            </p>
-          </div>
-          
-          <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
-            <Card 
-              className="text-center p-6 hover:shadow-lg transition-all duration-300 border-2 dark:bg-gray-800 dark:border-gray-700 cursor-pointer transform hover:scale-105"
-              onClick={() => openFeatureModal('aiAnalysis')}
-            >
-              <div className="bg-blue-100 dark:bg-blue-900 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-                <ArrowUp className="text-blue-600 dark:text-blue-400" size={24} />
-              </div>
-              <h3 className="font-semibold text-xl mb-2 dark:text-white">AI-Powered Analysis</h3>
-              <p className="text-gray-600 dark:text-gray-300">Advanced AI breaks down complex goals into actionable steps</p>
-              <div className="mt-4 text-blue-600 dark:text-blue-400 text-sm font-medium">Click to learn more →</div>
-            </Card>
-            
-            <Card 
-              className="text-center p-6 hover:shadow-lg transition-all duration-300 border-2 dark:bg-gray-800 dark:border-gray-700 cursor-pointer transform hover:scale-105"
-              onClick={() => openFeatureModal('visualWorkflows')}
-            >
-              <div className="bg-purple-100 dark:bg-purple-900 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Youtube className="text-purple-600 dark:text-purple-400" size={24} />
-              </div>
-              <h3 className="font-semibold text-xl mb-2 dark:text-white">Visual Workflows</h3>
-              <p className="text-gray-600 dark:text-gray-300">Interactive flowcharts make complex processes easy to understand</p>
-              <div className="mt-4 text-purple-600 dark:text-purple-400 text-sm font-medium">Click to learn more →</div>
-            </Card>
-            
-            <Card 
-              className="text-center p-6 hover:shadow-lg transition-all duration-300 border-2 dark:bg-gray-800 dark:border-gray-700 cursor-pointer transform hover:scale-105"
-              onClick={() => openFeatureModal('exportShare')}
-            >
-              <div className="bg-green-100 dark:bg-green-900 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-                <ArrowDown className="text-green-600 dark:text-green-400" size={24} />
-              </div>
-              <h3 className="font-semibold text-xl mb-2 dark:text-white">Export & Share</h3>
-              <p className="text-gray-600 dark:text-gray-300">Download PDFs or share links with your team instantly</p>
-              <div className="mt-4 text-green-600 dark:text-green-400 text-sm font-medium">Click to learn more →</div>
-            </Card>
+        {/* CTA Section */}
+        <div className="text-center bg-white rounded-lg shadow-lg p-8">
+          <h2 className="text-3xl font-bold text-gray-900 mb-4">Ready to Streamline Your Operations?</h2>
+          <p className="text-gray-600 mb-6">Join thousands of businesses already using AI SOP Generator</p>
+          <div className="flex justify-center space-x-4">
+            <Button size="lg" onClick={() => setIsPaymentModalOpen(true)}>
+              Start Free Trial
+            </Button>
+            <Button size="lg" variant="outline" onClick={() => setIsInteractiveWorkflowModalOpen(true)}>
+              Try Interactive Demo
+            </Button>
           </div>
         </div>
-      </section>
-
-      {/* Testimonials */}
-      <section className="py-20 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900 dark:to-purple-900">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold mb-4 dark:text-white">Loved by business owners</h2>
-          </div>
-          
-          <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
-            <Card className="p-6 dark:bg-gray-800 dark:border-gray-700">
-              <CardContent className="pt-0">
-                <div className="text-yellow-400 mb-2">★★★★★</div>
-                <p className="text-gray-700 dark:text-gray-300 mb-4">"This tool saved me hours of planning. What used to take days now happens in minutes."</p>
-                <div className="font-semibold dark:text-white">Sarah Chen</div>
-                <div className="text-sm text-gray-500 dark:text-gray-400">Marketing Agency Owner</div>
-              </CardContent>
-            </Card>
-            
-            <Card className="p-6 dark:bg-gray-800 dark:border-gray-700">
-              <CardContent className="pt-0">
-                <div className="text-yellow-400 mb-2">★★★★★</div>
-                <p className="text-gray-700 dark:text-gray-300 mb-4">"The visual workflows help my team understand processes immediately. Game changer!"</p>
-                <div className="font-semibold dark:text-white">Mike Rodriguez</div>
-                <div className="text-sm text-gray-500 dark:text-gray-400">Operations Manager</div>
-              </CardContent>
-            </Card>
-            
-            <Card className="p-6 dark:bg-gray-800 dark:border-gray-700">
-              <CardContent className="pt-0">
-                <div className="text-yellow-400 mb-2">★★★★★</div>
-                <p className="text-gray-700 dark:text-gray-300 mb-4">"Finally, a tool that thinks like I do but works 100x faster. Incredible."</p>
-                <div className="font-semibold dark:text-white">Emma Thompson</div>
-                <div className="text-sm text-gray-500 dark:text-gray-400">Consultant</div>
-              </CardContent>
-            </Card>
-          </div>
-        </div>
-      </section>
-
-      {/* Pricing */}
-      <section id="pricing" ref={pricingRef} className="py-20 bg-white dark:bg-gray-900">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold mb-4 dark:text-white">Simple, transparent pricing</h2>
-            <p className="text-gray-600 dark:text-gray-300 text-lg">Start free, scale when you're ready</p>
-          </div>
-          
-          <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-            <Card className="border-2 p-8 dark:bg-gray-800 dark:border-gray-700">
-              <CardHeader>
-                <CardTitle className="text-2xl dark:text-white">Free</CardTitle>
-                <CardDescription className="dark:text-gray-300">Perfect for trying out the platform</CardDescription>
-                <div className="text-4xl font-bold dark:text-white">$0<span className="text-lg text-gray-500 dark:text-gray-400">/month</span></div>
-              </CardHeader>
-              <CardContent>
-                <ul className="space-y-3 mb-8 dark:text-gray-300">
-                  <li>✓ 5 SOPs per month</li>
-                  <li>✓ Basic workflows</li>
-                  <li>✓ PDF export</li>
-                  <li>✓ Email support</li>
-                </ul>
-                <Button className="w-full" variant="outline" onClick={() => scrollToSection(promptRef)}>
-                  Get Started Free
-                </Button>
-              </CardContent>
-            </Card>
-            
-            <Card className="border-2 border-blue-500 p-8 relative dark:bg-gray-800 dark:border-blue-400">
-              <Badge className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-blue-500">Most Popular</Badge>
-              <CardHeader>
-                <CardTitle className="text-2xl dark:text-white">Pro</CardTitle>
-                <CardDescription className="dark:text-gray-300">For growing teams and businesses</CardDescription>
-                <div className="text-4xl font-bold dark:text-white">$29<span className="text-lg text-gray-500 dark:text-gray-400">/month</span></div>
-              </CardHeader>
-              <CardContent>
-                <ul className="space-y-3 mb-8 dark:text-gray-300">
-                  <li>✓ Unlimited SOPs</li>
-                  <li>✓ Advanced workflows</li>
-                  <li>✓ Team collaboration</li>
-                  <li>✓ Priority support</li>
-                  <li>✓ Custom branding</li>
-                </ul>
-                <Button 
-                  className="w-full bg-blue-500 hover:bg-blue-600" 
-                  onClick={() => openPaymentModal({
-                    name: "Pro",
-                    price: "$29",
-                    interval: "month",
-                    features: ["Unlimited SOPs", "Advanced workflows", "Team collaboration", "Priority support", "Custom branding"]
-                  })}
-                >
-                  Start Pro Trial
-                </Button>
-              </CardContent>
-            </Card>
-          </div>
-        </div>
-      </section>
-
-      {/* CTA Section */}
-      <section className="py-20 bg-gradient-to-r from-blue-600 to-purple-600 text-white">
-        <div className="container mx-auto px-4 text-center">
-          <h2 className="text-4xl font-bold mb-4">Ready to systematize your business?</h2>
-          <p className="text-xl mb-8 opacity-90">Join thousands of business owners who've streamlined their operations</p>
-          <Button 
-            size="lg" 
-            className="bg-white text-blue-600 hover:bg-gray-100 text-lg px-8 py-4"
-            onClick={() => scrollToSection(promptRef)}
-          >
-            Start Building Workflows Today
-          </Button>
-        </div>
-      </section>
-
-      {/* Footer */}
-      <footer className="bg-gray-900 text-white py-12">
-        <div className="container mx-auto px-4">
-          <div className="text-center">
-            <div className="text-2xl font-bold mb-4">AI SOP Generator</div>
-            <p className="text-gray-400 mb-4">Transform goals into workflows with AI</p>
-            <div className="text-sm text-gray-400">© 2024 AI SOP Generator. All rights reserved.</div>
-          </div>
-        </div>
-      </footer>
+      </main>
 
       {/* Modals */}
-      {generatedContent && (
-        <>
-          <WorkflowModal
-            isOpen={isWorkflowModalOpen}
-            onClose={() => setIsWorkflowModalOpen(false)}
-            steps={generatedContent.workflow}
-            title={generatedContent.sop.title}
-          />
-          
-          <SOPModal
-            isOpen={isSOPModalOpen}
-            onClose={() => setIsSOPModalOpen(false)}
-            sop={generatedContent.sop}
-          />
-          
-          <InteractiveWorkflowModal
-            isOpen={isInteractiveWorkflowOpen}
-            onClose={() => setIsInteractiveWorkflowOpen(false)}
-            steps={generatedContent.workflow}
-            title={generatedContent.sop.title}
-          />
-        </>
-      )}
-
-      {/* Auth Modal */}
-      <AuthModal
-        isOpen={isAuthModalOpen}
-        onClose={() => setIsAuthModalOpen(false)}
-        onLogin={handleLogin}
-        onSignup={handleSignup}
+      <AuthModal 
+        isOpen={isAuthModalOpen} 
+        onClose={() => setIsAuthModalOpen(false)} 
       />
-
-      {/* Feature Modal */}
-      <FeatureModal
-        isOpen={isFeatureModalOpen}
-        onClose={() => setIsFeatureModalOpen(false)}
-        feature={selectedFeature}
+      <FeatureModal 
+        isOpen={isFeatureModalOpen} 
+        onClose={() => setIsFeatureModalOpen(false)} 
       />
-
-      {/* Payment Modal */}
-      <PaymentModal
-        isOpen={isPaymentModalOpen}
-        onClose={() => setIsPaymentModalOpen(false)}
-        selectedPlan={selectedPlan}
+      <ProfileModal 
+        isOpen={isProfileModalOpen} 
+        onClose={() => setIsProfileModalOpen(false)} 
       />
-
-      {/* Profile Modal */}
-      <ProfileModal
-        isOpen={isProfileModalOpen}
-        onClose={() => setIsProfileModalOpen(false)}
-        user={user}
-        isDarkMode={isDarkMode}
-        onToggleDarkMode={toggleDarkMode}
-        onLogout={handleLogout}
-        onViewAccount={handleViewAccount}
+      <SOPModal 
+        isOpen={isSOPModalOpen} 
+        onClose={() => setIsSOPModalOpen(false)} 
+      />
+      <PaymentModal 
+        isOpen={isPaymentModalOpen} 
+        onClose={() => setIsPaymentModalOpen(false)} 
+      />
+      <WorkflowModal
+        isOpen={isWorkflowModalOpen}
+        onClose={() => setIsWorkflowModalOpen(false)}
+        steps={workflowSteps}
+        title="Sample Customer Onboarding Process"
+      />
+      <InteractiveWorkflowModal
+        isOpen={isInteractiveWorkflowModalOpen}
+        onClose={() => setIsInteractiveWorkflowModalOpen(false)}
+        steps={workflowSteps}
+        title="Interactive Demo"
       />
     </div>
   );
