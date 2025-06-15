@@ -80,10 +80,33 @@ Make sure the SOP is tailored, detailed, and ready to be followed by someone wit
     if (!response.ok) {
       const errorData = await response.json();
       console.error('OpenAI API error:', errorData);
-      return new Response(
-        JSON.stringify({ error: 'Failed to generate SOP content' }),
-        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+      
+      // Handle specific OpenAI errors
+      if (errorData.error?.code === 'insufficient_quota') {
+        return new Response(
+          JSON.stringify({ 
+            error: 'OpenAI quota exceeded. Please check your OpenAI billing and add credits to your account.',
+            details: 'Your OpenAI API key has reached its usage limit. Visit https://platform.openai.com/account/billing to add credits.'
+          }),
+          { status: 402, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      } else if (errorData.error?.code === 'invalid_api_key') {
+        return new Response(
+          JSON.stringify({ 
+            error: 'Invalid OpenAI API key. Please check your API key configuration.',
+            details: 'The provided OpenAI API key is not valid. Please verify your API key in the project settings.'
+          }),
+          { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      } else {
+        return new Response(
+          JSON.stringify({ 
+            error: 'Failed to generate SOP content',
+            details: errorData.error?.message || 'Unknown OpenAI API error'
+          }),
+          { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
     }
 
     const data = await response.json();
