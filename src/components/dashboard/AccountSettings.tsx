@@ -1,27 +1,97 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { useAuth } from '@/hooks/useAuth';
+import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
+import { Loader2 } from 'lucide-react';
 
 const AccountSettings = () => {
+  const { user } = useAuth();
+  const { toast } = useToast();
+  const [loading, setLoading] = useState(false);
+  const [passwordLoading, setPasswordLoading] = useState(false);
+
   const [profile, setProfile] = useState({
-    name: 'Hanan',
-    email: 'hanan@example.com',
-    company: 'AI Solutions Inc.',
-    role: 'Product Manager',
+    full_name: '',
+    email: '',
+    company: '',
+    role: '',
   });
 
   const [preferences, setPreferences] = useState({
     theme: 'light',
     language: 'en',
-    emailNotifications: true,
-    pushNotifications: false,
-    weeklyDigest: true,
+    email_notifications: true,
+    push_notifications: false,
+    weekly_digest: true,
   });
+
+  const [passwords, setPasswords] = useState({
+    currentPassword: '',
+    newPassword: '',
+    confirmPassword: '',
+  });
+
+  useEffect(() => {
+    if (user) {
+      loadUserProfile();
+    }
+  }, [user]);
+
+  const loadUserProfile = async () => {
+    if (!user) return;
+
+    try {
+      setLoading(true);
+      const { data, error } = await supabase
+        .from('user_profiles')
+        .select('*')
+        .eq('id', user.id)
+        .single();
+
+      if (error && error.code !== 'PGRST116') {
+        throw error;
+      }
+
+      if (data) {
+        setProfile({
+          full_name: data.full_name || '',
+          email: data.email || user.email || '',
+          company: data.company || '',
+          role: data.role || '',
+        });
+
+        setPreferences({
+          theme: data.theme || 'light',
+          language: data.language || 'en',
+          email_notifications: data.email_notifications ?? true,
+          push_notifications: data.push_notifications ?? false,
+          weekly_digest: data.weekly_digest ?? true,
+        });
+      } else {
+        // Create initial profile if it doesn't exist
+        setProfile(prev => ({
+          ...prev,
+          email: user.email || '',
+        }));
+      }
+    } catch (error: any) {
+      console.error('Error loading profile:', error);
+      toast({
+        title: "Error",
+        description: "Failed to load profile data",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleProfileChange = (field: string, value: string) => {
     setProfile(prev => ({ ...prev, [field]: value }));
@@ -30,6 +100,127 @@ const AccountSettings = () => {
   const handlePreferenceChange = (field: string, value: boolean | string) => {
     setPreferences(prev => ({ ...prev, [field]: value }));
   };
+
+  const saveProfile = async () => {
+    if (!user) return;
+
+    try {
+      setLoading(true);
+      const { error } = await supabase
+        .from('user_profiles')
+        .upsert({
+          id: user.id,
+          full_name: profile.full_name,
+          email: profile.email,
+          company: profile.company,
+          role: profile.role,
+          ...preferences,
+        });
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: "Profile updated successfully",
+      });
+    } catch (error: any) {
+      console.error('Error saving profile:', error);
+      toast({
+        title: "Error",
+        description: "Failed to save profile",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const savePreferences = async () => {
+    if (!user) return;
+
+    try {
+      setLoading(true);
+      const { error } = await supabase
+        .from('user_profiles')
+        .upsert({
+          id: user.id,
+          ...preferences,
+        });
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: "Preferences saved successfully",
+      });
+    } catch (error: any) {
+      console.error('Error saving preferences:', error);
+      toast({
+        title: "Error",
+        description: "Failed to save preferences",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const updatePassword = async () => {
+    if (passwords.newPassword !== passwords.confirmPassword) {
+      toast({
+        title: "Error",
+        description: "New passwords don't match",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (passwords.newPassword.length < 6) {
+      toast({
+        title: "Error",
+        description: "Password must be at least 6 characters long",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      setPasswordLoading(true);
+      const { error } = await supabase.auth.updateUser({
+        password: passwords.newPassword
+      });
+
+      if (error) throw error;
+
+      setPasswords({
+        currentPassword: '',
+        newPassword: '',
+        confirmPassword: '',
+      });
+
+      toast({
+        title: "Success",
+        description: "Password updated successfully",
+      });
+    } catch (error: any) {
+      console.error('Error updating password:', error);
+      toast({
+        title: "Error",
+        description: error.message || "Failed to update password",
+        variant: "destructive",
+      });
+    } finally {
+      setPasswordLoading(false);
+    }
+  };
+
+  if (loading && !profile.email) {
+    return (
+      <div className="flex items-center justify-center p-8">
+        <Loader2 className="h-8 w-8 animate-spin" />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -46,8 +237,8 @@ const AccountSettings = () => {
               <Label htmlFor="name">Full Name</Label>
               <Input
                 id="name"
-                value={profile.name}
-                onChange={(e) => handleProfileChange('name', e.target.value)}
+                value={profile.full_name}
+                onChange={(e) => handleProfileChange('full_name', e.target.value)}
               />
             </div>
             <div>
@@ -75,7 +266,10 @@ const AccountSettings = () => {
                 onChange={(e) => handleProfileChange('role', e.target.value)}
               />
             </div>
-            <Button>Save Profile</Button>
+            <Button onClick={saveProfile} disabled={loading}>
+              {loading && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
+              Save Profile
+            </Button>
           </CardContent>
         </Card>
 
@@ -87,17 +281,35 @@ const AccountSettings = () => {
           <CardContent className="space-y-4">
             <div>
               <Label htmlFor="current-password">Current Password</Label>
-              <Input id="current-password" type="password" />
+              <Input 
+                id="current-password" 
+                type="password"
+                value={passwords.currentPassword}
+                onChange={(e) => setPasswords(prev => ({ ...prev, currentPassword: e.target.value }))}
+              />
             </div>
             <div>
               <Label htmlFor="new-password">New Password</Label>
-              <Input id="new-password" type="password" />
+              <Input 
+                id="new-password" 
+                type="password"
+                value={passwords.newPassword}
+                onChange={(e) => setPasswords(prev => ({ ...prev, newPassword: e.target.value }))}
+              />
             </div>
             <div>
               <Label htmlFor="confirm-password">Confirm New Password</Label>
-              <Input id="confirm-password" type="password" />
+              <Input 
+                id="confirm-password" 
+                type="password"
+                value={passwords.confirmPassword}
+                onChange={(e) => setPasswords(prev => ({ ...prev, confirmPassword: e.target.value }))}
+              />
             </div>
-            <Button>Update Password</Button>
+            <Button onClick={updatePassword} disabled={passwordLoading}>
+              {passwordLoading && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
+              Update Password
+            </Button>
           </CardContent>
         </Card>
 
@@ -134,6 +346,10 @@ const AccountSettings = () => {
                 </SelectContent>
               </Select>
             </div>
+            <Button onClick={savePreferences} disabled={loading}>
+              {loading && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
+              Save Preferences
+            </Button>
           </CardContent>
         </Card>
 
@@ -147,27 +363,30 @@ const AccountSettings = () => {
               <Label htmlFor="email-notifications">Email Notifications</Label>
               <Switch 
                 id="email-notifications"
-                checked={preferences.emailNotifications}
-                onCheckedChange={(checked) => handlePreferenceChange('emailNotifications', checked)}
+                checked={preferences.email_notifications}
+                onCheckedChange={(checked) => handlePreferenceChange('email_notifications', checked)}
               />
             </div>
             <div className="flex items-center justify-between">
               <Label htmlFor="push-notifications">Push Notifications</Label>
               <Switch 
                 id="push-notifications"
-                checked={preferences.pushNotifications}
-                onCheckedChange={(checked) => handlePreferenceChange('pushNotifications', checked)}
+                checked={preferences.push_notifications}
+                onCheckedChange={(checked) => handlePreferenceChange('push_notifications', checked)}
               />
             </div>
             <div className="flex items-center justify-between">
               <Label htmlFor="weekly-digest">Weekly Digest</Label>
               <Switch 
                 id="weekly-digest"
-                checked={preferences.weeklyDigest}
-                onCheckedChange={(checked) => handlePreferenceChange('weeklyDigest', checked)}
+                checked={preferences.weekly_digest}
+                onCheckedChange={(checked) => handlePreferenceChange('weekly_digest', checked)}
               />
             </div>
-            <Button>Save Preferences</Button>
+            <Button onClick={savePreferences} disabled={loading}>
+              {loading && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
+              Save Preferences
+            </Button>
           </CardContent>
         </Card>
       </div>
