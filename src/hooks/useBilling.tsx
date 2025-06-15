@@ -29,18 +29,18 @@ export const useBilling = () => {
     try {
       setLoading(true);
       
-      // Mock subscription check - simulate checking a local database
-      const { data: mockData, error } = await supabase
+      // Check existing billing data
+      const { data: existingBilling, error } = await supabase
         .from('billing')
         .select('*')
         .eq('user_id', user.id)
-        .single();
+        .maybeSingle();
       
       if (error && error.code !== 'PGRST116') {
         throw error;
       }
       
-      const currentBilling = mockData || {
+      const currentBilling = existingBilling || {
         current_plan: 'Free',
         subscription_status: 'inactive',
         plan_end_date: null
@@ -90,22 +90,43 @@ export const useBilling = () => {
       // Mock payment simulation
       await new Promise(resolve => setTimeout(resolve, 2000));
       
-      // Update billing in database with proper type casting
       const subscriptionEnd = new Date();
       subscriptionEnd.setMonth(subscriptionEnd.getMonth() + 1);
       
-      // Ensure planName matches the expected enum type
-      const validPlan = planName as 'Free' | 'Pro' | 'Team';
-      
-      const { error } = await supabase
+      // Check if billing record exists first
+      const { data: existingBilling } = await supabase
         .from('billing')
-        .upsert({
-          user_id: user.id,
-          current_plan: validPlan,
-          subscription_status: 'active',
-          plan_end_date: subscriptionEnd.toISOString(),
-          updated_at: new Date().toISOString()
-        });
+        .select('id')
+        .eq('user_id', user.id)
+        .maybeSingle();
+      
+      let error;
+      
+      if (existingBilling) {
+        // Update existing record
+        const { error: updateError } = await supabase
+          .from('billing')
+          .update({
+            current_plan: planName,
+            subscription_status: 'active',
+            plan_end_date: subscriptionEnd.toISOString(),
+            updated_at: new Date().toISOString()
+          })
+          .eq('user_id', user.id);
+        error = updateError;
+      } else {
+        // Insert new record
+        const { error: insertError } = await supabase
+          .from('billing')
+          .insert({
+            user_id: user.id,
+            current_plan: planName,
+            subscription_status: 'active',
+            plan_end_date: subscriptionEnd.toISOString(),
+            updated_at: new Date().toISOString()
+          });
+        error = insertError;
+      }
       
       if (error) throw error;
       
@@ -146,6 +167,7 @@ export const useBilling = () => {
         .from('billing')
         .update({
           subscription_status: 'cancelled',
+          current_plan: 'Free',
           updated_at: new Date().toISOString()
         })
         .eq('user_id', user.id);
