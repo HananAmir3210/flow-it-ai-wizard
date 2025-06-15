@@ -1,119 +1,130 @@
 
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Search, Eye, Edit, Trash2 } from 'lucide-react';
-
-const sopsData = [
-  {
-    id: 1,
-    title: 'Customer Onboarding Process',
-    dateCreated: '2024-01-15',
-    category: 'Sales',
-    tags: ['onboarding', 'customer'],
-  },
-  {
-    id: 2,
-    title: 'HR Recruitment Guidelines',
-    dateCreated: '2024-01-10',
-    category: 'HR',
-    tags: ['recruitment', 'hiring'],
-  },
-  {
-    id: 3,
-    title: 'Project Management Workflow',
-    dateCreated: '2024-01-08',
-    category: 'Operations',
-    tags: ['project', 'management'],
-  },
-  {
-    id: 4,
-    title: 'Marketing Campaign Setup',
-    dateCreated: '2024-01-05',
-    category: 'Marketing',
-    tags: ['campaign', 'marketing'],
-  },
-];
+import { Input } from '@/components/ui/input';
+import { Search, Eye, Edit, Trash2, Plus, Filter } from 'lucide-react';
 
 const MySOPs = () => {
   const [searchTerm, setSearchTerm] = useState('');
-  const [filterCategory, setFilterCategory] = useState('all');
 
-  const filteredSOPs = sopsData.filter(sop => {
-    const matchesSearch = sop.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         sop.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()));
-    const matchesCategory = filterCategory === 'all' || sop.category === filterCategory;
-    return matchesSearch && matchesCategory;
-  });
+  const sops = [
+    {
+      id: 1,
+      title: 'Customer Onboarding Process',
+      category: 'Operations',
+      dateCreated: '2024-01-15',
+      tags: ['onboarding', 'customer', 'process'],
+      status: 'Active',
+    },
+    {
+      id: 2,
+      title: 'Marketing Campaign Launch',
+      category: 'Marketing',
+      dateCreated: '2024-01-10',
+      tags: ['marketing', 'campaign', 'launch'],
+      status: 'Draft',
+    },
+    {
+      id: 3,
+      title: 'Employee Training Protocol',
+      category: 'HR',
+      dateCreated: '2024-01-08',
+      tags: ['training', 'employee', 'hr'],
+      status: 'Active',
+    },
+    {
+      id: 4,
+      title: 'Quality Assurance Checklist',
+      category: 'Operations',
+      dateCreated: '2024-01-05',
+      tags: ['qa', 'quality', 'checklist'],
+      status: 'Active',
+    },
+  ];
+
+  const filteredSOPs = sops.filter(sop =>
+    sop.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    sop.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    sop.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()))
+  );
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold">My SOPs</h1>
-        <Button>Create New SOP</Button>
+      {/* Header */}
+      <div className="flex justify-between items-center">
+        <div>
+          <h1 className="text-3xl font-bold">My SOPs</h1>
+          <p className="text-muted-foreground">Manage and organize your standard operating procedures</p>
+        </div>
+        <Button className="flex items-center space-x-2">
+          <Plus size={16} />
+          <span>Create New SOP</span>
+        </Button>
       </div>
 
-      {/* Filters */}
-      <div className="flex flex-col sm:flex-row gap-4">
-        <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input
-            placeholder="Search SOPs..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-10"
-          />
-        </div>
-        <Select value={filterCategory} onValueChange={setFilterCategory}>
-          <SelectTrigger className="w-full sm:w-48">
-            <SelectValue placeholder="Filter by category" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Categories</SelectItem>
-            <SelectItem value="Sales">Sales</SelectItem>
-            <SelectItem value="HR">HR</SelectItem>
-            <SelectItem value="Operations">Operations</SelectItem>
-            <SelectItem value="Marketing">Marketing</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
+      {/* Search and Filters */}
+      <Card>
+        <CardContent className="p-6">
+          <div className="flex flex-col md:flex-row gap-4">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={16} />
+              <Input
+                placeholder="Search SOPs by title, category, or tags..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-10"
+              />
+            </div>
+            <Button variant="outline" className="flex items-center space-x-2">
+              <Filter size={16} />
+              <span>Filter</span>
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
 
       {/* SOPs List */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="space-y-4">
         {filteredSOPs.map((sop) => (
-          <Card key={sop.id} className="hover:shadow-lg transition-shadow">
-            <CardHeader>
-              <div className="flex items-start justify-between">
-                <CardTitle className="text-lg">{sop.title}</CardTitle>
-                <Badge variant="outline">{sop.category}</Badge>
-              </div>
-              <p className="text-sm text-muted-foreground">
-                Created: {new Date(sop.dateCreated).toLocaleDateString()}
-              </p>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <div className="flex flex-wrap gap-1">
-                  {sop.tags.map((tag) => (
-                    <Badge key={tag} variant="secondary" className="text-xs">
-                      {tag}
-                    </Badge>
-                  ))}
+          <Card key={sop.id} className="hover:shadow-md transition-shadow">
+            <CardContent className="p-6">
+              <div className="flex justify-between items-start">
+                <div className="flex-1">
+                  <div className="flex items-center space-x-3 mb-2">
+                    <h3 className="text-lg font-semibold">{sop.title}</h3>
+                    <span className={`px-2 py-1 text-xs rounded-full ${
+                      sop.status === 'Active' 
+                        ? 'bg-green-100 text-green-800' 
+                        : 'bg-yellow-100 text-yellow-800'
+                    }`}>
+                      {sop.status}
+                    </span>
+                  </div>
+                  <div className="flex items-center space-x-4 text-sm text-muted-foreground mb-3">
+                    <span>Category: {sop.category}</span>
+                    <span>Created: {new Date(sop.dateCreated).toLocaleDateString()}</span>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    {sop.tags.map((tag, index) => (
+                      <span key={index} className="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded">
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
                 </div>
-                <div className="flex gap-2">
-                  <Button size="sm" variant="outline" className="flex-1">
-                    <Eye className="h-4 w-4 mr-1" />
+                <div className="flex items-center space-x-2 ml-4">
+                  <Button variant="outline" size="sm">
+                    <Eye size={16} className="mr-1" />
                     View
                   </Button>
-                  <Button size="sm" variant="outline" className="flex-1">
-                    <Edit className="h-4 w-4 mr-1" />
+                  <Button variant="outline" size="sm">
+                    <Edit size={16} className="mr-1" />
                     Edit
                   </Button>
-                  <Button size="sm" variant="outline" className="text-destructive hover:text-destructive">
-                    <Trash2 className="h-4 w-4" />
+                  <Button variant="outline" size="sm" className="text-red-600 hover:text-red-700">
+                    <Trash2 size={16} className="mr-1" />
+                    Delete
                   </Button>
                 </div>
               </div>
@@ -124,8 +135,13 @@ const MySOPs = () => {
 
       {filteredSOPs.length === 0 && (
         <Card>
-          <CardContent className="text-center py-8">
-            <p className="text-muted-foreground">No SOPs found matching your criteria.</p>
+          <CardContent className="p-12 text-center">
+            <FileText className="mx-auto h-12 w-12 text-gray-400 mb-4" />
+            <h3 className="text-lg font-medium text-gray-900 mb-2">No SOPs found</h3>
+            <p className="text-gray-500 mb-4">
+              {searchTerm ? 'Try adjusting your search terms' : 'Get started by creating your first SOP'}
+            </p>
+            <Button>Create Your First SOP</Button>
           </CardContent>
         </Card>
       )}
