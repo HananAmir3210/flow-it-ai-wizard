@@ -1,12 +1,12 @@
+
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { SidebarProvider, Sidebar, SidebarContent, SidebarHeader, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarTrigger, SidebarInset } from '@/components/ui/sidebar';
 import { Button } from '@/components/ui/button';
-import { Home, Clipboard, Layout, Settings, CreditCard, HelpCircle, LogOut, Moon, Sun, User, Menu, Workflow } from 'lucide-react';
+import { Home, Clipboard, Layout, Settings, CreditCard, HelpCircle, LogOut, Moon, Sun, User, Menu } from 'lucide-react';
 import DashboardOverview from '@/components/dashboard/DashboardOverview';
 import MySOPs from '@/components/dashboard/MySOPs';
 import GenerateNewSOP from '@/components/dashboard/GenerateNewSOP';
-import VisualWorkflows from '@/components/dashboard/VisualWorkflows';
 import AccountSettings from '@/components/dashboard/AccountSettings';
 import BillingSection from '@/components/dashboard/BillingSection';
 import SupportSection from '@/components/dashboard/SupportSection';
@@ -21,7 +21,6 @@ const menuItems = [
   { id: 'overview', label: 'Dashboard Overview', icon: Home },
   { id: 'sops', label: 'My SOPs', icon: Clipboard },
   { id: 'generate', label: 'Generate SOP & Workflow', icon: Layout },
-  { id: 'workflows', label: 'Visual Workflows', icon: Workflow },
   { id: 'settings', label: 'Account Settings', icon: Settings },
   { id: 'billing', label: 'Billing', icon: CreditCard },
   { id: 'support', label: 'Support', icon: HelpCircle },
@@ -43,7 +42,7 @@ const Dashboard = () => {
           <DashboardOverview 
             onNavigateToSOPs={() => setActiveSection('sops')}
             onNavigateToGenerate={() => setActiveSection('generate')}
-            onNavigateToWorkflows={() => setActiveSection('workflows')}
+            onNavigateToWorkflows={() => setActiveSection('generate')}
           />
         );
       case 'sops':
@@ -63,8 +62,6 @@ const Dashboard = () => {
             onClearEdit={() => setEditingSOP(null)}
           />
         );
-      case 'workflows':
-        return <VisualWorkflows />;
       case 'settings':
         return <AccountSettings />;
       case 'billing':
