@@ -5,21 +5,23 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useAuth } from "@/hooks/useAuth";
 
 interface AuthModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onLogin: (email: string, password: string) => void;
-  onSignup: (email: string, password: string, confirmPassword: string) => void;
 }
 
-const AuthModal = ({ isOpen, onClose, onLogin, onSignup }: AuthModalProps) => {
+const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
+  const { signIn, signUp } = useAuth();
   const [loginEmail, setLoginEmail] = useState("");
   const [loginPassword, setLoginPassword] = useState("");
   const [signupEmail, setSignupEmail] = useState("");
   const [signupPassword, setSignupPassword] = useState("");
+  const [signupName, setSignupName] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [loading, setLoading] = useState(false);
 
   const validateLogin = () => {
     const newErrors: Record<string, string> = {};
@@ -31,6 +33,7 @@ const AuthModal = ({ isOpen, onClose, onLogin, onSignup }: AuthModalProps) => {
 
   const validateSignup = () => {
     const newErrors: Record<string, string> = {};
+    if (!signupName) newErrors.signupName = "Full name is required";
     if (!signupEmail) newErrors.signupEmail = "Email is required";
     if (!signupPassword) newErrors.signupPassword = "Password is required";
     if (signupPassword.length < 6) newErrors.signupPassword = "Password must be at least 6 characters";
@@ -40,19 +43,35 @@ const AuthModal = ({ isOpen, onClose, onLogin, onSignup }: AuthModalProps) => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (validateLogin()) {
-      onLogin(loginEmail, loginPassword);
+    if (!validateLogin()) return;
+
+    setLoading(true);
+    const { error } = await signIn(loginEmail, loginPassword);
+    setLoading(false);
+
+    if (!error) {
       onClose();
+      setLoginEmail("");
+      setLoginPassword("");
     }
   };
 
-  const handleSignup = (e: React.FormEvent) => {
+  const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (validateSignup()) {
-      onSignup(signupEmail, signupPassword, confirmPassword);
+    if (!validateSignup()) return;
+
+    setLoading(true);
+    const { error } = await signUp(signupEmail, signupPassword, signupName);
+    setLoading(false);
+
+    if (!error) {
       onClose();
+      setSignupEmail("");
+      setSignupPassword("");
+      setSignupName("");
+      setConfirmPassword("");
     }
   };
 
@@ -83,6 +102,7 @@ const AuthModal = ({ isOpen, onClose, onLogin, onSignup }: AuthModalProps) => {
                       value={loginEmail}
                       onChange={(e) => setLoginEmail(e.target.value)}
                       className={errors.loginEmail ? "border-red-500" : ""}
+                      disabled={loading}
                     />
                     {errors.loginEmail && <p className="text-red-500 text-sm mt-1 text-center">{errors.loginEmail}</p>}
                   </div>
@@ -93,18 +113,13 @@ const AuthModal = ({ isOpen, onClose, onLogin, onSignup }: AuthModalProps) => {
                       value={loginPassword}
                       onChange={(e) => setLoginPassword(e.target.value)}
                       className={errors.loginPassword ? "border-red-500" : ""}
+                      disabled={loading}
                     />
                     {errors.loginPassword && <p className="text-red-500 text-sm mt-1 text-center">{errors.loginPassword}</p>}
                   </div>
-                  <Button type="submit" className="w-full">
-                    Login
+                  <Button type="submit" className="w-full" disabled={loading}>
+                    {loading ? "Signing in..." : "Login"}
                   </Button>
-                  <Button variant="outline" className="w-full" type="button">
-                    Continue with Google
-                  </Button>
-                  <p className="text-center text-sm text-gray-500">
-                    <a href="#" className="hover:underline">Forgot password?</a>
-                  </p>
                 </form>
               </CardContent>
             </Card>
@@ -119,11 +134,23 @@ const AuthModal = ({ isOpen, onClose, onLogin, onSignup }: AuthModalProps) => {
                 <form onSubmit={handleSignup} className="space-y-4">
                   <div>
                     <Input
+                      type="text"
+                      placeholder="Full Name"
+                      value={signupName}
+                      onChange={(e) => setSignupName(e.target.value)}
+                      className={errors.signupName ? "border-red-500" : ""}
+                      disabled={loading}
+                    />
+                    {errors.signupName && <p className="text-red-500 text-sm mt-1 text-center">{errors.signupName}</p>}
+                  </div>
+                  <div>
+                    <Input
                       type="email"
                       placeholder="Email"
                       value={signupEmail}
                       onChange={(e) => setSignupEmail(e.target.value)}
                       className={errors.signupEmail ? "border-red-500" : ""}
+                      disabled={loading}
                     />
                     {errors.signupEmail && <p className="text-red-500 text-sm mt-1 text-center">{errors.signupEmail}</p>}
                   </div>
@@ -134,6 +161,7 @@ const AuthModal = ({ isOpen, onClose, onLogin, onSignup }: AuthModalProps) => {
                       value={signupPassword}
                       onChange={(e) => setSignupPassword(e.target.value)}
                       className={errors.signupPassword ? "border-red-500" : ""}
+                      disabled={loading}
                     />
                     {errors.signupPassword && <p className="text-red-500 text-sm mt-1 text-center">{errors.signupPassword}</p>}
                   </div>
@@ -144,18 +172,13 @@ const AuthModal = ({ isOpen, onClose, onLogin, onSignup }: AuthModalProps) => {
                       value={confirmPassword}
                       onChange={(e) => setConfirmPassword(e.target.value)}
                       className={errors.confirmPassword ? "border-red-500" : ""}
+                      disabled={loading}
                     />
                     {errors.confirmPassword && <p className="text-red-500 text-sm mt-1 text-center">{errors.confirmPassword}</p>}
                   </div>
-                  <Button type="submit" className="w-full">
-                    Sign Up
+                  <Button type="submit" className="w-full" disabled={loading}>
+                    {loading ? "Creating account..." : "Sign Up"}
                   </Button>
-                  <Button variant="outline" className="w-full" type="button">
-                    Continue with Google
-                  </Button>
-                  <p className="text-center text-sm text-gray-500">
-                    Already have an account? <a href="#" className="hover:underline">Login here</a>
-                  </p>
                 </form>
               </CardContent>
             </Card>

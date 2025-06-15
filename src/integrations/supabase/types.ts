@@ -9,7 +9,183 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      billing: {
+        Row: {
+          created_at: string | null
+          current_plan: Database["public"]["Enums"]["subscription_plan"] | null
+          id: string
+          payment_method_expiry: string | null
+          payment_method_last4: string | null
+          plan_end_date: string | null
+          plan_start_date: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          current_plan?: Database["public"]["Enums"]["subscription_plan"] | null
+          id?: string
+          payment_method_expiry?: string | null
+          payment_method_last4?: string | null
+          plan_end_date?: string | null
+          plan_start_date?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          current_plan?: Database["public"]["Enums"]["subscription_plan"] | null
+          id?: string
+          payment_method_expiry?: string | null
+          payment_method_last4?: string | null
+          plan_end_date?: string | null
+          plan_start_date?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      invoices: {
+        Row: {
+          amount: number
+          download_url: string | null
+          id: string
+          invoice_date: string | null
+          invoice_number: string
+          status: string | null
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          download_url?: string | null
+          id?: string
+          invoice_date?: string | null
+          invoice_number: string
+          status?: string | null
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          download_url?: string | null
+          id?: string
+          invoice_date?: string | null
+          invoice_number?: string
+          status?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      sops: {
+        Row: {
+          category: Database["public"]["Enums"]["sop_category"]
+          created_at: string | null
+          description: string | null
+          generated_content: string | null
+          id: string
+          tags: string[] | null
+          title: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          category: Database["public"]["Enums"]["sop_category"]
+          created_at?: string | null
+          description?: string | null
+          generated_content?: string | null
+          id?: string
+          tags?: string[] | null
+          title: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          category?: Database["public"]["Enums"]["sop_category"]
+          created_at?: string | null
+          description?: string | null
+          generated_content?: string | null
+          id?: string
+          tags?: string[] | null
+          title?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_profiles: {
+        Row: {
+          company: string | null
+          created_at: string | null
+          email: string | null
+          email_notifications: boolean | null
+          full_name: string | null
+          id: string
+          language: Database["public"]["Enums"]["app_language"] | null
+          push_notifications: boolean | null
+          role: string | null
+          theme: Database["public"]["Enums"]["app_theme"] | null
+          updated_at: string | null
+          weekly_digest: boolean | null
+        }
+        Insert: {
+          company?: string | null
+          created_at?: string | null
+          email?: string | null
+          email_notifications?: boolean | null
+          full_name?: string | null
+          id: string
+          language?: Database["public"]["Enums"]["app_language"] | null
+          push_notifications?: boolean | null
+          role?: string | null
+          theme?: Database["public"]["Enums"]["app_theme"] | null
+          updated_at?: string | null
+          weekly_digest?: boolean | null
+        }
+        Update: {
+          company?: string | null
+          created_at?: string | null
+          email?: string | null
+          email_notifications?: boolean | null
+          full_name?: string | null
+          id?: string
+          language?: Database["public"]["Enums"]["app_language"] | null
+          push_notifications?: boolean | null
+          role?: string | null
+          theme?: Database["public"]["Enums"]["app_theme"] | null
+          updated_at?: string | null
+          weekly_digest?: boolean | null
+        }
+        Relationships: []
+      }
+      workflows: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          id: string
+          thumbnail_url: string | null
+          title: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          thumbnail_url?: string | null
+          title: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          thumbnail_url?: string | null
+          title?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -18,7 +194,18 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      app_language: "en" | "es" | "fr" | "de"
+      app_theme: "light" | "dark" | "system"
+      sop_category:
+        | "Marketing"
+        | "HR"
+        | "Operations"
+        | "Finance"
+        | "Customer Service"
+        | "IT"
+        | "Sales"
+        | "Quality Assurance"
+      subscription_plan: "Free" | "Pro" | "Team"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -133,6 +320,20 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_language: ["en", "es", "fr", "de"],
+      app_theme: ["light", "dark", "system"],
+      sop_category: [
+        "Marketing",
+        "HR",
+        "Operations",
+        "Finance",
+        "Customer Service",
+        "IT",
+        "Sales",
+        "Quality Assurance",
+      ],
+      subscription_plan: ["Free", "Pro", "Team"],
+    },
   },
 } as const
