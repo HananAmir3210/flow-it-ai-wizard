@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -21,6 +22,7 @@ const Index = () => {
   const [isWorkflowModalOpen, setIsWorkflowModalOpen] = useState(false);
   const [isInteractiveWorkflowModalOpen, setIsInteractiveWorkflowModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [isSignedIn, setIsSignedIn] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -107,9 +109,11 @@ const Index = () => {
             <Button variant="ghost" onClick={() => setIsProfileModalOpen(true)}>
               Profile
             </Button>
-            <Button variant="outline" onClick={handleDashboardNavigation}>
-              Dashboard
-            </Button>
+            {isSignedIn && (
+              <Button variant="outline" onClick={handleDashboardNavigation}>
+                Dashboard
+              </Button>
+            )}
             <Button onClick={handleGetStarted}>Get Started</Button>
           </div>
         </nav>
@@ -202,10 +206,12 @@ const Index = () => {
         onClose={() => setIsAuthModalOpen(false)}
         onLogin={(email, password) => {
           console.log('Login:', email, password);
+          setIsSignedIn(true);
           setIsAuthModalOpen(false);
         }}
         onSignup={(name, email, password) => {
           console.log('Signup:', name, email, password);
+          setIsSignedIn(true);
           setIsAuthModalOpen(false);
         }}
       />
