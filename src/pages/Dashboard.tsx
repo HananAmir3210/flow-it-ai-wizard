@@ -48,18 +48,19 @@ const Dashboard = () => {
 
   const handleLogout = () => {
     console.log('Logging out...');
-    // Add slide-out transition and navigate to landing page
-    document.body.style.transition = 'transform 0.3s ease-out';
+    // Add smooth slide-out transition and navigate to landing page
+    document.body.style.transition = 'transform 0.5s cubic-bezier(0.4, 0, 0.2, 1)';
     document.body.style.transform = 'translateX(100%)';
     
     setTimeout(() => {
       navigate('/');
       document.body.style.transform = 'translateX(0)';
-    }, 300);
+      document.body.style.transition = '';
+    }, 500);
   };
 
   return (
-    <div className="min-h-screen bg-background transition-transform duration-300 ease-out">
+    <div className="min-h-screen bg-background transition-all duration-500 ease-in-out">
       <SidebarProvider>
         <div className="flex min-h-screen w-full">
           <Sidebar className="border-r">
