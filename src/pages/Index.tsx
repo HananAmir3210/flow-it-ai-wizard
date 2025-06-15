@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -47,44 +46,6 @@ const Index = () => {
     { id: '5', title: 'Revise', type: 'process' as const, next: ['2'] },
     { id: '6', title: 'Complete', type: 'end' as const }
   ];
-
-  // Sample data for modals
-  const sampleFeature = {
-    title: "AI-Powered Generation",
-    description: "Advanced AI analyzes your process description",
-    details: "Our AI understands your workflow and creates comprehensive documentation automatically.",
-    example: "Transform complex business processes into clear, actionable procedures"
-  };
-
-  const sampleUser = {
-    name: "Hanan",
-    email: "hanan@example.com",
-    avatar: "/placeholder.svg"
-  };
-
-  const sampleSOP = {
-    title: "Customer Support Workflow",
-    steps: [
-      {
-        number: 1,
-        title: "Initial Customer Contact",
-        description: "Receive and acknowledge customer inquiry within 2 hours",
-        details: ["Log ticket in system", "Send acknowledgment email", "Assign priority level"]
-      },
-      {
-        number: 2,
-        title: "Issue Assessment",
-        description: "Analyze the problem and determine appropriate solution path",
-        details: ["Review customer history", "Identify issue category", "Escalate if necessary"]
-      },
-      {
-        number: 3,
-        title: "Resolution Implementation",
-        description: "Apply solution and communicate with customer",
-        details: ["Implement fix", "Test solution", "Document resolution"]
-      }
-    ]
-  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
@@ -195,28 +156,19 @@ const Index = () => {
       {/* Modals */}
       <AuthModal 
         isOpen={isAuthModalOpen} 
-        onClose={() => setIsAuthModalOpen(false)}
-        onLogin={() => console.log('Login')}
-        onSignup={() => console.log('Signup')}
+        onClose={() => setIsAuthModalOpen(false)} 
       />
       <FeatureModal 
         isOpen={isFeatureModalOpen} 
-        onClose={() => setIsFeatureModalOpen(false)}
-        feature={sampleFeature}
+        onClose={() => setIsFeatureModalOpen(false)} 
       />
       <ProfileModal 
         isOpen={isProfileModalOpen} 
-        onClose={() => setIsProfileModalOpen(false)}
-        user={sampleUser}
-        isDarkMode={false}
-        onToggleDarkMode={() => console.log('Toggle theme')}
-        onLogout={() => console.log('Logout')}
-        onViewAccount={() => console.log('View account')}
+        onClose={() => setIsProfileModalOpen(false)} 
       />
       <SOPModal 
         isOpen={isSOPModalOpen} 
-        onClose={() => setIsSOPModalOpen(false)}
-        sop={sampleSOP}
+        onClose={() => setIsSOPModalOpen(false)} 
       />
       <PaymentModal 
         isOpen={isPaymentModalOpen} 
