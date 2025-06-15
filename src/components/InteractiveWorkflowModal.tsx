@@ -1,4 +1,3 @@
-
 import React, { useCallback, useState, useMemo } from 'react';
 import { X, Plus, Square, Circle, ArrowRight, Highlighter, Palette, Maximize, Minimize, ZoomIn, ZoomOut, Download, Move } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -24,6 +23,8 @@ import {
   Position,
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
+import { useToast } from '@/hooks/use-toast';
+import { exportWorkflowToPNG } from '@/utils/workflowExport';
 
 interface WorkflowStep {
   id: string;
@@ -189,6 +190,7 @@ const InteractiveWorkflowModal: React.FC<InteractiveWorkflowModalProps> = ({
   const [zoom, setZoom] = useState(1);
   const [isDragMode, setIsDragMode] = useState(true);
   const [connectionMode, setConnectionMode] = useState(false);
+  const { toast } = useToast();
 
   // Convert workflow steps to React Flow format with enhanced positioning
   const initialNodes: Node[] = useMemo(() => {
@@ -364,9 +366,21 @@ const InteractiveWorkflowModal: React.FC<InteractiveWorkflowModalProps> = ({
     setZoom(Math.max(0.5, zoom - 0.1));
   };
 
-  const handleDownload = () => {
-    console.log('Downloading workflow...');
-    // TODO: Implement download functionality
+  const handleDownload = async () => {
+    try {
+      await exportWorkflowToPNG(title);
+      toast({
+        title: "Workflow Exported",
+        description: "Your workflow has been downloaded as a PNG image.",
+      });
+    } catch (error) {
+      console.error('Error exporting workflow:', error);
+      toast({
+        title: "Export Failed",
+        description: "Unable to export workflow. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   const changeNodeColor = (colorName: string) => {
