@@ -1,10 +1,11 @@
 
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Lightbulb, Zap, Save, FileText } from 'lucide-react';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 
 const GenerateNewSOP = () => {
   const [prompt, setPrompt] = useState('');
@@ -12,230 +13,148 @@ const GenerateNewSOP = () => {
   const [isGenerating, setIsGenerating] = useState(false);
   const [generatedSOP, setGeneratedSOP] = useState('');
 
-  const categories = [
-    'Marketing',
-    'Human Resources',
-    'Operations',
-    'Customer Service',
-    'Sales',
-    'IT & Technology',
-    'Finance',
-    'Quality Assurance',
-    'Legal & Compliance',
-    'Project Management'
-  ];
-
   const handleGenerate = async () => {
-    if (!prompt.trim()) return;
-    
     setIsGenerating(true);
-    
-    // Simulate AI generation delay
+    // Simulate API call
     setTimeout(() => {
       setGeneratedSOP(`
-# ${prompt}
+# ${category} SOP: ${prompt}
 
 ## Overview
-This SOP outlines the standardized process for ${prompt.toLowerCase()}.
+This Standard Operating Procedure (SOP) outlines the process for ${prompt.toLowerCase()}.
 
-## Purpose
-To ensure consistent, efficient, and quality execution of ${prompt.toLowerCase()} across the organization.
+## Objective
+To ensure consistent and efficient execution of ${prompt.toLowerCase()} across the organization.
 
 ## Scope
-This procedure applies to all team members involved in ${prompt.toLowerCase()}.
-
-## Responsibilities
-- **Team Lead**: Overall oversight and quality control
-- **Team Members**: Execute the process according to guidelines
-- **Manager**: Review and approve final outputs
+This SOP applies to all team members involved in ${prompt.toLowerCase()}.
 
 ## Procedure
 
-### Step 1: Preparation
-1. Review all relevant documentation
-2. Gather necessary resources and tools
-3. Confirm timeline and deliverables
+### Step 1: Initial Assessment
+- Review requirements and gather necessary information
+- Identify key stakeholders and resources needed
 
-### Step 2: Execution
-1. Follow the established workflow
-2. Document progress at each milestone
-3. Conduct quality checks
+### Step 2: Planning Phase
+- Create detailed project timeline
+- Assign responsibilities to team members
+- Set up monitoring and tracking systems
 
-### Step 3: Review & Finalization
-1. Internal review by team lead
-2. Manager approval
-3. Final documentation and archival
+### Step 3: Execution
+- Follow established protocols
+- Document progress at each milestone
+- Communicate updates to stakeholders
 
-## Quality Control
-- Regular audits of the process
-- Feedback collection from stakeholders
-- Continuous improvement initiatives
+### Step 4: Review and Quality Assurance
+- Conduct thorough review of deliverables
+- Implement quality control measures
+- Address any identified issues
 
-## Documentation
-- All steps must be documented
-- Templates and forms to be used consistently
-- Records to be maintained for audit purposes
+### Step 5: Completion and Documentation
+- Finalize all documentation
+- Conduct post-process review
+- Archive relevant materials
 
-## Training
-New team members must complete training on this SOP before execution.
+## Key Performance Indicators
+- Process completion time
+- Quality metrics
+- Stakeholder satisfaction
+
+## Revision History
+- Version 1.0: Initial creation
       `);
       setIsGenerating(false);
     }, 2000);
   };
 
   const handleSave = () => {
-    console.log('Saving SOP to user collection...');
-    // Implementation for saving SOP
+    console.log('Saving SOP:', { prompt, category, content: generatedSOP });
+    // Implement save logic
   };
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div>
-        <h1 className="text-3xl font-bold flex items-center space-x-2">
-          <Lightbulb className="text-yellow-500" />
-          <span>Generate New SOP</span>
-        </h1>
-        <p className="text-muted-foreground">
-          Describe your process and let AI create a comprehensive Standard Operating Procedure
-        </p>
-      </div>
+      <h1 className="text-3xl font-bold">Generate New SOP</h1>
 
-      {/* Generation Form */}
-      <Card>
-        <CardHeader>
-          <CardTitle>SOP Generator</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium mb-2">
-              Describe your goal or task
-            </label>
-            <Input
-              placeholder="e.g., Customer onboarding process, Marketing campaign launch, Employee training..."
-              value={prompt}
-              onChange={(e) => setPrompt(e.target.value)}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Input Section */}
+        <Card>
+          <CardHeader>
+            <CardTitle>SOP Generator</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div>
+              <Label htmlFor="prompt">Describe your goal or task</Label>
+              <Textarea
+                id="prompt"
+                placeholder="e.g., Customer complaint resolution process, Employee performance review, Product quality control..."
+                value={prompt}
+                onChange={(e) => setPrompt(e.target.value)}
+                className="min-h-32"
+              />
+            </div>
+
+            <div>
+              <Label htmlFor="category">Category</Label>
+              <Select value={category} onValueChange={setCategory}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select a category" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Marketing">Marketing</SelectItem>
+                  <SelectItem value="HR">Human Resources</SelectItem>
+                  <SelectItem value="Operations">Operations</SelectItem>
+                  <SelectItem value="Finance">Finance</SelectItem>
+                  <SelectItem value="Customer Service">Customer Service</SelectItem>
+                  <SelectItem value="IT">Information Technology</SelectItem>
+                  <SelectItem value="Sales">Sales</SelectItem>
+                  <SelectItem value="Quality Assurance">Quality Assurance</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <Button 
+              onClick={handleGenerate}
+              disabled={!prompt || !category || isGenerating}
               className="w-full"
-            />
-          </div>
+            >
+              {isGenerating ? 'Generating SOP...' : 'Generate SOP'}
+            </Button>
+          </CardContent>
+        </Card>
 
-          <div>
-            <label className="block text-sm font-medium mb-2">
-              Category
-            </label>
-            <Select value={category} onValueChange={setCategory}>
-              <SelectTrigger>
-                <SelectValue placeholder="Select a category" />
-              </SelectTrigger>
-              <SelectContent>
-                {categories.map((cat) => (
-                  <SelectItem key={cat} value={cat.toLowerCase()}>
-                    {cat}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          <Button 
-            onClick={handleGenerate}
-            disabled={!prompt.trim() || isGenerating}
-            className="w-full flex items-center space-x-2"
-          >
-            <Zap size={16} />
-            <span>{isGenerating ? 'Generating SOP...' : 'Generate SOP'}</span>
-          </Button>
-        </CardContent>
-      </Card>
-
-      {/* Generated Result */}
-      {(generatedSOP || isGenerating) && (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Generated SOP */}
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between">
-              <CardTitle className="flex items-center space-x-2">
-                <FileText size={20} />
-                <span>Generated SOP</span>
-              </CardTitle>
-              {generatedSOP && (
-                <Button onClick={handleSave} size="sm" className="flex items-center space-x-1">
-                  <Save size={14} />
-                  <span>Save to My SOPs</span>
-                </Button>
-              )}
-            </CardHeader>
-            <CardContent>
-              {isGenerating ? (
-                <div className="flex items-center justify-center py-12">
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-                  <span className="ml-2">Generating your SOP...</span>
-                </div>
-              ) : (
-                <div className="prose prose-sm max-w-none">
+        {/* Result Section */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Generated SOP</CardTitle>
+          </CardHeader>
+          <CardContent>
+            {isGenerating ? (
+              <div className="flex items-center justify-center h-64">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+              </div>
+            ) : generatedSOP ? (
+              <div className="space-y-4">
+                <div className="max-h-96 overflow-y-auto bg-muted p-4 rounded-lg">
                   <pre className="whitespace-pre-wrap text-sm">{generatedSOP}</pre>
                 </div>
-              )}
-            </CardContent>
-          </Card>
-
-          {/* Workflow Visualizer */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Workflow Visualization</CardTitle>
-            </CardHeader>
-            <CardContent>
-              {isGenerating ? (
-                <div className="flex items-center justify-center py-12">
-                  <div className="animate-pulse bg-gray-200 rounded h-48 w-full"></div>
-                </div>
-              ) : (
-                <div className="space-y-4">
-                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 text-center">
-                    <div className="text-blue-600 font-medium">Interactive Workflow</div>
-                    <div className="text-sm text-blue-500 mt-1">
-                      Visual representation of your SOP process
-                    </div>
-                  </div>
-                  <Button variant="outline" className="w-full">
-                    Open Workflow Editor
+                <div className="flex gap-2">
+                  <Button onClick={handleSave} className="flex-1">
+                    Save to My SOPs
+                  </Button>
+                  <Button variant="outline" className="flex-1">
+                    Generate Workflow
                   </Button>
                 </div>
-              )}
-            </CardContent>
-          </Card>
-        </div>
-      )}
-
-      {/* Template Suggestions */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Popular SOP Templates</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {[
-              'Customer Service Response',
-              'Employee Onboarding',
-              'Marketing Campaign Launch',
-              'Quality Control Process',
-              'Sales Lead Qualification',
-              'IT Incident Response'
-            ].map((template, index) => (
-              <button
-                key={index}
-                onClick={() => setPrompt(template)}
-                className="p-3 text-left border rounded-lg hover:bg-gray-50 transition-colors"
-              >
-                <div className="font-medium text-sm">{template}</div>
-                <div className="text-xs text-muted-foreground mt-1">
-                  Pre-built template ready to customize
-                </div>
-              </button>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
+              </div>
+            ) : (
+              <div className="flex items-center justify-center h-64 text-muted-foreground">
+                <p>Generated SOP will appear here</p>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 };

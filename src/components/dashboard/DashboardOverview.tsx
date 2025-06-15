@@ -1,140 +1,121 @@
 
 import React from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { FileText, GitBranch, CreditCard, Clock } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+
+const data = [
+  { name: 'Jan', sops: 4, workflows: 2 },
+  { name: 'Feb', sops: 3, workflows: 4 },
+  { name: 'Mar', sops: 8, workflows: 6 },
+  { name: 'Apr', sops: 6, workflows: 3 },
+  { name: 'May', sops: 12, workflows: 8 },
+  { name: 'Jun', sops: 9, workflows: 5 },
+];
 
 const DashboardOverview = () => {
-  const stats = [
-    {
-      title: 'Total SOPs Created',
-      value: '24',
-      description: '+3 this month',
-      icon: FileText,
-      color: 'text-blue-600',
-    },
-    {
-      title: 'Workflows Visualized',
-      value: '18',
-      description: '+2 this week',
-      icon: GitBranch,
-      color: 'text-green-600',
-    },
-    {
-      title: 'Active Subscriptions',
-      value: '1',
-      description: 'Pro Plan',
-      icon: CreditCard,
-      color: 'text-purple-600',
-    },
-    {
-      title: 'Last Activity',
-      value: '2 hours ago',
-      description: 'Generated Marketing SOP',
-      icon: Clock,
-      color: 'text-orange-600',
-    },
-  ];
-
-  const recentActivity = [
-    {
-      action: 'Created new SOP',
-      title: 'Customer Onboarding Process',
-      time: '2 hours ago',
-      category: 'Operations',
-    },
-    {
-      action: 'Generated workflow',
-      title: 'Marketing Campaign Launch',
-      time: '1 day ago',
-      category: 'Marketing',
-    },
-    {
-      action: 'Updated SOP',
-      title: 'Employee Training Protocol',
-      time: '3 days ago',
-      category: 'HR',
-    },
-  ];
-
   return (
     <div className="space-y-6">
       {/* Welcome Header */}
-      <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg p-6 text-white">
-        <h1 className="text-3xl font-bold mb-2">Welcome back, Hanan 👋</h1>
-        <p className="text-blue-100">
-          Ready to streamline your processes? Let's create some amazing SOPs today.
-        </p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold">Welcome back, Hanan 👋</h1>
+          <p className="text-muted-foreground">Here's what's happening with your SOPs today.</p>
+        </div>
       </div>
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {stats.map((stat, index) => {
-          const Icon = stat.icon;
-          return (
-            <Card key={index}>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">{stat.title}</CardTitle>
-                <Icon className={`h-4 w-4 ${stat.color}`} />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">{stat.value}</div>
-                <p className="text-xs text-muted-foreground">{stat.description}</p>
-              </CardContent>
-            </Card>
-          );
-        })}
-      </div>
-
-      {/* Recent Activity */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <Card>
-          <CardHeader>
-            <CardTitle>Recent Activity</CardTitle>
-            <CardDescription>Your latest SOP and workflow activities</CardDescription>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium">Total SOPs Created</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
-              {recentActivity.map((activity, index) => (
-                <div key={index} className="flex items-start space-x-4">
-                  <div className="w-2 h-2 bg-blue-500 rounded-full mt-2"></div>
-                  <div className="flex-1">
-                    <p className="text-sm font-medium">{activity.action}</p>
-                    <p className="text-sm text-muted-foreground">{activity.title}</p>
-                    <div className="flex items-center space-x-2 mt-1">
-                      <span className="text-xs bg-gray-100 px-2 py-1 rounded">
-                        {activity.category}
-                      </span>
-                      <span className="text-xs text-muted-foreground">{activity.time}</span>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
+            <div className="text-2xl font-bold">42</div>
+            <p className="text-xs text-muted-foreground">+12% from last month</p>
           </CardContent>
         </Card>
 
-        {/* Quick Actions */}
         <Card>
-          <CardHeader>
-            <CardTitle>Quick Actions</CardTitle>
-            <CardDescription>Jump into your most common tasks</CardDescription>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium">Workflows Visualized</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-3">
-            <button className="w-full p-3 text-left border rounded-lg hover:bg-gray-50 transition-colors">
-              <div className="font-medium">Generate New SOP</div>
-              <div className="text-sm text-muted-foreground">Create a new standard operating procedure</div>
-            </button>
-            <button className="w-full p-3 text-left border rounded-lg hover:bg-gray-50 transition-colors">
-              <div className="font-medium">Create Workflow</div>
-              <div className="text-sm text-muted-foreground">Visualize your process flow</div>
-            </button>
-            <button className="w-full p-3 text-left border rounded-lg hover:bg-gray-50 transition-colors">
-              <div className="font-medium">Browse Templates</div>
-              <div className="text-sm text-muted-foreground">Start from pre-built SOP templates</div>
-            </button>
+          <CardContent>
+            <div className="text-2xl font-bold">28</div>
+            <p className="text-xs text-muted-foreground">+8% from last month</p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium">Active Subscription</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">Pro</div>
+            <p className="text-xs text-muted-foreground">Renews in 23 days</p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium">Last Login</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">Today</div>
+            <p className="text-xs text-muted-foreground">2:30 PM</p>
           </CardContent>
         </Card>
       </div>
+
+      {/* Chart */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Activity Overview</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <ResponsiveContainer width="100%" height={300}>
+            <BarChart data={data}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="name" />
+              <YAxis />
+              <Tooltip />
+              <Bar dataKey="sops" fill="#8884d8" name="SOPs" />
+              <Bar dataKey="workflows" fill="#82ca9d" name="Workflows" />
+            </BarChart>
+          </ResponsiveContainer>
+        </CardContent>
+      </Card>
+
+      {/* Recent Activity */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Recent Activity</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            <div className="flex items-center gap-4">
+              <div className="h-2 w-2 rounded-full bg-green-500"></div>
+              <div className="flex-1">
+                <p className="text-sm">Created new SOP: "Customer Onboarding Process"</p>
+                <p className="text-xs text-muted-foreground">2 hours ago</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-4">
+              <div className="h-2 w-2 rounded-full bg-blue-500"></div>
+              <div className="flex-1">
+                <p className="text-sm">Generated workflow for "HR Recruitment"</p>
+                <p className="text-xs text-muted-foreground">5 hours ago</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-4">
+              <div className="h-2 w-2 rounded-full bg-yellow-500"></div>
+              <div className="flex-1">
+                <p className="text-sm">Updated SOP: "Project Management Guidelines"</p>
+                <p className="text-xs text-muted-foreground">1 day ago</p>
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 };
