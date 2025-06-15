@@ -123,18 +123,18 @@ const ProfileModal = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-md p-0 gap-0 dark:bg-gray-900 overflow-hidden">
+      <DialogContent className="sm:max-w-md overflow-hidden p-0">
         <DialogHeader className="sr-only">
           <DialogTitle>Profile</DialogTitle>
           <DialogDescription>Manage your profile settings</DialogDescription>
         </DialogHeader>
         
-        <div className="relative w-full h-full">
+        <div className="relative w-full h-[600px]">
           {/* Profile Panel */}
           <div className={`absolute inset-0 transition-transform duration-300 ease-in-out ${
             currentPanel === 'profile' ? 'translate-x-0' : '-translate-x-full'
           }`}>
-            <div className="p-6">
+            <div className="p-6 h-full">
               {/* Avatar Section */}
               <div className="flex flex-col items-center text-center mb-6">
                 <Avatar className="w-20 h-20 mb-4">
@@ -173,12 +173,12 @@ const ProfileModal = ({
                     </div>
                   ) : (
                     <div className="space-y-2">
-                      <h3 className="text-lg font-semibold dark:text-white">{user.name}</h3>
+                      <h3 className="text-lg font-semibold">{user.name}</h3>
                       <Button 
                         variant="ghost" 
                         size="sm" 
                         onClick={() => setIsEditing(true)}
-                        className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300"
+                        className="text-blue-600 hover:text-blue-700"
                       >
                         <Edit3 className="w-4 h-4 mr-1" />
                         Edit Profile
@@ -188,7 +188,7 @@ const ProfileModal = ({
                 </div>
                 
                 {/* Email */}
-                <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">{user.email}</p>
+                <p className="text-sm text-gray-500 mt-2">{user.email}</p>
               </div>
 
               {/* Account Button */}
@@ -207,11 +207,11 @@ const ProfileModal = ({
               <div className="flex items-center justify-between py-2 mb-4">
                 <div className="flex items-center space-x-2">
                   {isDarkMode ? (
-                    <Moon className="w-4 h-4 text-gray-600 dark:text-gray-300" />
+                    <Moon className="w-4 h-4 text-gray-600" />
                   ) : (
-                    <Sun className="w-4 h-4 text-gray-600 dark:text-gray-300" />
+                    <Sun className="w-4 h-4 text-gray-600" />
                   )}
-                  <Label htmlFor="dark-mode" className="text-sm font-medium dark:text-gray-300">
+                  <Label htmlFor="dark-mode" className="text-sm font-medium">
                     Dark Mode
                   </Label>
                 </div>
@@ -227,7 +227,7 @@ const ProfileModal = ({
               {/* Logout Button */}
               <Button 
                 variant="ghost" 
-                className="w-full justify-start text-red-600 hover:text-red-700 hover:bg-red-50 dark:text-red-400 dark:hover:text-red-300 dark:hover:bg-red-900/20" 
+                className="w-full justify-start text-red-600 hover:text-red-700 hover:bg-red-50" 
                 onClick={handleLogout}
               >
                 <LogOut className="w-4 h-4 mr-2" />
@@ -251,13 +251,13 @@ const ProfileModal = ({
                 >
                   <ArrowLeft className="w-4 h-4" />
                 </Button>
-                <h2 className="text-lg font-semibold dark:text-white">Account Settings</h2>
+                <h2 className="text-lg font-semibold">Account Settings</h2>
               </div>
 
               <div className="space-y-6">
                 {/* Personal Information */}
                 <div className="space-y-4">
-                  <h3 className="text-sm font-medium text-gray-900 dark:text-gray-100">Personal Information</h3>
+                  <h3 className="text-sm font-medium text-gray-900">Personal Information</h3>
                   
                   <div className="space-y-2">
                     <Label htmlFor="fullName">Full Name</Label>
@@ -283,7 +283,7 @@ const ProfileModal = ({
 
                 {/* Change Password */}
                 <div className="space-y-4">
-                  <h3 className="text-sm font-medium text-gray-900 dark:text-gray-100">Change Password</h3>
+                  <h3 className="text-sm font-medium text-gray-900">Change Password</h3>
                   
                   <div className="space-y-2">
                     <Label htmlFor="currentPassword">Current Password</Label>
@@ -357,7 +357,7 @@ const ProfileModal = ({
 
                 {/* Preferences */}
                 <div className="space-y-4">
-                  <h3 className="text-sm font-medium text-gray-900 dark:text-gray-100">Preferences</h3>
+                  <h3 className="text-sm font-medium text-gray-900">Preferences</h3>
                   
                   <div className="space-y-2">
                     <Label htmlFor="language">Language</Label>
@@ -403,7 +403,7 @@ const ProfileModal = ({
 
                 {/* Notification Settings */}
                 <div className="space-y-4">
-                  <h3 className="text-sm font-medium text-gray-900 dark:text-gray-100">Notifications</h3>
+                  <h3 className="text-sm font-medium text-gray-900">Notifications</h3>
                   
                   <div className="space-y-3">
                     <div className="flex items-center space-x-2">
@@ -461,11 +461,11 @@ const ProfileModal = ({
 
                 {/* Danger Zone */}
                 <div className="space-y-4">
-                  <h3 className="text-sm font-medium text-red-600 dark:text-red-400">Danger Zone</h3>
+                  <h3 className="text-sm font-medium text-red-600">Danger Zone</h3>
                   <Button 
                     variant="outline" 
                     onClick={handleDeleteAccount}
-                    className="w-full text-red-600 border-red-300 hover:bg-red-50 dark:text-red-400 dark:border-red-800 dark:hover:bg-red-900/20"
+                    className="w-full text-red-600 border-red-300 hover:bg-red-50"
                   >
                     <Trash2 className="w-4 h-4 mr-2" />
                     Delete Account
