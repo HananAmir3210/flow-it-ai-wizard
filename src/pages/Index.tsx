@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -55,15 +56,34 @@ const Index = () => {
   };
 
   const mockSOP = {
-    title: "Sample SOP",
-    content: "This is a sample SOP content for demonstration purposes.",
-    steps: ["Step 1", "Step 2", "Step 3"]
+    title: "Sample Customer Onboarding Process",
+    steps: [
+      {
+        number: 1,
+        title: "Initial Contact",
+        description: "Receive and acknowledge customer inquiry within 24 hours",
+        details: ["Log inquiry in CRM system", "Send acknowledgment email", "Assign to appropriate team member"]
+      },
+      {
+        number: 2,
+        title: "Requirements Gathering",
+        description: "Conduct detailed needs assessment with the customer",
+        details: ["Schedule discovery call", "Complete needs assessment form", "Document specific requirements"]
+      },
+      {
+        number: 3,
+        title: "Proposal Creation",
+        description: "Create customized proposal based on customer requirements",
+        details: ["Draft initial proposal", "Review with internal team", "Send to customer for review"]
+      }
+    ]
   };
 
   const sampleFeature = {
     title: "AI-Powered Generation",
     description: "Generate comprehensive SOPs using advanced AI technology",
-    icon: "🤖"
+    details: "Our advanced AI analyzes your process description and creates detailed, professional SOPs tailored to your specific needs. The system uses natural language processing to understand your workflow and automatically structures it into clear, actionable steps.",
+    example: "Simply describe your process like 'I want to create a customer onboarding workflow' and our AI will generate a complete SOP with numbered steps, detailed descriptions, and implementation guidelines."
   };
 
   return (
