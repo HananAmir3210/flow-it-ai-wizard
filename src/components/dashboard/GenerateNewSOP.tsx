@@ -6,19 +6,36 @@ import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { useToast } from '@/hooks/use-toast';
 
-const GenerateNewSOP = () => {
+interface GenerateNewSOPProps {
+  onSOPCreated?: () => void;
+}
+
+const GenerateNewSOP = ({ onSOPCreated }: GenerateNewSOPProps) => {
   const [prompt, setPrompt] = useState('');
   const [category, setCategory] = useState('');
+  const [title, setTitle] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
   const [generatedSOP, setGeneratedSOP] = useState('');
+  const { toast } = useToast();
 
   const handleGenerate = async () => {
+    if (!prompt || !category) {
+      toast({
+        title: "Missing information",
+        description: "Please fill in all required fields.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setIsGenerating(true);
     // Simulate API call
     setTimeout(() => {
+      const sopTitle = title || `${category} SOP: ${prompt}`;
       setGeneratedSOP(`
-# ${category} SOP: ${prompt}
+# ${sopTitle}
 
 ## Overview
 This Standard Operating Procedure (SOP) outlines the process for ${prompt.toLowerCase()}.
@@ -34,47 +51,114 @@ This SOP applies to all team members involved in ${prompt.toLowerCase()}.
 ### Step 1: Initial Assessment
 - Review requirements and gather necessary information
 - Identify key stakeholders and resources needed
+- Document current state and desired outcomes
 
 ### Step 2: Planning Phase
 - Create detailed project timeline
 - Assign responsibilities to team members
 - Set up monitoring and tracking systems
+- Establish communication protocols
 
 ### Step 3: Execution
-- Follow established protocols
+- Follow established protocols and guidelines
 - Document progress at each milestone
-- Communicate updates to stakeholders
+- Communicate updates to relevant stakeholders
+- Monitor quality and performance metrics
 
 ### Step 4: Review and Quality Assurance
 - Conduct thorough review of deliverables
 - Implement quality control measures
-- Address any identified issues
+- Address any identified issues or gaps
+- Validate against established criteria
 
 ### Step 5: Completion and Documentation
-- Finalize all documentation
-- Conduct post-process review
-- Archive relevant materials
+- Finalize all documentation and reports
+- Conduct post-process review and lessons learned
+- Archive relevant materials for future reference
+- Update procedures based on insights gained
 
 ## Key Performance Indicators
-- Process completion time
-- Quality metrics
-- Stakeholder satisfaction
+- Process completion time: Target within established timeframes
+- Quality metrics: 95% accuracy rate
+- Stakeholder satisfaction: 4.5/5 average rating
+- Compliance rate: 100% adherence to procedures
+
+## Responsibilities
+- **Process Owner**: Overall accountability for SOP execution
+- **Team Members**: Following procedures and reporting issues
+- **Quality Assurance**: Monitoring compliance and quality
+- **Management**: Providing resources and support
 
 ## Revision History
-- Version 1.0: Initial creation
+- Version 1.0: Initial creation - ${new Date().toLocaleDateString()}
+- Last Updated: ${new Date().toLocaleDateString()}
+
+## Approval
+This SOP has been reviewed and approved by the relevant stakeholders.
       `);
       setIsGenerating(false);
+      toast({
+        title: "SOP Generated Successfully!",
+        description: "Your Standard Operating Procedure has been created.",
+      });
     }, 2000);
   };
 
   const handleSave = () => {
-    console.log('Saving SOP:', { prompt, category, content: generatedSOP });
-    // Implement save logic
+    if (!generatedSOP) {
+      toast({
+        title: "Nothing to save",
+        description: "Please generate an SOP first.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Simulate saving to local storage or backend
+    const sopData = {
+      id: Date.now(),
+      title: title || `${category} SOP: ${prompt}`,
+      content: generatedSOP,
+      category,
+      prompt,
+      dateCreated: new Date().toISOString(),
+      tags: [category.toLowerCase(), ...prompt.toLowerCase().split(' ').slice(0, 2)]
+    };
+
+    // Save to localStorage for demo purposes
+    const existingSOPs = JSON.parse(localStorage.getItem('user-sops') || '[]');
+    existingSOPs.push(sopData);
+    localStorage.setItem('user-sops', JSON.stringify(existingSOPs));
+
+    toast({
+      title: "SOP Saved!",
+      description: "Your SOP has been saved to My SOPs.",
+    });
+
+    // Reset form
+    setPrompt('');
+    setCategory('');
+    setTitle('');
+    setGeneratedSOP('');
+
+    // Navigate to My SOPs
+    if (onSOPCreated) {
+      onSOPCreated();
+    }
+  };
+
+  const handleExportPDF = () => {
+    toast({
+      title: "Export Feature",
+      description: "PDF export functionality will be available soon!",
+    });
   };
 
   return (
     <div className="space-y-6">
-      <h1 className="text-3xl font-bold">Generate New SOP</h1>
+      <div className="flex items-center justify-between">
+        <h1 className="text-2xl md:text-3xl font-bold">Generate New SOP</h1>
+      </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Input Section */}
@@ -84,7 +168,17 @@ This SOP applies to all team members involved in ${prompt.toLowerCase()}.
           </CardHeader>
           <CardContent className="space-y-4">
             <div>
-              <Label htmlFor="prompt">Describe your goal or task</Label>
+              <Label htmlFor="title">SOP Title (Optional)</Label>
+              <Input
+                id="title"
+                placeholder="e.g., Customer Service Protocol"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+              />
+            </div>
+
+            <div>
+              <Label htmlFor="prompt">Describe your process or goal *</Label>
               <Textarea
                 id="prompt"
                 placeholder="e.g., Customer complaint resolution process, Employee performance review, Product quality control..."
@@ -95,7 +189,7 @@ This SOP applies to all team members involved in ${prompt.toLowerCase()}.
             </div>
 
             <div>
-              <Label htmlFor="category">Category</Label>
+              <Label htmlFor="category">Category *</Label>
               <Select value={category} onValueChange={setCategory}>
                 <SelectTrigger>
                   <SelectValue placeholder="Select a category" />
@@ -138,12 +232,12 @@ This SOP applies to all team members involved in ${prompt.toLowerCase()}.
                 <div className="max-h-96 overflow-y-auto bg-muted p-4 rounded-lg">
                   <pre className="whitespace-pre-wrap text-sm">{generatedSOP}</pre>
                 </div>
-                <div className="flex gap-2">
+                <div className="flex flex-col sm:flex-row gap-2">
                   <Button onClick={handleSave} className="flex-1">
                     Save to My SOPs
                   </Button>
-                  <Button variant="outline" className="flex-1">
-                    Generate Workflow
+                  <Button variant="outline" onClick={handleExportPDF} className="flex-1">
+                    Export PDF
                   </Button>
                 </div>
               </div>

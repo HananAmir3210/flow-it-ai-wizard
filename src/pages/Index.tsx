@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -35,14 +34,23 @@ const Index = () => {
   };
 
   const handleSOPGeneration = async () => {
+    if (!isSignedIn) {
+      setIsAuthModalOpen(true);
+      return;
+    }
+    
     setIsLoading(true);
     await new Promise(resolve => setTimeout(resolve, 2000));
     setIsLoading(false);
-    setIsSOPModalOpen(true);
+    navigate('/dashboard');
     toast({
-      title: "SOP Generated!",
-      description: "Your Standard Operating Procedure has been created successfully.",
+      title: "Redirecting to Dashboard",
+      description: "You can generate your SOP from the dashboard.",
     });
+  };
+
+  const handleViewSampleWorkflow = () => {
+    setIsWorkflowModalOpen(true);
   };
 
   const workflowSteps = [
@@ -54,7 +62,6 @@ const Index = () => {
     { id: '6', title: 'Complete', type: 'end' as const }
   ];
 
-  // Mock data for modals
   const mockUser = {
     name: "John Doe",
     email: "john@example.com",
@@ -105,7 +112,9 @@ const Index = () => {
             <Button variant="ghost" onClick={() => setIsFeatureModalOpen(true)}>
               Features
             </Button>
-            <Button variant="ghost">Pricing</Button>
+            <Button variant="ghost" onClick={() => setIsPaymentModalOpen(true)}>
+              Pricing
+            </Button>
             <Button variant="ghost" onClick={() => setIsProfileModalOpen(true)}>
               Profile
             </Button>
@@ -122,27 +131,27 @@ const Index = () => {
       {/* Hero Section */}
       <main className="container mx-auto px-4 py-16">
         <div className="text-center mb-16">
-          <h1 className="text-5xl font-bold text-gray-900 mb-6">
+          <h1 className="text-3xl md:text-5xl font-bold text-gray-900 mb-6">
             Create Professional SOPs with
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600"> AI Power</span>
           </h1>
-          <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto">
+          <p className="text-lg md:text-xl text-gray-600 mb-8 max-w-3xl mx-auto">
             Transform your business processes into clear, actionable Standard Operating Procedures in minutes, not hours. 
             Our AI understands your workflow and creates comprehensive documentation automatically.
           </p>
-          <div className="flex justify-center space-x-4">
+          <div className="flex flex-col sm:flex-row justify-center gap-4">
             <Button size="lg" onClick={handleSOPGeneration} disabled={isLoading}>
               {isLoading ? <LoadingSpinner /> : "Generate Your First SOP"}
             </Button>
-            <Button size="lg" variant="outline" onClick={() => setIsWorkflowModalOpen(true)}>
+            <Button size="lg" variant="outline" onClick={handleViewSampleWorkflow}>
               View Sample Workflow
             </Button>
           </div>
         </div>
 
         {/* Feature Cards */}
-        <div className="grid md:grid-cols-3 gap-8 mb-16">
-          <Card className="hover:shadow-lg transition-shadow">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-16">
+          <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => setIsFeatureModalOpen(true)}>
             <CardHeader>
               <CardTitle className="flex items-center">
                 <span className="text-2xl mr-2">🤖</span>
@@ -156,7 +165,7 @@ const Index = () => {
             </CardContent>
           </Card>
 
-          <Card className="hover:shadow-lg transition-shadow">
+          <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={handleViewSampleWorkflow}>
             <CardHeader>
               <CardTitle className="flex items-center">
                 <span className="text-2xl mr-2">📊</span>
@@ -170,7 +179,7 @@ const Index = () => {
             </CardContent>
           </Card>
 
-          <Card className="hover:shadow-lg transition-shadow">
+          <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => setIsInteractiveWorkflowModalOpen(true)}>
             <CardHeader>
               <CardTitle className="flex items-center">
                 <span className="text-2xl mr-2">🔄</span>
@@ -186,10 +195,10 @@ const Index = () => {
         </div>
 
         {/* CTA Section */}
-        <div className="text-center bg-white rounded-lg shadow-lg p-8">
-          <h2 className="text-3xl font-bold text-gray-900 mb-4">Ready to Streamline Your Operations?</h2>
+        <div className="text-center bg-white rounded-lg shadow-lg p-6 md:p-8">
+          <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-4">Ready to Streamline Your Operations?</h2>
           <p className="text-gray-600 mb-6">Join thousands of businesses already using AI SOP Generator</p>
-          <div className="flex justify-center space-x-4">
+          <div className="flex flex-col sm:flex-row justify-center gap-4">
             <Button size="lg" onClick={() => setIsPaymentModalOpen(true)}>
               Start Free Trial
             </Button>
@@ -208,11 +217,19 @@ const Index = () => {
           console.log('Login:', email, password);
           setIsSignedIn(true);
           setIsAuthModalOpen(false);
+          toast({
+            title: "Welcome back!",
+            description: "You have successfully logged in.",
+          });
         }}
         onSignup={(name, email, password) => {
           console.log('Signup:', name, email, password);
           setIsSignedIn(true);
           setIsAuthModalOpen(false);
+          toast({
+            title: "Account created!",
+            description: "Welcome to AI SOP Generator.",
+          });
         }}
       />
       <FeatureModal 
@@ -226,7 +243,13 @@ const Index = () => {
         user={mockUser}
         isDarkMode={false}
         onToggleDarkMode={() => console.log('Toggle dark mode')}
-        onLogout={() => console.log('Logout')}
+        onLogout={() => {
+          setIsSignedIn(false);
+          toast({
+            title: "Logged out",
+            description: "You have been successfully logged out.",
+          });
+        }}
         onViewAccount={() => console.log('View account')}
       />
       <SOPModal 

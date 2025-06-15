@@ -1,8 +1,9 @@
+
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { SidebarProvider, Sidebar, SidebarContent, SidebarHeader, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarTrigger, SidebarInset } from '@/components/ui/sidebar';
 import { Button } from '@/components/ui/button';
-import { Home, Clipboard, Repeat, Layout, Settings, CreditCard, HelpCircle, LogOut } from 'lucide-react';
+import { Home, Clipboard, Repeat, Layout, Settings, CreditCard, HelpCircle, LogOut, Moon, Sun } from 'lucide-react';
 import DashboardOverview from '@/components/dashboard/DashboardOverview';
 import MySOPs from '@/components/dashboard/MySOPs';
 import VisualWorkflows from '@/components/dashboard/VisualWorkflows';
@@ -10,6 +11,7 @@ import GenerateNewSOP from '@/components/dashboard/GenerateNewSOP';
 import AccountSettings from '@/components/dashboard/AccountSettings';
 import BillingSection from '@/components/dashboard/BillingSection';
 import SupportSection from '@/components/dashboard/SupportSection';
+import { useToast } from '@/hooks/use-toast';
 
 const menuItems = [
   { id: 'overview', label: 'Dashboard Overview', icon: Home },
@@ -23,18 +25,20 @@ const menuItems = [
 
 const Dashboard = () => {
   const [activeSection, setActiveSection] = useState('overview');
+  const [isDarkMode, setIsDarkMode] = useState(false);
   const navigate = useNavigate();
+  const { toast } = useToast();
 
   const renderContent = () => {
     switch (activeSection) {
       case 'overview':
-        return <DashboardOverview />;
+        return <DashboardOverview onNavigate={setActiveSection} />;
       case 'sops':
         return <MySOPs />;
       case 'workflows':
         return <VisualWorkflows />;
       case 'generate':
-        return <GenerateNewSOP />;
+        return <GenerateNewSOP onSOPCreated={() => setActiveSection('sops')} />;
       case 'settings':
         return <AccountSettings />;
       case 'billing':
@@ -42,17 +46,29 @@ const Dashboard = () => {
       case 'support':
         return <SupportSection />;
       default:
-        return <DashboardOverview />;
+        return <DashboardOverview onNavigate={setActiveSection} />;
     }
   };
 
   const handleLogout = () => {
     console.log('Logging out...');
+    toast({
+      title: "Logged out",
+      description: "You have been successfully logged out.",
+    });
     navigate('/');
   };
 
+  const toggleTheme = () => {
+    setIsDarkMode(!isDarkMode);
+    toast({
+      title: `${isDarkMode ? 'Light' : 'Dark'} mode activated`,
+      description: `Switched to ${isDarkMode ? 'light' : 'dark'} theme.`,
+    });
+  };
+
   return (
-    <div className="min-h-screen bg-background">
+    <div className={`min-h-screen ${isDarkMode ? 'dark bg-gray-900' : 'bg-background'}`}>
       <SidebarProvider>
         <div className="flex min-h-screen w-full">
           <Sidebar className="border-r">
@@ -95,12 +111,16 @@ const Dashboard = () => {
             <header className="sticky top-0 z-10 flex h-16 items-center gap-2 border-b bg-background px-4">
               <SidebarTrigger />
               <div className="flex-1" />
-              <Button variant="outline" size="sm">
-                🌙 Theme
+              <div className="text-sm text-muted-foreground hidden sm:block">
+                Welcome back, Hanan 👋
+              </div>
+              <Button variant="outline" size="sm" onClick={toggleTheme}>
+                {isDarkMode ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+                <span className="ml-2 hidden sm:inline">Theme</span>
               </Button>
             </header>
             
-            <main className="flex-1 p-6">
+            <main className="flex-1 p-4 md:p-6 overflow-auto">
               {renderContent()}
             </main>
           </SidebarInset>
