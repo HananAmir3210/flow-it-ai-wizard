@@ -28,11 +28,32 @@ export const useBilling = () => {
     
     try {
       setLoading(true);
-      const { data, error } = await supabase.functions.invoke('check-subscription');
       
-      if (error) throw error;
+      // Mock subscription check - simulate checking a local database
+      const { data: mockData, error } = await supabase
+        .from('billing')
+        .select('*')
+        .eq('user_id', user.id)
+        .single();
       
-      setBillingData(data);
+      if (error && error.code !== 'PGRST116') {
+        throw error;
+      }
+      
+      const currentBilling = mockData || {
+        current_plan: 'Free',
+        subscription_status: 'inactive',
+        plan_end_date: null
+      };
+      
+      setBillingData({
+        subscribed: currentBilling.subscription_status === 'active',
+        plan: currentBilling.current_plan || 'Free',
+        status: currentBilling.subscription_status || 'inactive',
+        subscription_end: currentBilling.plan_end_date,
+        payment_method_last4: currentBilling.subscription_status === 'active' ? '4242' : undefined,
+        payment_method_expiry: currentBilling.subscription_status === 'active' ? '12/28' : undefined
+      });
     } catch (error: any) {
       console.error('Error checking subscription:', error);
       toast({
@@ -45,7 +66,7 @@ export const useBilling = () => {
     }
   };
 
-  const createCheckout = async (planName: string, priceId: string) => {
+  const createCheckout = async (planName: string, priceId: string | null) => {
     if (!user) {
       toast({
         title: "Authentication required",
@@ -55,20 +76,54 @@ export const useBilling = () => {
       return;
     }
 
+    if (!priceId) {
+      toast({
+        title: "Free Plan Selected",
+        description: "You're already on the free plan!",
+      });
+      return;
+    }
+
     try {
       setLoading(true);
-      const { data, error } = await supabase.functions.invoke('create-checkout', {
-        body: { planName, priceId }
-      });
+      
+      // Mock payment simulation
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      
+      // Update billing in database
+      const subscriptionEnd = new Date();
+      subscriptionEnd.setMonth(subscriptionEnd.getMonth() + 1);
+      
+      const { error } = await supabase
+        .from('billing')
+        .upsert({
+          user_id: user.id,
+          current_plan: planName,
+          subscription_status: 'active',
+          plan_end_date: subscriptionEnd.toISOString(),
+          updated_at: new Date().toISOString()
+        });
       
       if (error) throw error;
       
-      // Open checkout in new tab
-      window.open(data.url, '_blank');
-    } catch (error: any) {
-      console.error('Error creating checkout:', error);
+      // Update local state
+      setBillingData({
+        subscribed: true,
+        plan: planName,
+        status: 'active',
+        subscription_end: subscriptionEnd.toISOString(),
+        payment_method_last4: '4242',
+        payment_method_expiry: '12/28'
+      });
+      
       toast({
-        title: "Error creating checkout",
+        title: "Subscription Activated!",
+        description: `You've successfully subscribed to the ${planName} plan.`,
+      });
+    } catch (error: any) {
+      console.error('Error creating subscription:', error);
+      toast({
+        title: "Error creating subscription",
         description: error.message,
         variant: "destructive",
       });
@@ -82,16 +137,33 @@ export const useBilling = () => {
 
     try {
       setLoading(true);
-      const { data, error } = await supabase.functions.invoke('customer-portal');
+      
+      // Mock portal - simulate cancelling subscription
+      const { error } = await supabase
+        .from('billing')
+        .update({
+          subscription_status: 'cancelled',
+          updated_at: new Date().toISOString()
+        })
+        .eq('user_id', user.id);
       
       if (error) throw error;
       
-      // Open portal in new tab
-      window.open(data.url, '_blank');
-    } catch (error: any) {
-      console.error('Error opening customer portal:', error);
+      setBillingData(prev => ({
+        ...prev,
+        subscribed: false,
+        status: 'cancelled',
+        plan: 'Free'
+      }));
+      
       toast({
-        title: "Error opening portal",
+        title: "Subscription Cancelled",
+        description: "Your subscription has been cancelled. You can resubscribe anytime.",
+      });
+    } catch (error: any) {
+      console.error('Error managing subscription:', error);
+      toast({
+        title: "Error managing subscription",
         description: error.message,
         variant: "destructive",
       });
