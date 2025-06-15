@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { SidebarProvider, Sidebar, SidebarContent, SidebarHeader, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarTrigger, SidebarInset } from '@/components/ui/sidebar';
 import { Button } from '@/components/ui/button';
-import { Home, Clipboard, Repeat, Layout, Settings, Billing, Support, LogOut } from 'lucide-react';
+import { Home, Clipboard, Repeat, Layout, Settings, CreditCard, HelpCircle, LogOut } from 'lucide-react';
 import DashboardOverview from '@/components/dashboard/DashboardOverview';
 import MySOPs from '@/components/dashboard/MySOPs';
 import VisualWorkflows from '@/components/dashboard/VisualWorkflows';
@@ -17,8 +17,8 @@ const menuItems = [
   { id: 'workflows', label: 'Visual Workflows', icon: Repeat },
   { id: 'generate', label: 'Generate New SOP', icon: Layout },
   { id: 'settings', label: 'Account Settings', icon: Settings },
-  { id: 'billing', label: 'Billing', icon: Billing },
-  { id: 'support', label: 'Support', icon: Support },
+  { id: 'billing', label: 'Billing', icon: CreditCard },
+  { id: 'support', label: 'Support', icon: HelpCircle },
 ];
 
 const Dashboard = () => {

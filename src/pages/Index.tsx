@@ -47,6 +47,25 @@ const Index = () => {
     { id: '6', title: 'Complete', type: 'end' as const }
   ];
 
+  // Mock data for modals
+  const mockUser = {
+    name: "John Doe",
+    email: "john@example.com",
+    avatar: "/placeholder.svg"
+  };
+
+  const mockSOP = {
+    title: "Sample SOP",
+    content: "This is a sample SOP content for demonstration purposes.",
+    steps: ["Step 1", "Step 2", "Step 3"]
+  };
+
+  const sampleFeature = {
+    title: "AI-Powered Generation",
+    description: "Generate comprehensive SOPs using advanced AI technology",
+    icon: "🤖"
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
       {/* Header */}
@@ -156,19 +175,34 @@ const Index = () => {
       {/* Modals */}
       <AuthModal 
         isOpen={isAuthModalOpen} 
-        onClose={() => setIsAuthModalOpen(false)} 
+        onClose={() => setIsAuthModalOpen(false)}
+        onLogin={(email, password) => {
+          console.log('Login:', email, password);
+          setIsAuthModalOpen(false);
+        }}
+        onSignup={(name, email, password) => {
+          console.log('Signup:', name, email, password);
+          setIsAuthModalOpen(false);
+        }}
       />
       <FeatureModal 
         isOpen={isFeatureModalOpen} 
-        onClose={() => setIsFeatureModalOpen(false)} 
+        onClose={() => setIsFeatureModalOpen(false)}
+        feature={sampleFeature}
       />
       <ProfileModal 
         isOpen={isProfileModalOpen} 
-        onClose={() => setIsProfileModalOpen(false)} 
+        onClose={() => setIsProfileModalOpen(false)}
+        user={mockUser}
+        isDarkMode={false}
+        onToggleDarkMode={() => console.log('Toggle dark mode')}
+        onLogout={() => console.log('Logout')}
+        onViewAccount={() => console.log('View account')}
       />
       <SOPModal 
         isOpen={isSOPModalOpen} 
-        onClose={() => setIsSOPModalOpen(false)} 
+        onClose={() => setIsSOPModalOpen(false)}
+        sop={mockSOP}
       />
       <PaymentModal 
         isOpen={isPaymentModalOpen} 
