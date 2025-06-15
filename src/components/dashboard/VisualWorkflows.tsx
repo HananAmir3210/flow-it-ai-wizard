@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -9,6 +8,7 @@ import { useAuth } from '@/hooks/useAuth';
 import CreateWorkflowModal from '@/components/modals/CreateWorkflowModal';
 import EditWorkflowModal from '@/components/modals/EditWorkflowModal';
 import DeleteConfirmModal from '@/components/modals/DeleteConfirmModal';
+import InteractiveWorkflowModal from '@/components/InteractiveWorkflowModal';
 import type { Database } from '@/integrations/supabase/types';
 
 type Workflow = Database['public']['Tables']['workflows']['Row'];
@@ -19,6 +19,7 @@ const VisualWorkflows = () => {
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [editingWorkflow, setEditingWorkflow] = useState<Workflow | null>(null);
   const [deleteWorkflowId, setDeleteWorkflowId] = useState<string | null>(null);
+  const [interactiveWorkflow, setInteractiveWorkflow] = useState<Workflow | null>(null);
   const { toast } = useToast();
   const { user } = useAuth();
 
@@ -195,6 +196,23 @@ const VisualWorkflows = () => {
     });
   };
 
+  const handleInteractiveEdit = (workflow: Workflow) => {
+    setInteractiveWorkflow(workflow);
+  };
+
+  // Convert workflow to steps format for InteractiveWorkflowModal
+  const convertWorkflowToSteps = (workflow: Workflow) => {
+    // Create a basic workflow step from the workflow data
+    return [
+      {
+        id: workflow.id,
+        title: workflow.title,
+        type: 'start' as const,
+        next: []
+      }
+    ];
+  };
+
   if (loading) {
     return (
       <div className="space-y-6">
@@ -238,7 +256,16 @@ const VisualWorkflows = () => {
               </p>
             </CardHeader>
             <CardContent>
-              <div className="flex gap-2">
+              <div className="flex gap-2 mb-2">
+                <Button 
+                  size="sm" 
+                  variant="outline" 
+                  className="flex-1"
+                  onClick={() => handleInteractiveEdit(workflow)}
+                >
+                  <Edit className="h-4 w-4 mr-1" />
+                  Interactive
+                </Button>
                 <Button 
                   size="sm" 
                   variant="outline" 
@@ -250,29 +277,30 @@ const VisualWorkflows = () => {
                 </Button>
                 <Button 
                   size="sm" 
-                  variant="outline" 
-                  className="flex-1"
-                  onClick={() => setEditingWorkflow(workflow)}
-                >
-                  <Edit className="h-4 w-4 mr-1" />
-                  Edit
-                </Button>
-                <Button 
-                  size="sm" 
                   variant="outline"
                   onClick={() => handleDuplicateWorkflow(workflow)}
                 >
                   <Copy className="h-4 w-4" />
                 </Button>
               </div>
-              <Button 
-                size="sm" 
-                variant="outline" 
-                className="w-full mt-2 text-destructive hover:text-destructive"
-                onClick={() => setDeleteWorkflowId(workflow.id)}
-              >
-                Delete
-              </Button>
+              <div className="flex gap-2">
+                <Button 
+                  size="sm" 
+                  variant="outline" 
+                  className="flex-1"
+                  onClick={() => setEditingWorkflow(workflow)}
+                >
+                  Edit Details
+                </Button>
+                <Button 
+                  size="sm" 
+                  variant="outline" 
+                  className="flex-1 text-destructive hover:text-destructive"
+                  onClick={() => setDeleteWorkflowId(workflow.id)}
+                >
+                  Delete
+                </Button>
+              </div>
             </CardContent>
           </Card>
         ))}
@@ -310,6 +338,14 @@ const VisualWorkflows = () => {
         onConfirm={() => deleteWorkflowId && handleDeleteWorkflow(deleteWorkflowId)}
         title="Delete Workflow"
         description="Are you sure you want to delete this workflow? This action cannot be undone."
+      />
+
+      {/* Interactive Workflow Modal */}
+      <InteractiveWorkflowModal
+        isOpen={!!interactiveWorkflow}
+        onClose={() => setInteractiveWorkflow(null)}
+        steps={interactiveWorkflow ? convertWorkflowToSteps(interactiveWorkflow) : []}
+        title={interactiveWorkflow ? `${interactiveWorkflow.title} - Interactive Editor` : ''}
       />
     </div>
   );

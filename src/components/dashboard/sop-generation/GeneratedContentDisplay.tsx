@@ -1,10 +1,10 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Loader2, FileText, Workflow, Save, Download, Eye } from 'lucide-react';
-import WorkflowWhiteboard from '@/components/WorkflowWhiteboard';
+import { Loader2, FileText, Workflow, Save, Download, Eye, Edit } from 'lucide-react';
+import InteractiveWorkflowModal from '@/components/InteractiveWorkflowModal';
 
 interface WorkflowStep {
   id: string;
@@ -14,6 +14,7 @@ interface WorkflowStep {
   x: number;
   y: number;
   connections: string[];
+  next?: string[];
 }
 
 interface GeneratedContent {
@@ -53,6 +54,22 @@ const GeneratedContentDisplay: React.FC<GeneratedContentDisplayProps> = ({
   onExport,
   onSave
 }) => {
+  const [isInteractiveModalOpen, setIsInteractiveModalOpen] = useState(false);
+
+  // Convert workflow steps to the format expected by InteractiveWorkflowModal
+  const convertToInteractiveFormat = (workflow: WorkflowStep[]) => {
+    return workflow.map(step => ({
+      id: step.id,
+      title: step.title,
+      type: step.type,
+      next: step.connections || step.next || []
+    }));
+  };
+
+  const handleInteractiveEdit = () => {
+    setIsInteractiveModalOpen(true);
+  };
+
   return (
     <Card>
       <CardHeader>
@@ -117,14 +134,41 @@ const GeneratedContentDisplay: React.FC<GeneratedContentDisplayProps> = ({
           </TabsContent>
           
           <TabsContent value="workflow" className="mt-4">
-            <WorkflowWhiteboard 
-              steps={generatedContent.workflow}
-              title={title}
-              readonly={false}
-            />
+            <div className="space-y-4">
+              <div className="flex justify-between items-center">
+                <h3 className="text-lg font-semibold">Workflow Visualization</h3>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={handleInteractiveEdit}
+                  className="flex items-center gap-2"
+                >
+                  <Edit className="h-4 w-4" />
+                  Interactive Edit
+                </Button>
+              </div>
+              
+              <div className="border rounded-lg p-4 bg-gray-50 min-h-[400px] flex items-center justify-center">
+                <div className="text-center text-gray-500">
+                  <Workflow className="h-12 w-12 mx-auto mb-2 opacity-50" />
+                  <p className="text-sm">Click "Interactive Edit" to visualize and edit this workflow</p>
+                  <p className="text-xs text-gray-400 mt-1">
+                    Steps: {generatedContent.workflow.length}
+                  </p>
+                </div>
+              </div>
+            </div>
           </TabsContent>
         </Tabs>
       </CardContent>
+
+      {/* Interactive Workflow Modal */}
+      <InteractiveWorkflowModal
+        isOpen={isInteractiveModalOpen}
+        onClose={() => setIsInteractiveModalOpen(false)}
+        steps={convertToInteractiveFormat(generatedContent.workflow)}
+        title={`${title} - Workflow Editor`}
+      />
     </Card>
   );
 };
