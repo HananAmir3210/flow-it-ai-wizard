@@ -58,13 +58,13 @@ const AuthModal = ({ isOpen, onClose, onLogin, onSignup }: AuthModalProps) => {
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-md mx-auto">
+      <DialogContent className="sm:max-w-md w-full max-w-md mx-auto my-auto">
         <DialogHeader className="text-center">
           <DialogTitle className="text-center">Welcome to AI SOP Generator</DialogTitle>
         </DialogHeader>
         
         <Tabs defaultValue="login" className="w-full">
-          <TabsList className="grid w-full grid-cols-2 mx-auto">
+          <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="login">Login</TabsTrigger>
             <TabsTrigger value="signup">Sign Up</TabsTrigger>
           </TabsList>
