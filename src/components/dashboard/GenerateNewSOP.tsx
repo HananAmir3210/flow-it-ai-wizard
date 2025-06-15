@@ -76,7 +76,7 @@ const GenerateNewSOP: React.FC<GenerateNewSOPProps> = ({
       if (editingSOP.generated_content && editingSOP.workflow_data) {
         try {
           const content = JSON.parse(editingSOP.generated_content);
-          const workflow = editingSOP.workflow_data as WorkflowStep[];
+          const workflow = editingSOP.workflow_data as unknown as WorkflowStep[];
           setGeneratedContent({ sop: content, workflow });
         } catch (error) {
           console.error('Error parsing existing SOP data:', error);

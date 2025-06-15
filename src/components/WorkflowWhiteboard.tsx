@@ -10,7 +10,9 @@ import {
   useEdgesState,
   ConnectionMode,
   MiniMap,
-  Panel
+  Panel,
+  MarkerType,
+  BackgroundVariant
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import { Button } from '@/components/ui/button';
@@ -89,7 +91,7 @@ const WorkflowWhiteboard: React.FC<WorkflowWhiteboardProps> = ({
       animated: true,
       style: { stroke: '#3b82f6', strokeWidth: 2 },
       markerEnd: {
-        type: 'arrowclosed' as const,
+        type: MarkerType.ArrowClosed,
         color: '#3b82f6',
       },
     }));
@@ -152,7 +154,7 @@ const WorkflowWhiteboard: React.FC<WorkflowWhiteboardProps> = ({
           color="#e5e7eb" 
           gap={20} 
           size={1}
-          variant="dots" as any
+          variant={BackgroundVariant.Dots}
         />
         <Controls 
           showZoom={true}
