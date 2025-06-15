@@ -51,17 +51,11 @@ const PricingDropdown: React.FC<PricingDropdownProps> = ({ isOpen, onClose }) =>
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
         <div className="w-full max-w-4xl animate-in slide-in-from-top-2 duration-200">
           <Card className="shadow-2xl border border-gray-200 bg-white dark:bg-gray-900 dark:border-gray-700">
-            <CardHeader className="text-center pb-6 relative">
+            <CardHeader className="text-center pb-6">
               <CardTitle className="text-2xl font-bold text-gray-900 dark:text-white">Choose Your Plan</CardTitle>
               <CardDescription className="text-gray-600 dark:text-gray-400">
                 Select the perfect plan for your needs
               </CardDescription>
-              {/* Most Popular Badge - Centered */}
-              <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 z-10">
-                <span className="bg-gradient-to-r from-blue-500 to-purple-600 text-white text-xs font-semibold px-4 py-1.5 rounded-full shadow-lg whitespace-nowrap">
-                  Most Popular
-                </span>
-              </div>
             </CardHeader>
             <CardContent className="px-6 pb-6">
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
@@ -74,6 +68,15 @@ const PricingDropdown: React.FC<PricingDropdownProps> = ({ isOpen, onClose }) =>
                         : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:border-gray-300 dark:hover:border-gray-600'
                     }`}
                   >
+                    {/* Most Popular Badge - Only on highlighted plan */}
+                    {plan.highlighted && (
+                      <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 z-10">
+                        <span className="bg-gradient-to-r from-blue-500 to-purple-600 text-white text-xs font-semibold px-4 py-1.5 rounded-full shadow-lg whitespace-nowrap">
+                          Most Popular
+                        </span>
+                      </div>
+                    )}
+                    
                     <div className="text-center mb-6">
                       <h3 className="font-bold text-lg text-gray-900 dark:text-white mb-2">{plan.name}</h3>
                       <div className="text-3xl font-bold text-gray-900 dark:text-white mb-2">{plan.price}</div>
