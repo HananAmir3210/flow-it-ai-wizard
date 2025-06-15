@@ -45,7 +45,6 @@ serve(async (req) => {
     const openaiApiKey = Deno.env.get('OPENAI_API_KEY')
     if (!openaiApiKey) {
       console.error('OpenAI API key not found');
-      // Return enhanced fallback data instead of throwing error
       const fallbackContent = {
         sop: generateEnhancedMockSOP(title, description, category),
         workflow: generateEnhancedMockWorkflow(title)
@@ -115,84 +114,114 @@ Return as JSON array with this structure:
 
     console.log('Making OpenAI API calls...');
 
-    // Generate SOP content
-    const sopResponse = await fetch('https://api.openai.com/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${openaiApiKey}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: 'gpt-4o-mini',
-        messages: [
-          {
-            role: 'system',
-            content: 'You are an expert business process consultant specializing in creating detailed, actionable Standard Operating Procedures. Always return valid JSON responses.'
-          },
-          {
-            role: 'user',
-            content: sopPrompt
-          }
-        ],
-        temperature: 0.7,
-        max_tokens: 2000,
-      }),
-    })
-
-    // Generate workflow
-    const workflowResponse = await fetch('https://api.openai.com/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${openaiApiKey}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: 'gpt-4o-mini',
-        messages: [
-          {
-            role: 'system',
-            content: 'You are an expert in creating logical workflow diagrams. Always return valid JSON arrays representing workflow steps.'
-          },
-          {
-            role: 'user',
-            content: workflowPrompt
-          }
-        ],
-        temperature: 0.5,
-        max_tokens: 1000,
-      }),
-    })
-
-    console.log('OpenAI API calls completed');
-
-    if (!sopResponse.ok || !workflowResponse.ok) {
-      console.error('OpenAI API call failed:', { 
-        sopStatus: sopResponse.status, 
-        workflowStatus: workflowResponse.status 
+    // Generate SOP content with better error handling
+    let sopResponse;
+    try {
+      sopResponse = await fetch('https://api.openai.com/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${openaiApiKey}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          model: 'gpt-4o-mini',
+          messages: [
+            {
+              role: 'system',
+              content: 'You are an expert business process consultant specializing in creating detailed, actionable Standard Operating Procedures. Always return valid JSON responses.'
+            },
+            {
+              role: 'user',
+              content: sopPrompt
+            }
+          ],
+          temperature: 0.7,
+          max_tokens: 2000,
+        }),
       });
-      throw new Error('Failed to generate content from OpenAI')
+
+      if (!sopResponse.ok) {
+        const errorText = await sopResponse.text();
+        console.error('OpenAI SOP API error:', sopResponse.status, errorText);
+        throw new Error(`OpenAI API error: ${sopResponse.status}`);
+      }
+    } catch (error) {
+      console.error('Failed to call OpenAI for SOP:', error);
+      throw new Error('Failed to generate SOP content');
     }
 
-    const sopData = await sopResponse.json()
-    const workflowData = await workflowResponse.json()
+    // Generate workflow with better error handling
+    let workflowResponse;
+    try {
+      workflowResponse = await fetch('https://api.openai.com/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${openaiApiKey}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          model: 'gpt-4o-mini',
+          messages: [
+            {
+              role: 'system',
+              content: 'You are an expert in creating logical workflow diagrams. Always return valid JSON arrays representing workflow steps.'
+            },
+            {
+              role: 'user',
+              content: workflowPrompt
+            }
+          ],
+          temperature: 0.5,
+          max_tokens: 1000,
+        }),
+      });
 
-    let sopContent
-    let workflowSteps
+      if (!workflowResponse.ok) {
+        const errorText = await workflowResponse.text();
+        console.error('OpenAI Workflow API error:', workflowResponse.status, errorText);
+        throw new Error(`OpenAI API error: ${workflowResponse.status}`);
+      }
+    } catch (error) {
+      console.error('Failed to call OpenAI for workflow:', error);
+      throw new Error('Failed to generate workflow content');
+    }
+
+    console.log('OpenAI API calls completed successfully');
+
+    let sopData, workflowData;
+    
+    try {
+      sopData = await sopResponse.json();
+      workflowData = await workflowResponse.json();
+    } catch (error) {
+      console.error('Failed to parse OpenAI responses as JSON:', error);
+      throw new Error('Invalid response format from OpenAI');
+    }
+
+    let sopContent, workflowSteps;
 
     try {
-      sopContent = JSON.parse(sopData.choices[0].message.content)
-      console.log('Successfully parsed SOP content');
+      if (sopData.choices && sopData.choices[0] && sopData.choices[0].message) {
+        sopContent = JSON.parse(sopData.choices[0].message.content);
+        console.log('Successfully parsed SOP content');
+      } else {
+        throw new Error('Invalid SOP response structure');
+      }
     } catch (error) {
-      console.error('Failed to parse SOP JSON, using fallback');
-      sopContent = generateEnhancedMockSOP(title, description, category)
+      console.error('Failed to parse SOP JSON, using fallback:', error);
+      sopContent = generateEnhancedMockSOP(title, description, category);
     }
 
     try {
-      workflowSteps = JSON.parse(workflowData.choices[0].message.content)
-      console.log('Successfully parsed workflow content');
+      if (workflowData.choices && workflowData.choices[0] && workflowData.choices[0].message) {
+        workflowSteps = JSON.parse(workflowData.choices[0].message.content);
+        console.log('Successfully parsed workflow content');
+      } else {
+        throw new Error('Invalid workflow response structure');
+      }
     } catch (error) {
-      console.error('Failed to parse workflow JSON, using fallback');
-      workflowSteps = generateEnhancedMockWorkflow(title)
+      console.error('Failed to parse workflow JSON, using fallback:', error);
+      workflowSteps = generateEnhancedMockWorkflow(title);
     }
 
     const result = {
