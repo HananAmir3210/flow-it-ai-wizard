@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -127,16 +128,66 @@ const GenerateNewSOP: React.FC<GenerateNewSOPProps> = ({
       }
 
       if (!data || !data.sop || !data.workflow) {
-        throw new Error('Invalid response format from function');
+        console.error('Invalid response format:', data);
+        // Create fallback content if API fails
+        const fallbackContent = {
+          sop: {
+            title: title,
+            content: `Generated SOP for ${title}`,
+            steps: [
+              {
+                number: 1,
+                title: "Initialize Process",
+                description: "Begin the process outlined in the description",
+                details: ["Review requirements", "Gather necessary resources", "Set up workspace"]
+              },
+              {
+                number: 2,
+                title: "Execute Main Tasks",
+                description: description,
+                details: ["Follow established procedures", "Document progress", "Monitor quality"]
+              },
+              {
+                number: 3,
+                title: "Complete and Review",
+                description: "Finalize the process and conduct review",
+                details: ["Quality check", "Document completion", "Archive relevant materials"]
+              }
+            ]
+          },
+          workflow: [
+            { id: '1', title: 'Start', description: 'Begin process', type: 'start' as const, x: 100, y: 100, connections: ['2'] },
+            { id: '2', title: 'Execute', description: 'Main process', type: 'process' as const, x: 300, y: 100, connections: ['3'] },
+            { id: '3', title: 'Complete', description: 'End process', type: 'end' as const, x: 500, y: 100, connections: [] }
+          ]
+        };
+        setGeneratedContent(fallbackContent);
+        toast({
+          title: "Fallback Content Generated",
+          description: "Using template content. Please customize as needed.",
+          variant: "default",
+        });
+      } else {
+        // Ensure workflow steps have proper structure
+        const validatedWorkflow = data.workflow.map((step: any) => ({
+          ...step,
+          connections: step.connections || [],
+          x: step.x || 0,
+          y: step.y || 0
+        }));
+        
+        setGeneratedContent({
+          sop: data.sop,
+          workflow: validatedWorkflow
+        });
+        
+        toast({
+          title: "Generated Successfully!",
+          description: "Your SOP and workflow have been created. Review them in the tabs below.",
+        });
       }
       
-      setGeneratedContent(data);
       setActiveTab('sop');
-      
-      toast({
-        title: "Generated Successfully!",
-        description: "Your SOP and workflow have been created. Review them in the tabs below.",
-      });
     } catch (error) {
       console.error('Generation error:', error);
       toast({
@@ -169,7 +220,7 @@ const GenerateNewSOP: React.FC<GenerateNewSOPProps> = ({
         title,
         description,
         category,
-        generatedContent: formattedContent, // Store formatted content instead of raw JSON
+        generatedContent: formattedContent,
         tags,
       };
 
@@ -205,6 +256,7 @@ const GenerateNewSOP: React.FC<GenerateNewSOPProps> = ({
       setTags([]);
       setGeneratedContent(null);
     } catch (error: any) {
+      console.error('Save error:', error);
       toast({
         title: "Save Failed",
         description: error.message || "Unable to save SOP. Please try again.",

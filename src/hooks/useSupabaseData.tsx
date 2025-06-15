@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
@@ -20,10 +21,15 @@ export const useSupabaseData = () => {
     tags?: string[];
     workflow_data?: any;
   }) => {
-    if (!user) return { error: 'Not authenticated' };
+    if (!user) {
+      console.error('User not authenticated');
+      return { error: 'Not authenticated' };
+    }
     
     try {
       setLoading(true);
+      console.log('Creating SOP with data:', data);
+      
       const { data: sop, error } = await supabase
         .from('sops')
         .insert({
@@ -38,8 +44,12 @@ export const useSupabaseData = () => {
         .select()
         .single();
 
-      if (error) throw error;
+      if (error) {
+        console.error('Supabase error creating SOP:', error);
+        throw error;
+      }
       
+      console.log('SOP created successfully:', sop);
       toast({
         title: "SOP Created",
         description: "Your SOP and workflow have been saved successfully.",
@@ -47,9 +57,10 @@ export const useSupabaseData = () => {
       
       return { data: sop };
     } catch (error: any) {
+      console.error('Error in createSOP:', error);
       toast({
         title: "Error creating SOP",
-        description: error.message,
+        description: error.message || "An unexpected error occurred",
         variant: "destructive",
       });
       return { error };
@@ -59,10 +70,15 @@ export const useSupabaseData = () => {
   };
 
   const updateSOP = async (id: string, updates: any) => {
-    if (!user) return { error: 'Not authenticated' };
+    if (!user) {
+      console.error('User not authenticated');
+      return { error: 'Not authenticated' };
+    }
     
     try {
       setLoading(true);
+      console.log('Updating SOP with id:', id, 'updates:', updates);
+      
       const { data, error } = await supabase
         .from('sops')
         .update(updates)
@@ -71,8 +87,12 @@ export const useSupabaseData = () => {
         .select()
         .single();
 
-      if (error) throw error;
+      if (error) {
+        console.error('Supabase error updating SOP:', error);
+        throw error;
+      }
       
+      console.log('SOP updated successfully:', data);
       toast({
         title: "SOP Updated",
         description: "Your SOP and workflow have been updated successfully.",
@@ -80,9 +100,10 @@ export const useSupabaseData = () => {
       
       return { data };
     } catch (error: any) {
+      console.error('Error in updateSOP:', error);
       toast({
         title: "Error updating SOP",
-        description: error.message,
+        description: error.message || "An unexpected error occurred",
         variant: "destructive",
       });
       return { error };
@@ -92,18 +113,27 @@ export const useSupabaseData = () => {
   };
 
   const deleteSOP = async (id: string) => {
-    if (!user) return { error: 'Not authenticated' };
+    if (!user) {
+      console.error('User not authenticated');
+      return { error: 'Not authenticated' };
+    }
     
     try {
       setLoading(true);
+      console.log('Deleting SOP with id:', id);
+      
       const { error } = await supabase
         .from('sops')
         .delete()
         .eq('id', id)
         .eq('user_id', user.id);
 
-      if (error) throw error;
+      if (error) {
+        console.error('Supabase error deleting SOP:', error);
+        throw error;
+      }
       
+      console.log('SOP deleted successfully');
       toast({
         title: "SOP Deleted",
         description: "Your SOP has been deleted successfully.",
@@ -111,9 +141,10 @@ export const useSupabaseData = () => {
       
       return { success: true };
     } catch (error: any) {
+      console.error('Error in deleteSOP:', error);
       toast({
         title: "Error deleting SOP",
-        description: error.message,
+        description: error.message || "An unexpected error occurred",
         variant: "destructive",
       });
       return { error };
@@ -128,10 +159,15 @@ export const useSupabaseData = () => {
     description: string;
     thumbnailUrl?: string;
   }) => {
-    if (!user) return { error: 'Not authenticated' };
+    if (!user) {
+      console.error('User not authenticated');
+      return { error: 'Not authenticated' };
+    }
     
     try {
       setLoading(true);
+      console.log('Creating workflow with data:', data);
+      
       const { data: workflow, error } = await supabase
         .from('workflows')
         .insert({
@@ -143,8 +179,12 @@ export const useSupabaseData = () => {
         .select()
         .single();
 
-      if (error) throw error;
+      if (error) {
+        console.error('Supabase error creating workflow:', error);
+        throw error;
+      }
       
+      console.log('Workflow created successfully:', workflow);
       toast({
         title: "Workflow Created",
         description: "Your workflow has been saved successfully.",
@@ -152,9 +192,10 @@ export const useSupabaseData = () => {
       
       return { data: workflow };
     } catch (error: any) {
+      console.error('Error in createWorkflow:', error);
       toast({
         title: "Error creating workflow",
-        description: error.message,
+        description: error.message || "An unexpected error occurred",
         variant: "destructive",
       });
       return { error };
@@ -165,10 +206,15 @@ export const useSupabaseData = () => {
 
   // User profile functions
   const updateUserProfile = async (updates: any) => {
-    if (!user) return { error: 'Not authenticated' };
+    if (!user) {
+      console.error('User not authenticated');
+      return { error: 'Not authenticated' };
+    }
     
     try {
       setLoading(true);
+      console.log('Updating user profile with updates:', updates);
+      
       const { data, error } = await supabase
         .from('user_profiles')
         .upsert({
@@ -178,8 +224,12 @@ export const useSupabaseData = () => {
         .select()
         .single();
 
-      if (error) throw error;
+      if (error) {
+        console.error('Supabase error updating profile:', error);
+        throw error;
+      }
       
+      console.log('Profile updated successfully:', data);
       toast({
         title: "Profile Updated",
         description: "Your profile has been updated successfully.",
@@ -187,9 +237,10 @@ export const useSupabaseData = () => {
       
       return { data };
     } catch (error: any) {
+      console.error('Error in updateUserProfile:', error);
       toast({
         title: "Error updating profile",
-        description: error.message,
+        description: error.message || "An unexpected error occurred",
         variant: "destructive",
       });
       return { error };
@@ -200,10 +251,15 @@ export const useSupabaseData = () => {
 
   // Billing functions
   const updateBilling = async (updates: any) => {
-    if (!user) return { error: 'Not authenticated' };
+    if (!user) {
+      console.error('User not authenticated');
+      return { error: 'Not authenticated' };
+    }
     
     try {
       setLoading(true);
+      console.log('Updating billing with updates:', updates);
+      
       const { data, error } = await supabase
         .from('billing')
         .upsert({
@@ -213,8 +269,12 @@ export const useSupabaseData = () => {
         .select()
         .single();
 
-      if (error) throw error;
+      if (error) {
+        console.error('Supabase error updating billing:', error);
+        throw error;
+      }
       
+      console.log('Billing updated successfully:', data);
       toast({
         title: "Billing Updated",
         description: "Your billing information has been updated.",
@@ -222,9 +282,10 @@ export const useSupabaseData = () => {
       
       return { data };
     } catch (error: any) {
+      console.error('Error in updateBilling:', error);
       toast({
         title: "Error updating billing",
-        description: error.message,
+        description: error.message || "An unexpected error occurred",
         variant: "destructive",
       });
       return { error };

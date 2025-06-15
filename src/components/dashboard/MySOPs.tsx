@@ -1,10 +1,11 @@
+
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Search, Eye, Edit, Trash2, Download, Workflow } from 'lucide-react';
+import { Search, Eye, Edit, Trash2, Download, Workflow, AlertCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
@@ -23,6 +24,7 @@ const MySOPs: React.FC<MySOPsProps> = ({ onEdit }) => {
   const [filterCategory, setFilterCategory] = useState('all');
   const [sops, setSOPs] = useState<SOP[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [selectedSOP, setSelectedSOP] = useState<SOP | null>(null);
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
   const [deleteSOPId, setDeleteSOPId] = useState<string | null>(null);
@@ -38,7 +40,10 @@ const MySOPs: React.FC<MySOPsProps> = ({ onEdit }) => {
         .channel('sops_changes')
         .on('postgres_changes', 
           { event: '*', schema: 'public', table: 'sops', filter: `user_id=eq.${user.id}` },
-          () => fetchSOPs()
+          (payload) => {
+            console.log('Real-time update received:', payload);
+            fetchSOPs();
+          }
         )
         .subscribe();
 
@@ -49,22 +54,36 @@ const MySOPs: React.FC<MySOPsProps> = ({ onEdit }) => {
   }, [user]);
 
   const fetchSOPs = async () => {
-    if (!user) return;
+    if (!user) {
+      setError('User not authenticated');
+      setLoading(false);
+      return;
+    }
     
     try {
       setLoading(true);
-      const { data, error } = await supabase
+      setError(null);
+      console.log('Fetching SOPs for user:', user.id);
+      
+      const { data, error: fetchError } = await supabase
         .from('sops')
         .select('*')
         .eq('user_id', user.id)
         .order('updated_at', { ascending: false });
 
-      if (error) throw error;
+      if (fetchError) {
+        console.error('Error fetching SOPs:', fetchError);
+        throw fetchError;
+      }
+      
+      console.log('SOPs fetched successfully:', data?.length || 0, 'items');
       setSOPs(data || []);
     } catch (error: any) {
+      console.error('Error in fetchSOPs:', error);
+      setError(error.message || 'Failed to fetch SOPs');
       toast({
         title: "Error fetching SOPs",
-        description: error.message,
+        description: error.message || "An unexpected error occurred",
         variant: "destructive",
       });
     } finally {
@@ -97,23 +116,38 @@ const MySOPs: React.FC<MySOPsProps> = ({ onEdit }) => {
   };
 
   const handleDelete = async (sopId: string) => {
+    if (!user) {
+      toast({
+        title: "Authentication Error",
+        description: "You must be logged in to delete SOPs.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     try {
+      console.log('Deleting SOP:', sopId);
       const { error } = await supabase
         .from('sops')
         .delete()
         .eq('id', sopId)
-        .eq('user_id', user?.id);
+        .eq('user_id', user.id);
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error deleting SOP:', error);
+        throw error;
+      }
       
+      console.log('SOP deleted successfully');
       toast({
         title: "SOP Deleted",
         description: "The SOP has been successfully deleted.",
       });
     } catch (error: any) {
+      console.error('Error in handleDelete:', error);
       toast({
         title: "Error deleting SOP",
-        description: error.message,
+        description: error.message || "An unexpected error occurred",
         variant: "destructive",
       });
     }
@@ -121,22 +155,31 @@ const MySOPs: React.FC<MySOPsProps> = ({ onEdit }) => {
   };
 
   const handleExport = (sop: SOP) => {
-    const content = `# ${sop.title}\n\n## Description\n${sop.description || 'No description'}\n\n## Category\n${sop.category}\n\n## Content\n${sop.generated_content || 'No content available'}\n\n## Tags\n${sop.tags?.join(', ') || 'No tags'}\n\nGenerated on: ${new Date(sop.created_at).toLocaleDateString()}`;
-    
-    const blob = new Blob([content], { type: 'text/markdown' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `${sop.title.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.md`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-    
-    toast({
-      title: "SOP Exported",
-      description: "Your SOP has been downloaded as a markdown file.",
-    });
+    try {
+      const content = `# ${sop.title}\n\n## Description\n${sop.description || 'No description'}\n\n## Category\n${sop.category}\n\n## Content\n${sop.generated_content || 'No content available'}\n\n## Tags\n${sop.tags?.join(', ') || 'No tags'}\n\nGenerated on: ${new Date(sop.created_at).toLocaleDateString()}`;
+      
+      const blob = new Blob([content], { type: 'text/markdown' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${sop.title.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.md`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      
+      toast({
+        title: "SOP Exported",
+        description: "Your SOP has been downloaded as a markdown file.",
+      });
+    } catch (error) {
+      console.error('Error exporting SOP:', error);
+      toast({
+        title: "Export Failed",
+        description: "Unable to export SOP. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   if (loading) {
@@ -150,6 +193,26 @@ const MySOPs: React.FC<MySOPsProps> = ({ onEdit }) => {
             ))}
           </div>
         </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="space-y-6">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <h1 className="text-2xl md:text-3xl font-bold">My SOPs</h1>
+        </div>
+        <Card>
+          <CardContent className="text-center py-8">
+            <AlertCircle className="h-12 w-12 text-destructive mx-auto mb-4" />
+            <p className="text-destructive mb-4">Failed to load SOPs</p>
+            <p className="text-sm text-muted-foreground mb-4">{error}</p>
+            <Button onClick={fetchSOPs} variant="outline">
+              Try Again
+            </Button>
+          </CardContent>
+        </Card>
       </div>
     );
   }
@@ -255,7 +318,7 @@ const MySOPs: React.FC<MySOPsProps> = ({ onEdit }) => {
         ))}
       </div>
 
-      {filteredSOPs.length === 0 && !loading && (
+      {filteredSOPs.length === 0 && !loading && !error && (
         <Card>
           <CardContent className="text-center py-8">
             <p className="text-muted-foreground mb-4">
