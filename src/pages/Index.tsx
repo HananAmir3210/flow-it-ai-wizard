@@ -43,13 +43,22 @@ const Index = () => {
     }
     
     setIsLoading(true);
-    await new Promise(resolve => setTimeout(resolve, 2000));
-    setIsLoading(false);
-    navigate('/dashboard');
-    toast({
-      title: "Redirecting to Dashboard",
-      description: "You can generate your SOP from the dashboard.",
-    });
+    try {
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      navigate('/dashboard');
+      toast({
+        title: "Redirecting to Dashboard",
+        description: "You can generate your SOP from the dashboard.",
+      });
+    } catch (error) {
+      toast({
+        title: "Something went wrong",
+        description: "Please try again or contact support.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleViewSampleWorkflow = () => {
@@ -86,12 +95,6 @@ const Index = () => {
     { id: '6', title: 'Complete', type: 'end' as const }
   ];
 
-  const mockUser = {
-    name: "John Doe",
-    email: "john@example.com",
-    avatar: "/placeholder.svg"
-  };
-
   const mockSOP = {
     title: "Sample Customer Onboarding Process",
     steps: [
@@ -109,7 +112,7 @@ const Index = () => {
       },
       {
         number: 3,
-        title: "Proposal Creation",
+ title: "Proposal Creation",
         description: "Create customized proposal based on customer requirements",
         details: ["Draft initial proposal", "Review with internal team", "Send to customer for review"]
       }
@@ -127,15 +130,15 @@ const Index = () => {
     <AuthWrapper>
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
         {/* Header */}
-        <header className="container mx-auto px-4 py-6">
+        <header className="container mx-auto px-4 py-4 lg:py-6">
           {/* Navigation */}
           <nav className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
-              <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg"></div>
-              <span className="text-xl font-bold text-gray-900">AI SOP Generator</span>
+              <div className="w-6 h-6 lg:w-8 lg:h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg"></div>
+              <span className="text-lg lg:text-xl font-bold text-gray-900">AI SOP Generator</span>
             </div>
-            <div className="flex items-center space-x-4">
-              <Button variant="ghost" onClick={() => setIsFeatureModalOpen(true)}>
+            <div className="flex items-center space-x-2 lg:space-x-4">
+              <Button variant="ghost" onClick={() => setIsFeatureModalOpen(true)} className="text-sm lg:text-base">
                 Features
               </Button>
               <div className="relative">
@@ -143,7 +146,7 @@ const Index = () => {
                   ref={pricingButtonRef}
                   variant="ghost" 
                   onClick={handlePricingClick}
-                  className={isPricingDropdownOpen ? "bg-accent" : ""}
+                  className={`text-sm lg:text-base ${isPricingDropdownOpen ? "bg-accent" : ""}`}
                 >
                   Pricing
                 </Button>
@@ -152,7 +155,7 @@ const Index = () => {
                   onClose={() => setIsPricingDropdownOpen(false)} 
                 />
               </div>
-              <Button onClick={handleGetStarted}>
+              <Button onClick={handleGetStarted} className="text-sm lg:text-base">
                 {user ? "Dashboard" : "Get Started"}
               </Button>
             </div>
@@ -160,65 +163,75 @@ const Index = () => {
         </header>
 
         {/* Hero Section */}
-        <main className="container mx-auto px-4 py-16">
-          <div className="text-center mb-16">
-            <h1 className="text-3xl md:text-5xl font-bold text-gray-900 mb-6">
+        <main className="container mx-auto px-4 py-8 lg:py-16">
+          <div className="text-center mb-12 lg:mb-16">
+            <h1 className="text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold text-gray-900 mb-4 lg:mb-6 leading-tight">
               Create Professional SOPs with
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600"> AI Power</span>
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600 block lg:inline"> AI Power</span>
             </h1>
-            <p className="text-lg md:text-xl text-gray-600 mb-8 max-w-3xl mx-auto">
+            <p className="text-base md:text-lg lg:text-xl text-gray-600 mb-6 lg:mb-8 max-w-3xl mx-auto leading-relaxed">
               Transform your business processes into clear, actionable Standard Operating Procedures in minutes, not hours. 
               Our AI understands your workflow and creates comprehensive documentation automatically.
             </p>
-            <div className="flex flex-col sm:flex-row justify-center gap-4">
-              <Button size="lg" onClick={handleSOPGeneration} disabled={isLoading}>
+            <div className="flex flex-col sm:flex-row justify-center gap-3 lg:gap-4 max-w-md sm:max-w-none mx-auto">
+              <Button 
+                size="lg" 
+                onClick={handleSOPGeneration} 
+                disabled={isLoading}
+                className="w-full sm:w-auto text-sm lg:text-base"
+              >
                 {isLoading ? <LoadingSpinner /> : "Generate Your First SOP"}
               </Button>
-              <Button size="lg" variant="outline" onClick={handleViewSampleWorkflow}>
+              <Button 
+                size="lg" 
+                variant="outline" 
+                onClick={handleViewSampleWorkflow}
+                className="w-full sm:w-auto text-sm lg:text-base"
+              >
                 View Sample Workflow
               </Button>
             </div>
           </div>
 
           {/* Feature Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-16">
-            <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => setIsFeatureModalOpen(true)}>
-              <CardHeader>
-                <CardTitle className="flex items-center">
-                  <span className="text-2xl mr-2">🤖</span>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6 mb-12 lg:mb-16">
+            <Card className="hover:shadow-lg transition-all duration-300 cursor-pointer transform hover:-translate-y-1" onClick={() => setIsFeatureModalOpen(true)}>
+              <CardHeader className="pb-3">
+                <CardTitle className="flex items-center text-lg lg:text-xl">
+                  <span className="text-2xl mr-2" role="img" aria-label="Robot">🤖</span>
                   AI-Powered Generation
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <CardDescription>
+                <CardDescription className="text-sm lg:text-base">
                   Our advanced AI analyzes your process description and creates detailed, professional SOPs tailored to your specific needs.
                 </CardDescription>
               </CardContent>
             </Card>
 
-            <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={handleViewSampleWorkflow}>
-              <CardHeader>
-                <CardTitle className="flex items-center">
-                  <span className="text-2xl mr-2">📊</span>
+            <Card className="hover:shadow-lg transition-all duration-300 cursor-pointer transform hover:-translate-y-1" onClick={handleViewSampleWorkflow}>
+              <CardHeader className="pb-3">
+                <CardTitle className="flex items-center text-lg lg:text-xl">
+                  <span className="text-2xl mr-2" role="img" aria-label="Chart">📊</span>
                   Visual Workflows
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <CardDescription>
+                <CardDescription className="text-sm lg:text-base">
                   Automatically generate flowcharts and visual representations of your processes to make complex procedures easy to understand.
                 </CardDescription>
               </CardContent>
             </Card>
 
-            <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => setIsInteractiveWorkflowModalOpen(true)}>
-              <CardHeader>
-                <CardTitle className="flex items-center">
-                  <span className="text-2xl mr-2">🔄</span>
+            <Card className="hover:shadow-lg transition-all duration-300 cursor-pointer transform hover:-translate-y-1" onClick={() => setIsInteractiveWorkflowModalOpen(true)}>
+              <CardHeader className="pb-3">
+                <CardTitle className="flex items-center text-lg lg:text-xl">
+                  <span className="text-2xl mr-2" role="img" aria-label="Cycle">🔄</span>
                   Interactive Editing
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <CardDescription>
+                <CardDescription className="text-sm lg:text-base">
                   Edit and customize your SOPs with our intuitive interface. Add steps, modify content, and export in multiple formats.
                 </CardDescription>
               </CardContent>
@@ -226,14 +239,23 @@ const Index = () => {
           </div>
 
           {/* CTA Section */}
-          <div className="text-center bg-white rounded-lg shadow-lg p-6 md:p-8">
-            <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-4">Ready to Streamline Your Operations?</h2>
-            <p className="text-gray-600 mb-6">Join thousands of businesses already using AI SOP Generator</p>
-            <div className="flex flex-col sm:flex-row justify-center gap-4">
-              <Button size="lg" onClick={() => setIsPaymentModalOpen(true)}>
+          <div className="text-center bg-white rounded-lg shadow-lg p-6 lg:p-8 mb-8">
+            <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold text-gray-900 mb-3 lg:mb-4">Ready to Streamline Your Operations?</h2>
+            <p className="text-gray-600 mb-4 lg:mb-6 text-sm lg:text-base">Join thousands of businesses already using AI SOP Generator</p>
+            <div className="flex flex-col sm:flex-row justify-center gap-3 lg:gap-4 max-w-md sm:max-w-none mx-auto">
+              <Button 
+                size="lg" 
+                onClick={() => setIsPaymentModalOpen(true)}
+                className="w-full sm:w-auto text-sm lg:text-base"
+              >
                 Start Free Trial
               </Button>
-              <Button size="lg" variant="outline" onClick={() => setIsInteractiveWorkflowModalOpen(true)}>
+              <Button 
+                size="lg" 
+                variant="outline" 
+                onClick={() => setIsInteractiveWorkflowModalOpen(true)}
+                className="w-full sm:w-auto text-sm lg:text-base"
+              >
                 Try Interactive Demo
               </Button>
             </div>
@@ -241,8 +263,8 @@ const Index = () => {
         </main>
 
         {/* Footer */}
-        <footer className="bg-white border-t border-gray-200 mt-16">
-          <div className="container mx-auto px-4 py-12">
+        <footer className="bg-white border-t border-gray-200">
+          <div className="container mx-auto px-4 py-8 lg:py-12">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
               {/* Company Info */}
               <div className="space-y-4">

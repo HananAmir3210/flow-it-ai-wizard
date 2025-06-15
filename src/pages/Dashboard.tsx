@@ -1,10 +1,9 @@
 
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { SidebarProvider, Sidebar, SidebarContent, SidebarHeader, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarTrigger, SidebarInset } from '@/components/ui/sidebar';
 import { Button } from '@/components/ui/button';
-import { Home, Clipboard, Layout, Settings, CreditCard, HelpCircle, LogOut, Moon, Sun, User } from 'lucide-react';
+import { Home, Clipboard, Layout, Settings, CreditCard, HelpCircle, LogOut, Moon, Sun, User, Menu } from 'lucide-react';
 import DashboardOverview from '@/components/dashboard/DashboardOverview';
 import MySOPs from '@/components/dashboard/MySOPs';
 import GenerateNewSOP from '@/components/dashboard/GenerateNewSOP';
@@ -78,8 +77,17 @@ const Dashboard = () => {
     try {
       await signOut();
       navigate('/');
+      toast({
+        title: "Logged out successfully",
+        description: "You have been logged out of your account.",
+      });
     } catch (error) {
       console.error('Logout error:', error);
+      toast({
+        title: "Logout failed",
+        description: "There was an error logging you out. Please try again.",
+        variant: "destructive",
+      });
     }
   };
 
@@ -91,6 +99,11 @@ const Dashboard = () => {
     });
   };
 
+  const displayName = user?.user_metadata?.full_name || 
+                     user?.user_metadata?.name || 
+                     user?.email?.split('@')[0] || 
+                     'User';
+
   return (
     <div className={`min-h-screen ${isDarkMode ? 'dark bg-gray-900' : 'bg-background'}`}>
       <SidebarProvider>
@@ -98,7 +111,7 @@ const Dashboard = () => {
           <Sidebar className="border-r hidden md:block">
             <SidebarHeader className="border-b p-3 sm:p-4">
               <div className="flex items-center gap-2">
-                <div className="h-6 w-6 sm:h-8 sm:w-8 rounded bg-primary"></div>
+                <div className="h-6 w-6 sm:h-8 sm:w-8 rounded bg-primary flex-shrink-0"></div>
                 <span className="font-semibold text-sm sm:text-base truncate">AI SOP Generator</span>
               </div>
             </SidebarHeader>
@@ -117,7 +130,7 @@ const Dashboard = () => {
                       isActive={activeSection === item.id}
                       className="w-full justify-start text-sm sm:text-base"
                     >
-                      <item.icon className="h-4 w-4" />
+                      <item.icon className="h-4 w-4 flex-shrink-0" />
                       <span className="truncate">{item.label}</span>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
@@ -128,7 +141,7 @@ const Dashboard = () => {
                     onClick={handleLogout}
                     className="w-full justify-start text-destructive hover:text-destructive text-sm sm:text-base"
                   >
-                    <LogOut className="h-4 w-4" />
+                    <LogOut className="h-4 w-4 flex-shrink-0" />
                     <span>Log Out</span>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -136,18 +149,18 @@ const Dashboard = () => {
             </SidebarContent>
           </Sidebar>
 
-          <SidebarInset className="flex-1">
+          <SidebarInset className="flex-1 min-w-0">
             <header className="sticky top-0 z-10 flex h-14 sm:h-16 items-center gap-2 border-b bg-background px-3 sm:px-4">
               <SidebarTrigger className="md:hidden" />
-              <div className="flex-1" />
-              <div className="text-xs sm:text-sm text-muted-foreground hidden lg:block">
-                Welcome back, {user?.email?.split('@')[0] || 'User'} 👋
+              <div className="flex-1 min-w-0" />
+              <div className="text-xs sm:text-sm text-muted-foreground hidden lg:block truncate">
+                Welcome back, {displayName} 👋
               </div>
               <Button 
                 variant="outline" 
                 size="sm" 
                 onClick={() => setIsProfileModalOpen(true)}
-                className={`text-xs sm:text-sm btn-touch ${isDarkMode ? 'text-gray-300 hover:text-white' : ''}`}
+                className="text-xs sm:text-sm btn-touch flex-shrink-0"
               >
                 <User className="h-4 w-4" />
                 <span className="ml-1 sm:ml-2 hidden sm:inline">Profile</span>
@@ -156,17 +169,19 @@ const Dashboard = () => {
                 variant="outline" 
                 size="sm" 
                 onClick={toggleTheme}
-                className={`text-xs sm:text-sm btn-touch ${isDarkMode ? 'text-gray-300 hover:text-white' : ''}`}
+                className="text-xs sm:text-sm btn-touch flex-shrink-0"
               >
                 {isDarkMode ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
-                <span className={`ml-1 sm:ml-2 hidden lg:inline ${isDarkMode ? 'text-gray-300' : ''}`}>
+                <span className="ml-1 sm:ml-2 hidden lg:inline">
                   {isDarkMode ? 'Light' : 'Dark'} Mode
                 </span>
               </Button>
             </header>
             
             <main className="flex-1 p-3 sm:p-4 md:p-6 overflow-auto">
-              {renderContent()}
+              <div className="max-w-7xl mx-auto">
+                {renderContent()}
+              </div>
             </main>
           </SidebarInset>
         </div>
@@ -176,7 +191,7 @@ const Dashboard = () => {
       <ProfileModal
         isOpen={isProfileModalOpen}
         onClose={() => setIsProfileModalOpen(false)}
-        user={{ name: user?.email?.split('@')[0] || 'User', email: user?.email || '' }}
+        user={{ name: displayName, email: user?.email || '' }}
         isDarkMode={isDarkMode}
         onToggleDarkMode={toggleTheme}
         onLogout={handleLogout}
