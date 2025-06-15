@@ -108,6 +108,8 @@ const GenerateNewSOP: React.FC<GenerateNewSOPProps> = ({
 
     setIsGenerating(true);
     try {
+      console.log('Starting SOP generation...', { title, description, category, tags });
+      
       const response = await fetch('/api/generate-enhanced-sop', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -119,11 +121,21 @@ const GenerateNewSOP: React.FC<GenerateNewSOPProps> = ({
         }),
       });
 
+      console.log('Response status:', response.status);
+
       if (!response.ok) {
-        throw new Error('Failed to generate SOP and workflow');
+        const errorText = await response.text();
+        console.error('API Error:', errorText);
+        throw new Error(`Failed to generate SOP and workflow: ${response.status} ${response.statusText}`);
       }
 
       const result = await response.json();
+      console.log('Successfully received result:', result);
+      
+      if (!result.sop || !result.workflow) {
+        throw new Error('Invalid response format from API');
+      }
+      
       setGeneratedContent(result);
       setActiveTab('sop');
       
@@ -135,7 +147,7 @@ const GenerateNewSOP: React.FC<GenerateNewSOPProps> = ({
       console.error('Generation error:', error);
       toast({
         title: "Generation Failed",
-        description: "Unable to generate SOP and workflow. Please try again.",
+        description: error instanceof Error ? error.message : "Unable to generate SOP and workflow. Please try again.",
         variant: "destructive",
       });
     } finally {

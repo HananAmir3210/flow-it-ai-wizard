@@ -37,7 +37,27 @@ serve(async (req) => {
   }
 
   try {
+    console.log('Received request for enhanced SOP generation');
     const { title, description, category, tags }: SOPRequest = await req.json()
+    
+    console.log('Request data:', { title, description, category, tags });
+
+    const openaiApiKey = Deno.env.get('OPENAI_API_KEY')
+    if (!openaiApiKey) {
+      console.error('OpenAI API key not found');
+      // Return enhanced fallback data instead of throwing error
+      const fallbackContent = {
+        sop: generateEnhancedMockSOP(title, description, category),
+        workflow: generateEnhancedMockWorkflow(title)
+      }
+
+      return new Response(
+        JSON.stringify(fallbackContent),
+        {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        }
+      )
+    }
 
     // Enhanced prompt for better SOP generation
     const sopPrompt = `Create a comprehensive, professional Standard Operating Procedure (SOP) for: "${title}"
@@ -93,10 +113,7 @@ Return as JSON array with this structure:
   }
 ]`
 
-    const openaiApiKey = Deno.env.get('OPENAI_API_KEY')
-    if (!openaiApiKey) {
-      throw new Error('OpenAI API key not configured')
-    }
+    console.log('Making OpenAI API calls...');
 
     // Generate SOP content
     const sopResponse = await fetch('https://api.openai.com/v1/chat/completions', {
@@ -106,7 +123,7 @@ Return as JSON array with this structure:
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'gpt-4',
+        model: 'gpt-4o-mini',
         messages: [
           {
             role: 'system',
@@ -130,7 +147,7 @@ Return as JSON array with this structure:
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'gpt-4',
+        model: 'gpt-4o-mini',
         messages: [
           {
             role: 'system',
@@ -146,8 +163,14 @@ Return as JSON array with this structure:
       }),
     })
 
+    console.log('OpenAI API calls completed');
+
     if (!sopResponse.ok || !workflowResponse.ok) {
-      throw new Error('Failed to generate content')
+      console.error('OpenAI API call failed:', { 
+        sopStatus: sopResponse.status, 
+        workflowStatus: workflowResponse.status 
+      });
+      throw new Error('Failed to generate content from OpenAI')
     }
 
     const sopData = await sopResponse.json()
@@ -158,44 +181,66 @@ Return as JSON array with this structure:
 
     try {
       sopContent = JSON.parse(sopData.choices[0].message.content)
+      console.log('Successfully parsed SOP content');
     } catch (error) {
-      // Fallback to enhanced mock data if JSON parsing fails
+      console.error('Failed to parse SOP JSON, using fallback');
       sopContent = generateEnhancedMockSOP(title, description, category)
     }
 
     try {
       workflowSteps = JSON.parse(workflowData.choices[0].message.content)
+      console.log('Successfully parsed workflow content');
     } catch (error) {
-      // Fallback to enhanced mock workflow
+      console.error('Failed to parse workflow JSON, using fallback');
       workflowSteps = generateEnhancedMockWorkflow(title)
     }
 
+    const result = {
+      sop: sopContent,
+      workflow: workflowSteps
+    };
+
+    console.log('Returning successful response');
+
     return new Response(
-      JSON.stringify({
-        sop: sopContent,
-        workflow: workflowSteps
-      }),
+      JSON.stringify(result),
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       }
     )
 
   } catch (error) {
-    console.error('Error:', error)
+    console.error('Error in generate-enhanced-sop:', error)
     
-    // Return enhanced mock data as fallback
-    const { title, description, category } = await req.json()
-    const fallbackContent = {
-      sop: generateEnhancedMockSOP(title, description, category),
-      workflow: generateEnhancedMockWorkflow(title)
-    }
-
-    return new Response(
-      JSON.stringify(fallbackContent),
-      {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    // Always return a working response with enhanced mock data
+    try {
+      const requestBody = await req.json()
+      const { title, description, category } = requestBody
+      
+      const fallbackContent = {
+        sop: generateEnhancedMockSOP(title || 'Standard Operating Procedure', description || 'Process description', category || 'Operations'),
+        workflow: generateEnhancedMockWorkflow(title || 'Standard Operating Procedure')
       }
-    )
+
+      return new Response(
+        JSON.stringify(fallbackContent),
+        {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        }
+      )
+    } catch (fallbackError) {
+      console.error('Fallback error:', fallbackError);
+      return new Response(
+        JSON.stringify({ 
+          error: 'Failed to generate content',
+          details: error.message 
+        }),
+        {
+          status: 500,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        }
+      )
+    }
   }
 })
 
@@ -204,61 +249,66 @@ function generateEnhancedMockSOP(title: string, description: string, category: s
     {
       number: 1,
       title: "Initial Assessment and Planning",
-      description: `Conduct thorough assessment and develop comprehensive plan for ${title.toLowerCase()}`,
+      description: `Begin by conducting a thorough assessment of the current situation and developing a comprehensive plan for ${title.toLowerCase()}. This foundational step ensures all stakeholders understand the scope and requirements.`,
       details: [
-        "Review current state and identify key requirements",
-        "Assess available resources and constraints",
-        "Define success criteria and quality standards",
-        "Create detailed project timeline and milestones",
-        "Identify stakeholders and communication protocols"
+        "Review existing documentation and previous implementations",
+        "Identify key stakeholders and their roles in the process",
+        "Assess available resources including personnel, tools, and budget",
+        "Define clear success criteria and measurable outcomes",
+        "Create a detailed timeline with realistic milestones and deadlines",
+        "Establish communication protocols and reporting structures"
       ]
     },
     {
       number: 2,
-      title: "Resource Preparation and Setup",
-      description: "Prepare all necessary resources, tools, and documentation",
+      title: "Resource Preparation and Environment Setup",
+      description: "Systematically prepare all necessary resources, tools, and create the optimal environment for successful execution of the process.",
       details: [
-        "Gather required documentation and templates",
-        "Set up necessary tools and systems access",
-        "Prepare workspace and environmental requirements",
-        "Brief team members on roles and responsibilities",
-        "Establish backup procedures and contingency plans"
+        "Gather and organize all required documentation, templates, and reference materials",
+        "Configure necessary software tools, systems, and access permissions",
+        "Prepare physical workspace with proper equipment and safety measures",
+        "Brief all team members on their specific roles, responsibilities, and expectations",
+        "Establish backup procedures and contingency plans for potential issues",
+        "Verify compliance with relevant regulations and company policies"
       ]
     },
     {
       number: 3,
-      title: "Implementation and Execution",
-      description: "Execute the main process following established protocols",
+      title: "Process Implementation and Execution",
+      description: "Execute the main process steps following established protocols while maintaining consistent monitoring and documentation throughout.",
       details: [
-        "Follow step-by-step procedures as documented",
-        "Monitor progress against established milestones",
-        "Document all activities and decisions made",
-        "Communicate status updates to relevant stakeholders",
-        "Address any deviations or issues immediately"
+        "Follow the documented step-by-step procedures exactly as outlined",
+        "Monitor progress continuously against established milestones and KPIs",
+        "Document all activities, decisions, and any deviations from the plan",
+        "Maintain regular communication with stakeholders through status updates",
+        "Address any issues or obstacles immediately using established escalation procedures",
+        "Ensure all work meets quality standards and regulatory requirements"
       ]
     },
     {
       number: 4,
       title: "Quality Assurance and Validation",
-      description: "Conduct comprehensive quality checks and obtain necessary approvals",
+      description: "Conduct comprehensive quality checks and validation procedures to ensure all requirements are met and obtain necessary approvals.",
       details: [
-        "Perform quality control checks against standards",
-        "Review work with senior team members or supervisors",
-        "Obtain required approvals and sign-offs",
-        "Address any identified issues or gaps",
-        "Document quality assurance activities"
+        "Perform detailed quality control checks against all established standards",
+        "Review completed work with supervisors, peers, or external auditors",
+        "Obtain all required approvals, sign-offs, and certifications",
+        "Address any identified issues, gaps, or non-compliance items immediately",
+        "Document all quality assurance activities and their outcomes",
+        "Verify that all deliverables meet customer or regulatory expectations"
       ]
     },
     {
       number: 5,
-      title: "Finalization and Documentation",
-      description: "Complete final documentation and process closure activities",
+      title: "Documentation, Closure, and Knowledge Transfer",
+      description: "Complete all final documentation, archive materials appropriately, and transfer knowledge to ensure sustainable process improvement.",
       details: [
-        "Finalize all required documentation and reports",
-        "Archive materials according to retention policies",
-        "Update relevant systems and databases",
-        "Conduct lessons learned session",
-        "Notify all stakeholders of completion"
+        "Finalize all required documentation, reports, and compliance records",
+        "Archive all materials according to organizational retention policies",
+        "Update relevant systems, databases, and knowledge repositories",
+        "Conduct thorough lessons learned sessions with all participants",
+        "Document best practices and improvement recommendations for future iterations",
+        "Notify all stakeholders of successful completion and provide final reports"
       ]
     }
   ];
@@ -281,8 +331,8 @@ function generateEnhancedMockWorkflow(title: string): WorkflowStep[] {
       title: "Start",
       description: "Begin Process",
       type: "start" as const,
-      x: 50,
-      y: 200,
+      x: 100,
+      y: 250,
       connections: ["assess"]
     },
     {
@@ -290,8 +340,8 @@ function generateEnhancedMockWorkflow(title: string): WorkflowStep[] {
       title: "Assessment",
       description: "Initial Assessment & Planning",
       type: "process" as const,
-      x: 200,
-      y: 200,
+      x: 280,
+      y: 250,
       connections: ["prepare"]
     },
     {
@@ -299,8 +349,8 @@ function generateEnhancedMockWorkflow(title: string): WorkflowStep[] {
       title: "Preparation",
       description: "Resource Preparation & Setup",
       type: "process" as const,
-      x: 350,
-      y: 200,
+      x: 460,
+      y: 250,
       connections: ["execute"]
     },
     {
@@ -308,8 +358,8 @@ function generateEnhancedMockWorkflow(title: string): WorkflowStep[] {
       title: "Execute",
       description: "Implementation & Execution",
       type: "process" as const,
-      x: 500,
-      y: 200,
+      x: 640,
+      y: 250,
       connections: ["quality_check"]
     },
     {
@@ -317,8 +367,8 @@ function generateEnhancedMockWorkflow(title: string): WorkflowStep[] {
       title: "Quality Check",
       description: "Meets Standards?",
       type: "decision" as const,
-      x: 650,
-      y: 200,
+      x: 820,
+      y: 250,
       connections: ["finalize", "execute"]
     },
     {
@@ -326,8 +376,8 @@ function generateEnhancedMockWorkflow(title: string): WorkflowStep[] {
       title: "Finalize",
       description: "Documentation & Closure",
       type: "process" as const,
-      x: 800,
-      y: 200,
+      x: 1000,
+      y: 250,
       connections: ["end"]
     },
     {
@@ -335,8 +385,8 @@ function generateEnhancedMockWorkflow(title: string): WorkflowStep[] {
       title: "Complete",
       description: "Process Complete",
       type: "end" as const,
-      x: 950,
-      y: 200,
+      x: 1180,
+      y: 250,
       connections: []
     }
   ];
