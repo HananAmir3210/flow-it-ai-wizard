@@ -15,7 +15,6 @@ import { useToast } from "@/hooks/use-toast";
 const Index = () => {
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [isFeatureModalOpen, setIsFeatureModalOpen] = useState(false);
-  const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const [isSOPModalOpen, setIsSOPModalOpen] = useState(false);
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
   const [isWorkflowModalOpen, setIsWorkflowModalOpen] = useState(false);
@@ -26,7 +25,11 @@ const Index = () => {
   const navigate = useNavigate();
 
   const handleGetStarted = () => {
-    setIsAuthModalOpen(true);
+    if (isSignedIn) {
+      navigate('/dashboard');
+    } else {
+      setIsAuthModalOpen(true);
+    }
   };
 
   const handleDashboardNavigation = () => {
@@ -115,15 +118,14 @@ const Index = () => {
             <Button variant="ghost" onClick={() => setIsPaymentModalOpen(true)}>
               Pricing
             </Button>
-            <Button variant="ghost" onClick={() => setIsProfileModalOpen(true)}>
-              Profile
-            </Button>
             {isSignedIn && (
               <Button variant="outline" onClick={handleDashboardNavigation}>
                 Dashboard
               </Button>
             )}
-            <Button onClick={handleGetStarted}>Get Started</Button>
+            <Button onClick={handleGetStarted}>
+              {isSignedIn ? "Dashboard" : "Get Started"}
+            </Button>
           </div>
         </nav>
       </header>
@@ -236,21 +238,6 @@ const Index = () => {
         isOpen={isFeatureModalOpen} 
         onClose={() => setIsFeatureModalOpen(false)}
         feature={sampleFeature}
-      />
-      <ProfileModal 
-        isOpen={isProfileModalOpen} 
-        onClose={() => setIsProfileModalOpen(false)}
-        user={mockUser}
-        isDarkMode={false}
-        onToggleDarkMode={() => console.log('Toggle dark mode')}
-        onLogout={() => {
-          setIsSignedIn(false);
-          toast({
-            title: "Logged out",
-            description: "You have been successfully logged out.",
-          });
-        }}
-        onViewAccount={() => console.log('View account')}
       />
       <SOPModal 
         isOpen={isSOPModalOpen} 

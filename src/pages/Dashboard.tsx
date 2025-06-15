@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { SidebarProvider, Sidebar, SidebarContent, SidebarHeader, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarTrigger, SidebarInset } from '@/components/ui/sidebar';
 import { Button } from '@/components/ui/button';
-import { Home, Clipboard, Repeat, Layout, Settings, CreditCard, HelpCircle, LogOut, Moon, Sun } from 'lucide-react';
+import { Home, Clipboard, Repeat, Layout, Settings, CreditCard, HelpCircle, LogOut, Moon, Sun, User } from 'lucide-react';
 import DashboardOverview from '@/components/dashboard/DashboardOverview';
 import MySOPs from '@/components/dashboard/MySOPs';
 import VisualWorkflows from '@/components/dashboard/VisualWorkflows';
@@ -11,6 +11,7 @@ import GenerateNewSOP from '@/components/dashboard/GenerateNewSOP';
 import AccountSettings from '@/components/dashboard/AccountSettings';
 import BillingSection from '@/components/dashboard/BillingSection';
 import SupportSection from '@/components/dashboard/SupportSection';
+import ProfileModal from '@/components/ProfileModal';
 import { useToast } from '@/hooks/use-toast';
 
 const menuItems = [
@@ -26,8 +27,14 @@ const menuItems = [
 const Dashboard = () => {
   const [activeSection, setActiveSection] = useState('overview');
   const [isDarkMode, setIsDarkMode] = useState(false);
+  const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
+
+  const mockUser = {
+    name: "Hanan",
+    email: "hanan@example.com"
+  };
 
   const renderContent = () => {
     switch (activeSection) {
@@ -114,6 +121,10 @@ const Dashboard = () => {
               <div className="text-sm text-muted-foreground hidden sm:block">
                 Welcome back, Hanan 👋
               </div>
+              <Button variant="outline" size="sm" onClick={() => setIsProfileModalOpen(true)}>
+                <User className="h-4 w-4" />
+                <span className="ml-2 hidden sm:inline">Profile</span>
+              </Button>
               <Button variant="outline" size="sm" onClick={toggleTheme}>
                 {isDarkMode ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
                 <span className="ml-2 hidden sm:inline">Theme</span>
@@ -126,6 +137,17 @@ const Dashboard = () => {
           </SidebarInset>
         </div>
       </SidebarProvider>
+
+      {/* Profile Modal */}
+      <ProfileModal
+        isOpen={isProfileModalOpen}
+        onClose={() => setIsProfileModalOpen(false)}
+        user={mockUser}
+        isDarkMode={isDarkMode}
+        onToggleDarkMode={toggleTheme}
+        onLogout={handleLogout}
+        onViewAccount={() => setActiveSection('settings')}
+      />
     </div>
   );
 };
