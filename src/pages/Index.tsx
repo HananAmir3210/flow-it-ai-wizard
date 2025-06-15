@@ -118,11 +118,6 @@ const Index = () => {
             <Button variant="ghost" onClick={() => setIsPaymentModalOpen(true)}>
               Pricing
             </Button>
-            {isSignedIn && (
-              <Button variant="outline" onClick={handleDashboardNavigation}>
-                Dashboard
-              </Button>
-            )}
             <Button onClick={handleGetStarted}>
               {isSignedIn ? "Dashboard" : "Get Started"}
             </Button>
