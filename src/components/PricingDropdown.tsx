@@ -1,8 +1,8 @@
-
-import React from "react";
+import React, { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Check } from "lucide-react";
+import FeatureComparisonModal from "./FeatureComparisonModal";
 
 interface PricingDropdownProps {
   isOpen: boolean;
@@ -10,6 +10,8 @@ interface PricingDropdownProps {
 }
 
 const PricingDropdown: React.FC<PricingDropdownProps> = ({ isOpen, onClose }) => {
+  const [isComparisonModalOpen, setIsComparisonModalOpen] = useState(false);
+
   const plans = [
     {
       name: "Free Plan",
@@ -36,6 +38,10 @@ const PricingDropdown: React.FC<PricingDropdownProps> = ({ isOpen, onClose }) =>
       highlighted: false
     }
   ];
+
+  const handleCompareFeatures = () => {
+    setIsComparisonModalOpen(true);
+  };
 
   if (!isOpen) return null;
 
@@ -112,10 +118,7 @@ const PricingDropdown: React.FC<PricingDropdownProps> = ({ isOpen, onClose }) =>
               <div className="text-center pt-6 border-t border-gray-200 dark:border-gray-700">
                 <button 
                   className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 text-sm font-semibold underline underline-offset-4 transition-colors duration-200"
-                  onClick={() => {
-                    console.log('Compare all features clicked');
-                    onClose();
-                  }}
+                  onClick={handleCompareFeatures}
                 >
                   Compare All Features →
                 </button>
@@ -124,6 +127,12 @@ const PricingDropdown: React.FC<PricingDropdownProps> = ({ isOpen, onClose }) =>
           </Card>
         </div>
       </div>
+
+      {/* Feature Comparison Modal */}
+      <FeatureComparisonModal 
+        isOpen={isComparisonModalOpen}
+        onClose={() => setIsComparisonModalOpen(false)}
+      />
     </>
   );
 };
