@@ -1,8 +1,10 @@
+
 import React, { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Check } from "lucide-react";
 import FeatureComparisonModal from "./FeatureComparisonModal";
+import PaymentModal from "./PaymentModal";
 
 interface PricingDropdownProps {
   isOpen: boolean;
@@ -11,6 +13,8 @@ interface PricingDropdownProps {
 
 const PricingDropdown: React.FC<PricingDropdownProps> = ({ isOpen, onClose }) => {
   const [isComparisonModalOpen, setIsComparisonModalOpen] = useState(false);
+  const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
+  const [selectedPlan, setSelectedPlan] = useState<any>(null);
 
   const plans = [
     {
@@ -41,6 +45,11 @@ const PricingDropdown: React.FC<PricingDropdownProps> = ({ isOpen, onClose }) =>
 
   const handleCompareFeatures = () => {
     setIsComparisonModalOpen(true);
+  };
+
+  const handlePlanSelection = (plan: any) => {
+    setSelectedPlan(plan);
+    setIsPaymentModalOpen(true);
   };
 
   if (!isOpen) return null;
@@ -104,10 +113,7 @@ const PricingDropdown: React.FC<PricingDropdownProps> = ({ isOpen, onClose }) =>
                           ? 'bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white shadow-lg' 
                           : 'bg-gray-900 hover:bg-gray-800 text-white dark:bg-gray-700 dark:hover:bg-gray-600'
                       }`}
-                      onClick={() => {
-                        console.log(`Selected ${plan.name}`);
-                        onClose();
-                      }}
+                      onClick={() => handlePlanSelection(plan)}
                     >
                       {plan.buttonText}
                     </Button>
@@ -123,6 +129,18 @@ const PricingDropdown: React.FC<PricingDropdownProps> = ({ isOpen, onClose }) =>
       <FeatureComparisonModal 
         isOpen={isComparisonModalOpen}
         onClose={() => setIsComparisonModalOpen(false)}
+      />
+
+      {/* Payment Modal */}
+      <PaymentModal 
+        isOpen={isPaymentModalOpen}
+        onClose={() => setIsPaymentModalOpen(false)}
+        selectedPlan={selectedPlan ? {
+          name: selectedPlan.name.replace(' Plan', ''),
+          price: selectedPlan.price.replace('/month', ''),
+          interval: selectedPlan.price.includes('/month') ? 'month' : '',
+          features: selectedPlan.features
+        } : undefined}
       />
     </>
   );
