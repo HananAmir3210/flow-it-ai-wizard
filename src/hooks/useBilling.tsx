@@ -90,15 +90,18 @@ export const useBilling = () => {
       // Mock payment simulation
       await new Promise(resolve => setTimeout(resolve, 2000));
       
-      // Update billing in database
+      // Update billing in database with proper type casting
       const subscriptionEnd = new Date();
       subscriptionEnd.setMonth(subscriptionEnd.getMonth() + 1);
+      
+      // Ensure planName matches the expected enum type
+      const validPlan = planName as 'Free' | 'Pro' | 'Team';
       
       const { error } = await supabase
         .from('billing')
         .upsert({
           user_id: user.id,
-          current_plan: planName,
+          current_plan: validPlan,
           subscription_status: 'active',
           plan_end_date: subscriptionEnd.toISOString(),
           updated_at: new Date().toISOString()
