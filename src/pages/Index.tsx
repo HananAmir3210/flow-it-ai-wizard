@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -9,6 +9,7 @@ import SOPModal from "@/components/SOPModal";
 import PaymentModal from "@/components/PaymentModal";
 import WorkflowModal from "@/components/WorkflowModal";
 import InteractiveWorkflowModal from "@/components/InteractiveWorkflowModal";
+import PricingDropdown from "@/components/PricingDropdown";
 import LoadingSpinner from "@/components/LoadingSpinner";
 import { useToast } from "@/hooks/use-toast";
 
@@ -19,10 +20,12 @@ const Index = () => {
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
   const [isWorkflowModalOpen, setIsWorkflowModalOpen] = useState(false);
   const [isInteractiveWorkflowModalOpen, setIsInteractiveWorkflowModalOpen] = useState(false);
+  const [isPricingDropdownOpen, setIsPricingDropdownOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isSignedIn, setIsSignedIn] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
+  const pricingButtonRef = useRef<HTMLButtonElement>(null);
 
   const handleGetStarted = () => {
     if (isSignedIn) {
@@ -55,6 +58,27 @@ const Index = () => {
   const handleViewSampleWorkflow = () => {
     setIsWorkflowModalOpen(true);
   };
+
+  const handlePricingClick = () => {
+    setIsPricingDropdownOpen(!isPricingDropdownOpen);
+  };
+
+  // Close pricing dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (pricingButtonRef.current && !pricingButtonRef.current.contains(event.target as Node)) {
+        setIsPricingDropdownOpen(false);
+      }
+    };
+
+    if (isPricingDropdownOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isPricingDropdownOpen]);
 
   const workflowSteps = [
     { id: '1', title: 'Start Process', type: 'start' as const, next: ['2'] },
@@ -115,9 +139,20 @@ const Index = () => {
             <Button variant="ghost" onClick={() => setIsFeatureModalOpen(true)}>
               Features
             </Button>
-            <Button variant="ghost" onClick={() => setIsPaymentModalOpen(true)}>
-              Pricing
-            </Button>
+            <div className="relative">
+              <Button 
+                ref={pricingButtonRef}
+                variant="ghost" 
+                onClick={handlePricingClick}
+                className={isPricingDropdownOpen ? "bg-accent" : ""}
+              >
+                Pricing
+              </Button>
+              <PricingDropdown 
+                isOpen={isPricingDropdownOpen} 
+                onClose={() => setIsPricingDropdownOpen(false)} 
+              />
+            </div>
             <Button onClick={handleGetStarted}>
               {isSignedIn ? "Dashboard" : "Get Started"}
             </Button>
