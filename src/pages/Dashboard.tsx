@@ -1,4 +1,5 @@
 
+
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { SidebarProvider, Sidebar, SidebarContent, SidebarHeader, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarTrigger, SidebarInset } from '@/components/ui/sidebar';
@@ -94,11 +95,11 @@ const Dashboard = () => {
     <div className={`min-h-screen ${isDarkMode ? 'dark bg-gray-900' : 'bg-background'}`}>
       <SidebarProvider>
         <div className="flex min-h-screen w-full">
-          <Sidebar className="border-r">
-            <SidebarHeader className="border-b p-4">
+          <Sidebar className="border-r hidden md:block">
+            <SidebarHeader className="border-b p-3 sm:p-4">
               <div className="flex items-center gap-2">
-                <div className="h-8 w-8 rounded bg-primary"></div>
-                <span className="font-semibold">AI SOP Generator</span>
+                <div className="h-6 w-6 sm:h-8 sm:w-8 rounded bg-primary"></div>
+                <span className="font-semibold text-sm sm:text-base truncate">AI SOP Generator</span>
               </div>
             </SidebarHeader>
             
@@ -114,10 +115,10 @@ const Dashboard = () => {
                         }
                       }}
                       isActive={activeSection === item.id}
-                      className="w-full justify-start"
+                      className="w-full justify-start text-sm sm:text-base"
                     >
                       <item.icon className="h-4 w-4" />
-                      <span>{item.label}</span>
+                      <span className="truncate">{item.label}</span>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
                 ))}
@@ -125,7 +126,7 @@ const Dashboard = () => {
                 <SidebarMenuItem>
                   <SidebarMenuButton 
                     onClick={handleLogout}
-                    className="w-full justify-start text-destructive hover:text-destructive"
+                    className="w-full justify-start text-destructive hover:text-destructive text-sm sm:text-base"
                   >
                     <LogOut className="h-4 w-4" />
                     <span>Log Out</span>
@@ -136,35 +137,35 @@ const Dashboard = () => {
           </Sidebar>
 
           <SidebarInset className="flex-1">
-            <header className="sticky top-0 z-10 flex h-16 items-center gap-2 border-b bg-background px-4">
-              <SidebarTrigger />
+            <header className="sticky top-0 z-10 flex h-14 sm:h-16 items-center gap-2 border-b bg-background px-3 sm:px-4">
+              <SidebarTrigger className="md:hidden" />
               <div className="flex-1" />
-              <div className="text-sm text-muted-foreground hidden sm:block">
+              <div className="text-xs sm:text-sm text-muted-foreground hidden lg:block">
                 Welcome back, {user?.email?.split('@')[0] || 'User'} 👋
               </div>
               <Button 
                 variant="outline" 
                 size="sm" 
                 onClick={() => setIsProfileModalOpen(true)}
-                className={`${isDarkMode ? 'text-gray-300 hover:text-white' : ''}`}
+                className={`text-xs sm:text-sm btn-touch ${isDarkMode ? 'text-gray-300 hover:text-white' : ''}`}
               >
                 <User className="h-4 w-4" />
-                <span className="ml-2 hidden sm:inline">Profile</span>
+                <span className="ml-1 sm:ml-2 hidden sm:inline">Profile</span>
               </Button>
               <Button 
                 variant="outline" 
                 size="sm" 
                 onClick={toggleTheme}
-                className={`${isDarkMode ? 'text-gray-300 hover:text-white' : ''}`}
+                className={`text-xs sm:text-sm btn-touch ${isDarkMode ? 'text-gray-300 hover:text-white' : ''}`}
               >
                 {isDarkMode ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
-                <span className={`ml-2 hidden sm:inline ${isDarkMode ? 'text-gray-300' : ''}`}>
+                <span className={`ml-1 sm:ml-2 hidden lg:inline ${isDarkMode ? 'text-gray-300' : ''}`}>
                   {isDarkMode ? 'Light' : 'Dark'} Mode
                 </span>
               </Button>
             </header>
             
-            <main className="flex-1 p-4 md:p-6 overflow-auto">
+            <main className="flex-1 p-3 sm:p-4 md:p-6 overflow-auto">
               {renderContent()}
             </main>
           </SidebarInset>

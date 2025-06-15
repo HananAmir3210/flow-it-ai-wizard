@@ -100,6 +100,8 @@
 
   body {
     @apply bg-background text-foreground;
+    min-height: 100vh;
+    min-height: 100dvh;
   }
 
   /* Smooth scroll behavior with proper offset for fixed header */
@@ -109,5 +111,68 @@
   
   html {
     scroll-behavior: smooth;
+  }
+
+  /* Responsive typography */
+  h1 {
+    @apply text-2xl sm:text-3xl md:text-4xl lg:text-5xl;
+  }
+
+  h2 {
+    @apply text-xl sm:text-2xl md:text-3xl;
+  }
+
+  h3 {
+    @apply text-lg sm:text-xl md:text-2xl;
+  }
+
+  /* Mobile-first responsive containers */
+  .container {
+    @apply w-full max-w-none px-4 sm:px-6 lg:px-8 xl:max-w-7xl xl:mx-auto;
+  }
+
+  /* Responsive grid patterns */
+  .responsive-grid {
+    @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6;
+  }
+
+  /* Touch-friendly button sizing */
+  .btn-touch {
+    @apply min-h-[44px] min-w-[44px];
+  }
+
+  /* Responsive spacing */
+  .section-padding {
+    @apply py-8 sm:py-12 lg:py-16;
+  }
+
+  .content-padding {
+    @apply px-4 sm:px-6 lg:px-8;
+  }
+}
+
+/* Mobile-specific utilities */
+@media (max-width: 640px) {
+  .hide-mobile {
+    display: none !important;
+  }
+  
+  .mobile-full-width {
+    width: 100vw;
+    margin-left: calc(-50vw + 50%);
+  }
+}
+
+/* Tablet-specific utilities */
+@media (min-width: 641px) and (max-width: 1024px) {
+  .hide-tablet {
+    display: none !important;
+  }
+}
+
+/* Desktop-specific utilities */
+@media (min-width: 1025px) {
+  .hide-desktop {
+    display: none !important;
   }
 }
