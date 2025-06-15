@@ -49,7 +49,14 @@ const PricingDropdown: React.FC<PricingDropdownProps> = ({ isOpen, onClose }) =>
       
       {/* Dropdown Card - Centered */}
       <div className="absolute top-full left-1/2 transform -translate-x-1/2 mt-2 z-50 w-[800px] max-w-[95vw] animate-in slide-in-from-top-2 duration-200">
-        <Card className="shadow-2xl border border-gray-200 bg-white dark:bg-gray-900 dark:border-gray-700">
+        <Card className="shadow-2xl border border-gray-200 bg-white dark:bg-gray-900 dark:border-gray-700 relative">
+          {/* Most Popular Badge - Centered on entire card */}
+          <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 z-10">
+            <span className="bg-gradient-to-r from-blue-500 to-purple-600 text-white text-xs font-semibold px-3 py-1 rounded-full shadow-md whitespace-nowrap">
+              Most Popular
+            </span>
+          </div>
+          
           <CardHeader className="text-center pb-6">
             <CardTitle className="text-2xl font-bold text-gray-900 dark:text-white">Choose Your Plan</CardTitle>
             <CardDescription className="text-gray-600 dark:text-gray-400">
@@ -67,15 +74,7 @@ const PricingDropdown: React.FC<PricingDropdownProps> = ({ isOpen, onClose }) =>
                       : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:border-gray-300 dark:hover:border-gray-600'
                   }`}
                 >
-                  {plan.highlighted && (
-                    <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 z-10">
-                      <span className="bg-gradient-to-r from-blue-500 to-purple-600 text-white text-xs font-semibold px-3 py-1 rounded-full shadow-md whitespace-nowrap">
-                        Most Popular
-                      </span>
-                    </div>
-                  )}
-                  
-                  <div className="text-center mb-6 mt-2">
+                  <div className="text-center mb-6">
                     <h3 className="font-bold text-lg text-gray-900 dark:text-white mb-2">{plan.name}</h3>
                     <div className="text-3xl font-bold text-gray-900 dark:text-white mb-2">{plan.price}</div>
                     <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">{plan.description}</p>
