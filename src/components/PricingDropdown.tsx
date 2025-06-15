@@ -48,50 +48,53 @@ const PricingDropdown: React.FC<PricingDropdownProps> = ({ isOpen, onClose }) =>
       />
       
       {/* Dropdown Card */}
-      <div className="absolute top-full right-0 mt-2 z-50 w-[600px] max-w-[90vw]">
-        <Card className="shadow-xl border-0 bg-white">
-          <CardHeader className="text-center pb-4">
-            <CardTitle className="text-xl font-bold text-gray-900">Choose Your Plan</CardTitle>
+      <div className="absolute top-full right-0 mt-2 z-50 w-[800px] max-w-[95vw] animate-in slide-in-from-top-2 duration-200">
+        <Card className="shadow-2xl border border-gray-200 bg-white dark:bg-gray-900 dark:border-gray-700">
+          <CardHeader className="text-center pb-6">
+            <CardTitle className="text-2xl font-bold text-gray-900 dark:text-white">Choose Your Plan</CardTitle>
+            <CardDescription className="text-gray-600 dark:text-gray-400">
+              Select the perfect plan for your needs
+            </CardDescription>
           </CardHeader>
-          <CardContent className="p-6">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+          <CardContent className="px-6 pb-6">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
               {plans.map((plan, index) => (
                 <div 
                   key={index}
-                  className={`relative p-4 rounded-lg border-2 transition-all ${
+                  className={`relative p-6 rounded-xl border-2 transition-all duration-200 hover:shadow-lg ${
                     plan.highlighted 
-                      ? 'border-blue-500 bg-blue-50' 
-                      : 'border-gray-200 hover:border-gray-300'
+                      ? 'border-blue-500 bg-blue-50 dark:bg-blue-950/20 shadow-lg scale-105' 
+                      : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:border-gray-300 dark:hover:border-gray-600'
                   }`}
                 >
                   {plan.highlighted && (
-                    <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
-                      <span className="bg-blue-500 text-white text-xs px-3 py-1 rounded-full">
+                    <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 z-10">
+                      <span className="bg-gradient-to-r from-blue-500 to-purple-600 text-white text-sm font-semibold px-4 py-2 rounded-full shadow-md">
                         Most Popular
                       </span>
                     </div>
                   )}
                   
-                  <div className="text-center mb-4">
-                    <h3 className="font-semibold text-gray-900 mb-1">{plan.name}</h3>
-                    <div className="text-2xl font-bold text-gray-900 mb-1">{plan.price}</div>
-                    <p className="text-sm text-gray-600">{plan.description}</p>
+                  <div className="text-center mb-6">
+                    <h3 className="font-bold text-lg text-gray-900 dark:text-white mb-2">{plan.name}</h3>
+                    <div className="text-3xl font-bold text-gray-900 dark:text-white mb-2">{plan.price}</div>
+                    <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">{plan.description}</p>
                   </div>
                   
-                  <ul className="space-y-2 mb-4">
+                  <ul className="space-y-3 mb-6">
                     {plan.features.map((feature, featureIndex) => (
-                      <li key={featureIndex} className="flex items-center text-sm">
-                        <Check className="w-4 h-4 text-green-500 mr-2 flex-shrink-0" />
-                        <span className="text-gray-700">{feature}</span>
+                      <li key={featureIndex} className="flex items-start text-sm">
+                        <Check className="w-5 h-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
+                        <span className="text-gray-700 dark:text-gray-300">{feature}</span>
                       </li>
                     ))}
                   </ul>
                   
                   <Button 
-                    className={`w-full ${
+                    className={`w-full py-3 font-semibold transition-all duration-200 ${
                       plan.highlighted 
-                        ? 'bg-blue-600 hover:bg-blue-700' 
-                        : 'bg-gray-600 hover:bg-gray-700'
+                        ? 'bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white shadow-lg' 
+                        : 'bg-gray-900 hover:bg-gray-800 text-white dark:bg-gray-700 dark:hover:bg-gray-600'
                     }`}
                     onClick={() => {
                       console.log(`Selected ${plan.name}`);
@@ -104,9 +107,9 @@ const PricingDropdown: React.FC<PricingDropdownProps> = ({ isOpen, onClose }) =>
               ))}
             </div>
             
-            <div className="text-center pt-4 border-t border-gray-200">
+            <div className="text-center pt-6 border-t border-gray-200 dark:border-gray-700">
               <button 
-                className="text-blue-600 hover:text-blue-800 text-sm font-medium underline"
+                className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 text-sm font-semibold underline underline-offset-4 transition-colors duration-200"
                 onClick={() => {
                   console.log('Compare all features clicked');
                   onClose();
