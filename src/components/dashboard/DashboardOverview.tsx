@@ -1,10 +1,10 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { TrendingUp, FileText, GitBranch, Clock, Zap, Eye, Edit } from 'lucide-react';
+import { TrendingUp, FileText, GitBranch, Clock, Zap, Eye, Edit, Calendar } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -38,6 +38,8 @@ interface DashboardOverviewProps {
   onNavigateToWorkflows?: () => void;
 }
 
+type TimeFrame = '1m' | '3m' | '6m' | '1y';
+
 const DashboardOverview: React.FC<DashboardOverviewProps> = ({
   onNavigateToSOPs,
   onNavigateToGenerate,
@@ -54,6 +56,27 @@ const DashboardOverview: React.FC<DashboardOverviewProps> = ({
   const [recentActivity, setRecentActivity] = useState<RecentActivity[]>([]);
   const [chartData, setChartData] = useState<ChartDataPoint[]>([]);
   const [loading, setLoading] = useState(true);
+  const [timeFrame, setTimeFrame] = useState<TimeFrame>('6m');
+
+  const getTimeFrameMonths = (frame: TimeFrame): number => {
+    switch (frame) {
+      case '1m': return 1;
+      case '3m': return 3;
+      case '6m': return 6;
+      case '1y': return 12;
+      default: return 6;
+    }
+  };
+
+  const getTimeFrameLabel = (frame: TimeFrame): string => {
+    switch (frame) {
+      case '1m': return 'Last Month';
+      case '3m': return 'Last 3 Months';
+      case '6m': return 'Last 6 Months';
+      case '1y': return 'Last Year';
+      default: return 'Last 6 Months';
+    }
+  };
 
   useEffect(() => {
     if (user) {
@@ -81,7 +104,7 @@ const DashboardOverview: React.FC<DashboardOverviewProps> = ({
         supabase.removeChannel(workflowsChannel);
       };
     }
-  }, [user]);
+  }, [user, timeFrame]);
 
   const fetchDashboardData = async () => {
     if (!user) return;
@@ -116,19 +139,19 @@ const DashboardOverview: React.FC<DashboardOverviewProps> = ({
         efficiencyGain
       });
 
-      // Generate chart data based on actual creation dates
+      // Generate chart data based on selected time frame
       const chartDataMap = new Map<string, { SOPs: number; Workflows: number }>();
       const now = new Date();
+      const monthsToShow = getTimeFrameMonths(timeFrame);
       
-      // Initialize last 6 months
-      for (let i = 5; i >= 0; i--) {
+      // Initialize time periods
+      for (let i = monthsToShow - 1; i >= 0; i--) {
         const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
         const key = `${date.getFullYear()}-${date.getMonth()}`;
-        const monthName = date.toLocaleDateString('en-US', { month: 'short' });
         chartDataMap.set(key, { SOPs: 0, Workflows: 0 });
       }
 
-      // Count SOPs by month
+      // Count SOPs by period
       sopsData?.forEach(sop => {
         const date = new Date(sop.created_at);
         const key = `${date.getFullYear()}-${date.getMonth()}`;
@@ -138,7 +161,7 @@ const DashboardOverview: React.FC<DashboardOverviewProps> = ({
         }
       });
 
-      // Count Workflows by month
+      // Count Workflows by period
       workflowsData?.forEach(workflow => {
         const date = new Date(workflow.created_at);
         const key = `${date.getFullYear()}-${date.getMonth()}`;
@@ -153,7 +176,9 @@ const DashboardOverview: React.FC<DashboardOverviewProps> = ({
       chartDataMap.forEach((value, key) => {
         const [year, month] = key.split('-').map(Number);
         const date = new Date(year, month, 1);
-        const monthName = date.toLocaleDateString('en-US', { month: 'short' });
+        const monthName = timeFrame === '1y' 
+          ? date.toLocaleDateString('en-US', { month: 'short', year: '2-digit' })
+          : date.toLocaleDateString('en-US', { month: 'short' });
         newChartData.push({
           name: monthName,
           SOPs: value.SOPs,
@@ -356,11 +381,29 @@ const DashboardOverview: React.FC<DashboardOverviewProps> = ({
 
       {/* Main Content Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Chart - Now with real data */}
+        {/* Chart - Now with time frame selection */}
         <Card className="lg:col-span-2">
           <CardHeader>
-            <CardTitle>Activity Overview</CardTitle>
-            <p className="text-sm text-muted-foreground">Your SOP and workflow creation over the last 6 months</p>
+            <div className="flex items-center justify-between">
+              <div>
+                <CardTitle>Activity Overview</CardTitle>
+                <p className="text-sm text-muted-foreground">Your SOP and workflow creation over {getTimeFrameLabel(timeFrame).toLowerCase()}</p>
+              </div>
+              <div className="flex items-center gap-2">
+                <Calendar className="h-4 w-4 text-muted-foreground" />
+                <Select value={timeFrame} onValueChange={(value: TimeFrame) => setTimeFrame(value)}>
+                  <SelectTrigger className="w-[140px]">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="1m">Last Month</SelectItem>
+                    <SelectItem value="3m">Last 3 Months</SelectItem>
+                    <SelectItem value="6m">Last 6 Months</SelectItem>
+                    <SelectItem value="1y">Last Year</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
           </CardHeader>
           <CardContent>
             {chartData.length > 0 ? (
@@ -371,7 +414,7 @@ const DashboardOverview: React.FC<DashboardOverviewProps> = ({
                   <YAxis />
                   <Tooltip 
                     formatter={(value, name) => [value, name === 'SOPs' ? 'SOPs Created' : 'Workflows Created']}
-                    labelFormatter={(label) => `Month: ${label}`}
+                    labelFormatter={(label) => `Period: ${label}`}
                   />
                   <Bar dataKey="SOPs" fill="#3b82f6" name="SOPs" />
                   <Bar dataKey="Workflows" fill="#8b5cf6" name="Workflows" />
