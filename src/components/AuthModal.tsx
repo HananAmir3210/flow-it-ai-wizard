@@ -58,13 +58,13 @@ const AuthModal = ({ isOpen, onClose, onLogin, onSignup }: AuthModalProps) => {
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-md">
-        <DialogHeader>
-          <DialogTitle>Welcome to AI SOP Generator</DialogTitle>
+      <DialogContent className="sm:max-w-md mx-auto">
+        <DialogHeader className="text-center">
+          <DialogTitle className="text-center">Welcome to AI SOP Generator</DialogTitle>
         </DialogHeader>
         
         <Tabs defaultValue="login" className="w-full">
-          <TabsList className="grid w-full grid-cols-2">
+          <TabsList className="grid w-full grid-cols-2 mx-auto">
             <TabsTrigger value="login">Login</TabsTrigger>
             <TabsTrigger value="signup">Sign Up</TabsTrigger>
           </TabsList>
@@ -72,7 +72,7 @@ const AuthModal = ({ isOpen, onClose, onLogin, onSignup }: AuthModalProps) => {
           <TabsContent value="login">
             <Card>
               <CardHeader>
-                <CardTitle>Login to your account</CardTitle>
+                <CardTitle className="text-center">Login to your account</CardTitle>
               </CardHeader>
               <CardContent>
                 <form onSubmit={handleLogin} className="space-y-4">
@@ -84,7 +84,7 @@ const AuthModal = ({ isOpen, onClose, onLogin, onSignup }: AuthModalProps) => {
                       onChange={(e) => setLoginEmail(e.target.value)}
                       className={errors.loginEmail ? "border-red-500" : ""}
                     />
-                    {errors.loginEmail && <p className="text-red-500 text-sm mt-1">{errors.loginEmail}</p>}
+                    {errors.loginEmail && <p className="text-red-500 text-sm mt-1 text-center">{errors.loginEmail}</p>}
                   </div>
                   <div>
                     <Input
@@ -94,7 +94,7 @@ const AuthModal = ({ isOpen, onClose, onLogin, onSignup }: AuthModalProps) => {
                       onChange={(e) => setLoginPassword(e.target.value)}
                       className={errors.loginPassword ? "border-red-500" : ""}
                     />
-                    {errors.loginPassword && <p className="text-red-500 text-sm mt-1">{errors.loginPassword}</p>}
+                    {errors.loginPassword && <p className="text-red-500 text-sm mt-1 text-center">{errors.loginPassword}</p>}
                   </div>
                   <Button type="submit" className="w-full">
                     Login
@@ -113,7 +113,7 @@ const AuthModal = ({ isOpen, onClose, onLogin, onSignup }: AuthModalProps) => {
           <TabsContent value="signup">
             <Card>
               <CardHeader>
-                <CardTitle>Create an account</CardTitle>
+                <CardTitle className="text-center">Create an account</CardTitle>
               </CardHeader>
               <CardContent>
                 <form onSubmit={handleSignup} className="space-y-4">
@@ -125,7 +125,7 @@ const AuthModal = ({ isOpen, onClose, onLogin, onSignup }: AuthModalProps) => {
                       onChange={(e) => setSignupEmail(e.target.value)}
                       className={errors.signupEmail ? "border-red-500" : ""}
                     />
-                    {errors.signupEmail && <p className="text-red-500 text-sm mt-1">{errors.signupEmail}</p>}
+                    {errors.signupEmail && <p className="text-red-500 text-sm mt-1 text-center">{errors.signupEmail}</p>}
                   </div>
                   <div>
                     <Input
@@ -135,7 +135,7 @@ const AuthModal = ({ isOpen, onClose, onLogin, onSignup }: AuthModalProps) => {
                       onChange={(e) => setSignupPassword(e.target.value)}
                       className={errors.signupPassword ? "border-red-500" : ""}
                     />
-                    {errors.signupPassword && <p className="text-red-500 text-sm mt-1">{errors.signupPassword}</p>}
+                    {errors.signupPassword && <p className="text-red-500 text-sm mt-1 text-center">{errors.signupPassword}</p>}
                   </div>
                   <div>
                     <Input
@@ -145,7 +145,7 @@ const AuthModal = ({ isOpen, onClose, onLogin, onSignup }: AuthModalProps) => {
                       onChange={(e) => setConfirmPassword(e.target.value)}
                       className={errors.confirmPassword ? "border-red-500" : ""}
                     />
-                    {errors.confirmPassword && <p className="text-red-500 text-sm mt-1">{errors.confirmPassword}</p>}
+                    {errors.confirmPassword && <p className="text-red-500 text-sm mt-1 text-center">{errors.confirmPassword}</p>}
                   </div>
                   <Button type="submit" className="w-full">
                     Sign Up
