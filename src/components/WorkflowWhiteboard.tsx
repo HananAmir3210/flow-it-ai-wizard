@@ -1,4 +1,3 @@
-
 import React, { useState, useCallback } from 'react';
 import { 
   ReactFlow, 
@@ -16,7 +15,9 @@ import {
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import { Button } from '@/components/ui/button';
-import { ZoomIn, ZoomOut, Maximize2, Download } from 'lucide-react';
+import { ZoomIn, ZoomOut, Maximize2, Download, Image } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
+import { exportWorkflowToPNG } from '@/utils/workflowExport';
 
 interface WorkflowStep {
   id: string;
@@ -68,6 +69,7 @@ const WorkflowWhiteboard: React.FC<WorkflowWhiteboardProps> = ({
   title, 
   readonly = true 
 }) => {
+  const { toast } = useToast();
   // Convert workflow steps to React Flow nodes
   const initialNodes: Node[] = steps.map((step) => ({
     id: step.id,
@@ -124,17 +126,22 @@ const WorkflowWhiteboard: React.FC<WorkflowWhiteboardProps> = ({
     }
   }, [reactFlowInstance]);
 
-  const downloadImage = useCallback(() => {
-    if (reactFlowInstance) {
-      const imageWidth = 1920;
-      const imageHeight = 1080;
-      
-      reactFlowInstance.getViewport().then(() => {
-        // This would typically use html2canvas or similar
-        console.log('Download functionality would be implemented here');
+  const downloadPNG = useCallback(async () => {
+    try {
+      await exportWorkflowToPNG(title);
+      toast({
+        title: "Workflow Downloaded",
+        description: "Your workflow has been saved as a PNG image.",
+      });
+    } catch (error) {
+      console.error('Error downloading workflow:', error);
+      toast({
+        title: "Download Failed",
+        description: "Unable to download workflow. Please try again.",
+        variant: "destructive",
       });
     }
-  }, [reactFlowInstance]);
+  }, [title, toast]);
 
   return (
     <div className="h-[600px] w-full border rounded-lg bg-white relative">
@@ -188,8 +195,8 @@ const WorkflowWhiteboard: React.FC<WorkflowWhiteboardProps> = ({
           <Button variant="outline" size="sm" onClick={fitView}>
             <Maximize2 className="h-4 w-4" />
           </Button>
-          <Button variant="outline" size="sm" onClick={downloadImage}>
-            <Download className="h-4 w-4" />
+          <Button variant="outline" size="sm" onClick={downloadPNG}>
+            <Image className="h-4 w-4" />
           </Button>
         </Panel>
       </ReactFlow>

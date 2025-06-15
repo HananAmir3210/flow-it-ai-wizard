@@ -1,10 +1,11 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Loader2, FileText, Workflow, Save, Download, Eye } from 'lucide-react';
+import { Loader2, FileText, Workflow, Save, Download, Eye, Image } from 'lucide-react';
 import InteractiveWorkflowModal from '@/components/InteractiveWorkflowModal';
+import { useToast } from '@/hooks/use-toast';
+import { exportWorkflowToPNG } from '@/utils/workflowExport';
 
 interface WorkflowStep {
   id: string;
@@ -54,6 +55,24 @@ const GeneratedContentDisplay: React.FC<GeneratedContentDisplayProps> = ({
   onSave
 }) => {
   const [isWorkflowModalOpen, setIsWorkflowModalOpen] = useState(false);
+  const { toast } = useToast();
+
+  const handleExportWorkflowPNG = async () => {
+    try {
+      await exportWorkflowToPNG(title);
+      toast({
+        title: "Workflow Exported",
+        description: "Your workflow has been downloaded as a PNG image.",
+      });
+    } catch (error) {
+      console.error('Error exporting workflow:', error);
+      toast({
+        title: "Export Failed",
+        description: "Unable to export workflow. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
 
   return (
     <Card>
@@ -69,6 +88,12 @@ const GeneratedContentDisplay: React.FC<GeneratedContentDisplayProps> = ({
               <Download className="h-4 w-4 mr-1" />
               Export
             </Button>
+            {activeTab === 'workflow' && (
+              <Button variant="outline" size="sm" onClick={handleExportWorkflowPNG}>
+                <Image className="h-4 w-4 mr-1" />
+                PNG
+              </Button>
+            )}
             <Button onClick={onSave} disabled={loading}>
               {loading ? (
                 <Loader2 className="h-4 w-4 mr-2 animate-spin" />
