@@ -1,9 +1,9 @@
-
 import React, { useState } from 'react';
 import { X, Download, Copy, FileText, Workflow } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
+import { exportSOPToPDF } from '@/utils/pdfExport';
 import WorkflowWhiteboard from '@/components/WorkflowWhiteboard';
 import type { Database } from '@/integrations/supabase/types';
 
@@ -40,7 +40,7 @@ const SOPViewModal: React.FC<SOPViewModalProps> = ({ isOpen, onClose, sop }) => 
     });
   };
 
-  const handleExport = () => {
+  const handleExportMarkdown = () => {
     const content = `# ${sop.title}\n\n## Description\n${sop.description || 'No description'}\n\n## Category\n${sop.category}\n\n## Content\n${sop.generated_content || 'No content available'}\n\n## Tags\n${sop.tags?.join(', ') || 'No tags'}\n\nGenerated on: ${new Date(sop.created_at).toLocaleDateString()}`;
     
     const blob = new Blob([content], { type: 'text/markdown' });
@@ -57,6 +57,30 @@ const SOPViewModal: React.FC<SOPViewModalProps> = ({ isOpen, onClose, sop }) => 
       title: "SOP Exported",
       description: "Your SOP has been downloaded as a markdown file.",
     });
+  };
+
+  const handleExportPDF = () => {
+    try {
+      exportSOPToPDF({
+        title: sop.title,
+        description: sop.description || undefined,
+        category: sop.category,
+        tags: sop.tags || undefined,
+        generated_content: sop.generated_content || undefined,
+        created_at: sop.created_at
+      });
+      toast({
+        title: "PDF Generated",
+        description: "Your SOP has been exported as a PDF file.",
+      });
+    } catch (error) {
+      console.error('PDF export error:', error);
+      toast({
+        title: "Export Failed",
+        description: "Unable to generate PDF. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   // Parse workflow data if available
@@ -87,9 +111,13 @@ const SOPViewModal: React.FC<SOPViewModalProps> = ({ isOpen, onClose, sop }) => 
               <Copy size={16} />
               Copy
             </Button>
-            <Button variant="outline" size="sm" onClick={handleExport}>
+            <Button variant="outline" size="sm" onClick={handleExportMarkdown}>
               <Download size={16} />
-              Export
+              MD
+            </Button>
+            <Button variant="outline" size="sm" onClick={handleExportPDF}>
+              <Download size={16} />
+              PDF
             </Button>
             <Button variant="outline" size="sm" onClick={onClose}>
               <X size={16} />
@@ -247,7 +275,12 @@ const SOPViewModal: React.FC<SOPViewModalProps> = ({ isOpen, onClose, sop }) => 
               Last updated: {new Date(sop.updated_at).toLocaleString()}
               {hasWorkflow && <span className="ml-2">• Includes workflow visualization</span>}
             </div>
-            <Button onClick={onClose}>Close</Button>
+            <div className="flex gap-2">
+              <Button variant="outline" size="sm" onClick={handleExportPDF}>
+                Export as PDF
+              </Button>
+              <Button onClick={onClose}>Close</Button>
+            </div>
           </div>
         </div>
       </div>

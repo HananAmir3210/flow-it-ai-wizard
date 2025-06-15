@@ -1,16 +1,16 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Search, Eye, Edit, Trash2, Download, Workflow, AlertCircle } from 'lucide-react';
+import { Search, Eye, Edit, Trash2, Download, Workflow, AlertCircle, FileText } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import SOPViewModal from '@/components/modals/SOPViewModal';
 import DeleteConfirmModal from '@/components/modals/DeleteConfirmModal';
+import { exportSOPToPDF } from '@/utils/pdfExport';
 import type { Database } from '@/integrations/supabase/types';
 
 type SOP = Database['public']['Tables']['sops']['Row'];
@@ -154,7 +154,7 @@ const MySOPs: React.FC<MySOPsProps> = ({ onEdit }) => {
     setDeleteSOPId(null);
   };
 
-  const handleExport = (sop: SOP) => {
+  const handleExportMarkdown = (sop: SOP) => {
     try {
       const content = `# ${sop.title}\n\n## Description\n${sop.description || 'No description'}\n\n## Category\n${sop.category}\n\n## Content\n${sop.generated_content || 'No content available'}\n\n## Tags\n${sop.tags?.join(', ') || 'No tags'}\n\nGenerated on: ${new Date(sop.created_at).toLocaleDateString()}`;
       
@@ -177,6 +177,30 @@ const MySOPs: React.FC<MySOPsProps> = ({ onEdit }) => {
       toast({
         title: "Export Failed",
         description: "Unable to export SOP. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleExportPDF = (sop: SOP) => {
+    try {
+      exportSOPToPDF({
+        title: sop.title,
+        description: sop.description || undefined,
+        category: sop.category,
+        tags: sop.tags || undefined,
+        generated_content: sop.generated_content || undefined,
+        created_at: sop.created_at
+      });
+      toast({
+        title: "PDF Generated",
+        description: "Your SOP has been exported as a PDF file.",
+      });
+    } catch (error) {
+      console.error('PDF export error:', error);
+      toast({
+        title: "Export Failed",
+        description: "Unable to generate PDF. Please try again.",
         variant: "destructive",
       });
     }
@@ -299,19 +323,24 @@ const MySOPs: React.FC<MySOPsProps> = ({ onEdit }) => {
                     <Edit className="h-4 w-4 mr-1" />
                     Edit
                   </Button>
-                  <Button size="sm" variant="outline" onClick={() => handleExport(sop)}>
+                  <Button size="sm" variant="outline" onClick={() => handleExportMarkdown(sop)}>
                     <Download className="h-4 w-4 mr-1" />
-                    Export
+                    MD
                   </Button>
-                  <Button 
-                    size="sm" 
-                    variant="outline" 
-                    onClick={() => setDeleteSOPId(sop.id)}
-                    className="text-destructive hover:text-destructive"
-                  >
-                    <Trash2 className="h-4 w-4" />
+                  <Button size="sm" variant="outline" onClick={() => handleExportPDF(sop)}>
+                    <FileText className="h-4 w-4 mr-1" />
+                    PDF
                   </Button>
                 </div>
+                <Button 
+                  size="sm" 
+                  variant="outline" 
+                  onClick={() => setDeleteSOPId(sop.id)}
+                  className="w-full text-destructive hover:text-destructive"
+                >
+                  <Trash2 className="h-4 w-4 mr-1" />
+                  Delete
+                </Button>
               </div>
             </CardContent>
           </Card>

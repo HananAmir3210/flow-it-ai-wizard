@@ -3,6 +3,8 @@ import React from 'react';
 import { X, Download, Share, Copy, FileText, Workflow } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useToast } from '@/hooks/use-toast';
+import { exportSOPToPDF } from '@/utils/pdfExport';
 import WorkflowWhiteboard from '@/components/WorkflowWhiteboard';
 
 interface SOPStep {
@@ -41,10 +43,29 @@ const SOPPreviewModal: React.FC<SOPPreviewModalProps> = ({
   sop, 
   workflow 
 }) => {
+  const { toast } = useToast();
+
   if (!isOpen) return null;
 
   const handleExportPDF = () => {
-    console.log('Exporting SOP as PDF...');
+    try {
+      exportSOPToPDF({
+        title: sop.title,
+        steps: sop.steps,
+        generated_content: sop.content
+      });
+      toast({
+        title: "PDF Generated",
+        description: "Your SOP has been exported as a PDF file.",
+      });
+    } catch (error) {
+      console.error('PDF export error:', error);
+      toast({
+        title: "Export Failed",
+        description: "Unable to generate PDF. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleShare = () => {
@@ -57,7 +78,10 @@ const SOPPreviewModal: React.FC<SOPPreviewModalProps> = ({
     ).join('\n\n');
     
     navigator.clipboard.writeText(sopText);
-    console.log('SOP copied to clipboard');
+    toast({
+      title: "Copied",
+      description: "SOP content copied to clipboard.",
+    });
   };
 
   return (

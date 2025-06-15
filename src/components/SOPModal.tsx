@@ -2,6 +2,8 @@
 import React from 'react';
 import { X, Download, Share, Copy, FileText } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { useToast } from '@/hooks/use-toast';
+import { exportSOPToPDF } from '@/utils/pdfExport';
 
 interface SOPStep {
   number: number;
@@ -22,10 +24,25 @@ interface SOPModalProps {
 }
 
 const SOPModal: React.FC<SOPModalProps> = ({ isOpen, onClose, sop }) => {
+  const { toast } = useToast();
+
   if (!isOpen) return null;
 
   const handleExportPDF = () => {
-    console.log('Exporting SOP as PDF...');
+    try {
+      exportSOPToPDF(sop);
+      toast({
+        title: "PDF Generated",
+        description: "Your SOP has been exported as a PDF file.",
+      });
+    } catch (error) {
+      console.error('PDF export error:', error);
+      toast({
+        title: "Export Failed",
+        description: "Unable to generate PDF. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleShare = () => {
@@ -38,7 +55,10 @@ const SOPModal: React.FC<SOPModalProps> = ({ isOpen, onClose, sop }) => {
     ).join('\n\n');
     
     navigator.clipboard.writeText(sopText);
-    console.log('SOP copied to clipboard');
+    toast({
+      title: "Copied",
+      description: "SOP content copied to clipboard.",
+    });
   };
 
   return (
