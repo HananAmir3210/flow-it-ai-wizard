@@ -1,6 +1,6 @@
 
 import React, { useCallback, useState, useMemo } from 'react';
-import { X, Plus, Square, Circle, ArrowRight, Highlighter, Palette, Maximize, Minimize, ZoomIn, ZoomOut, Download } from 'lucide-react';
+import { X, Plus, Square, Circle, ArrowRight, Highlighter, Palette, Maximize, Minimize, ZoomIn, ZoomOut, Download, Move } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   ReactFlow,
@@ -18,6 +18,8 @@ import {
   useReactFlow,
   ConnectionMode,
   MarkerType,
+  NodeMouseHandler,
+  OnConnect,
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 
@@ -35,14 +37,18 @@ interface InteractiveWorkflowModalProps {
   title: string;
 }
 
-// Custom editable node component
+// Enhanced editable node component with better drag feedback
 const EditableNode = ({ data, selected, id }: { data: any; selected: boolean; id: string }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [label, setLabel] = useState(data?.label || 'New Node');
+  const [isDragging, setIsDragging] = useState(false);
   const { setNodes } = useReactFlow();
 
-  const getNodeStyle = (type: string, highlighted: boolean, color: string) => {
+  const getNodeStyle = (type: string, highlighted: boolean, color: string, isDragging: boolean) => {
     const baseStyle = highlighted ? 'ring-2 ring-yellow-400 ' : '';
+    const dragStyle = isDragging ? 'shadow-lg scale-105 ' : '';
+    const selectedStyle = selected ? 'ring-2 ring-blue-500 ' : '';
+    
     const colorClasses = color ? {
       red: 'bg-red-100 border-red-500 text-red-800',
       blue: 'bg-blue-100 border-blue-500 text-blue-800',
@@ -55,24 +61,24 @@ const EditableNode = ({ data, selected, id }: { data: any; selected: boolean; id
     }[color] : '';
     
     if (colorClasses) {
-      return baseStyle + colorClasses;
+      return baseStyle + dragStyle + selectedStyle + colorClasses;
     }
     
     switch (type) {
       case 'start':
-        return baseStyle + 'bg-green-100 border-green-500 text-green-800';
+        return baseStyle + dragStyle + selectedStyle + 'bg-green-100 border-green-500 text-green-800';
       case 'process':
-        return baseStyle + 'bg-blue-100 border-blue-500 text-blue-800';
+        return baseStyle + dragStyle + selectedStyle + 'bg-blue-100 border-blue-500 text-blue-800';
       case 'decision':
-        return baseStyle + 'bg-yellow-100 border-yellow-500 text-yellow-800';
+        return baseStyle + dragStyle + selectedStyle + 'bg-yellow-100 border-yellow-500 text-yellow-800';
       case 'end':
-        return baseStyle + 'bg-red-100 border-red-500 text-red-800';
+        return baseStyle + dragStyle + selectedStyle + 'bg-red-100 border-red-500 text-red-800';
       case 'circle':
-        return baseStyle + 'bg-purple-100 border-purple-500 text-purple-800 rounded-full';
+        return baseStyle + dragStyle + selectedStyle + 'bg-purple-100 border-purple-500 text-purple-800 rounded-full';
       case 'square':
-        return baseStyle + 'bg-gray-100 border-gray-500 text-gray-800 rounded-none';
+        return baseStyle + dragStyle + selectedStyle + 'bg-gray-100 border-gray-500 text-gray-800 rounded-none';
       default:
-        return baseStyle + 'bg-gray-100 border-gray-500 text-gray-800';
+        return baseStyle + dragStyle + selectedStyle + 'bg-gray-100 border-gray-500 text-gray-800';
     }
   };
 
@@ -99,12 +105,22 @@ const EditableNode = ({ data, selected, id }: { data: any; selected: boolean; id
     }
   };
 
+  const handleMouseDown = () => {
+    setIsDragging(true);
+  };
+
+  const handleMouseUp = () => {
+    setIsDragging(false);
+  };
+
   return (
     <div 
-      className={`px-4 py-2 border-2 min-w-[120px] min-h-[40px] text-center cursor-pointer ${getNodeStyle(data?.type || 'process', data?.highlighted || false, data?.color)} ${
+      className={`px-4 py-2 border-2 min-w-[120px] min-h-[40px] text-center cursor-grab active:cursor-grabbing transition-all duration-200 ${getNodeStyle(data?.type || 'process', data?.highlighted || false, data?.color, isDragging)} ${
         data?.type === 'circle' ? 'rounded-full' : data?.type === 'square' ? 'rounded-none' : 'rounded-lg'
       }`}
       onDoubleClick={handleDoubleClick}
+      onMouseDown={handleMouseDown}
+      onMouseUp={handleMouseUp}
     >
       {isEditing ? (
         <form onSubmit={handleSubmit}>
@@ -119,11 +135,28 @@ const EditableNode = ({ data, selected, id }: { data: any; selected: boolean; id
           />
         </form>
       ) : (
-        <div className="font-medium text-sm">{label}</div>
+        <div className="font-medium text-sm flex items-center justify-center gap-1">
+          {isDragging && <Move size={12} className="opacity-60" />}
+          {label}
+        </div>
       )}
       {selected && (
-        <div className="absolute -top-2 -right-2 w-4 h-4 bg-blue-500 rounded-full"></div>
+        <div className="absolute -top-2 -right-2 w-4 h-4 bg-blue-500 rounded-full border-2 border-white"></div>
       )}
+      
+      {/* Enhanced connection handles with better visibility */}
+      <div className="absolute -top-1 left-1/2 transform -translate-x-1/2 w-3 h-2 bg-gray-400 rounded-full opacity-0 hover:opacity-100 transition-opacity cursor-crosshair" 
+           style={{ background: 'linear-gradient(to bottom, #6b7280, #9ca3af)' }}
+           title="Connect from top" />
+      <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-3 h-2 bg-gray-400 rounded-full opacity-0 hover:opacity-100 transition-opacity cursor-crosshair"
+           style={{ background: 'linear-gradient(to bottom, #6b7280, #9ca3af)' }}
+           title="Connect from bottom" />
+      <div className="absolute top-1/2 -left-1 transform -translate-y-1/2 w-2 h-3 bg-gray-400 rounded-full opacity-0 hover:opacity-100 transition-opacity cursor-crosshair"
+           style={{ background: 'linear-gradient(to right, #6b7280, #9ca3af)' }}
+           title="Connect from left" />
+      <div className="absolute top-1/2 -right-1 transform -translate-y-1/2 w-2 h-3 bg-gray-400 rounded-full opacity-0 hover:opacity-100 transition-opacity cursor-crosshair"
+           style={{ background: 'linear-gradient(to right, #6b7280, #9ca3af)' }}
+           title="Connect from right" />
     </div>
   );
 };
@@ -138,11 +171,12 @@ const InteractiveWorkflowModal: React.FC<InteractiveWorkflowModalProps> = ({
   steps = [], 
   title = "Workflow Editor"
 }) => {
-  // All hooks must be called before any conditional logic
   const [isFullScreen, setIsFullScreen] = useState(false);
   const [zoom, setZoom] = useState(1);
+  const [isDragMode, setIsDragMode] = useState(true);
+  const [connectionMode, setConnectionMode] = useState(false);
 
-  // Convert workflow steps to React Flow format with safety checks
+  // Convert workflow steps to React Flow format with enhanced positioning
   const initialNodes: Node[] = useMemo(() => {
     const safeSteps = steps || [];
     
@@ -150,26 +184,31 @@ const InteractiveWorkflowModal: React.FC<InteractiveWorkflowModalProps> = ({
       return [{
         id: 'default-1',
         type: 'custom',
-        position: { x: 100, y: 100 },
+        position: { x: 250, y: 100 },
         data: { 
           label: 'Start Here', 
           type: 'start',
           highlighted: false,
           color: null
         },
+        draggable: true,
       }];
     }
     
     return safeSteps.map((step, index) => ({
       id: step.id,
       type: 'custom',
-      position: { x: 100, y: index * 150 + 50 },
+      position: { 
+        x: 100 + (index % 3) * 200, 
+        y: 50 + Math.floor(index / 3) * 150 
+      },
       data: { 
         label: step.title || `Step ${index + 1}`, 
         type: step.type || 'process',
         highlighted: false,
         color: null
       },
+      draggable: true,
     }));
   }, [steps]);
 
@@ -186,8 +225,10 @@ const InteractiveWorkflowModal: React.FC<InteractiveWorkflowModalProps> = ({
             target: nextId,
             type: 'smoothstep',
             animated: true,
+            style: { stroke: '#6366f1', strokeWidth: 2 },
             markerEnd: {
               type: MarkerType.ArrowClosed,
+              color: '#6366f1',
             },
           });
         });
@@ -200,7 +241,6 @@ const InteractiveWorkflowModal: React.FC<InteractiveWorkflowModalProps> = ({
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
   const [selectedNodes, setSelectedNodes] = useState<string[]>([]);
-  const [isConnecting, setIsConnecting] = useState(false);
   const [showColorPicker, setShowColorPicker] = useState(false);
 
   const colors = [
@@ -214,14 +254,17 @@ const InteractiveWorkflowModal: React.FC<InteractiveWorkflowModalProps> = ({
     { name: 'indigo', value: '#6366f1' }
   ];
 
-  const onConnect = useCallback(
+  const onConnect: OnConnect = useCallback(
     (params: Connection) => {
       const newEdge = {
         ...params,
+        id: `edge-${params.source}-${params.target}-${Date.now()}`,
         type: 'smoothstep',
         animated: true,
+        style: { stroke: '#6366f1', strokeWidth: 2 },
         markerEnd: {
           type: MarkerType.ArrowClosed,
+          color: '#6366f1',
         },
       };
       setEdges((eds) => addEdge(newEdge, eds));
@@ -237,13 +280,17 @@ const InteractiveWorkflowModal: React.FC<InteractiveWorkflowModalProps> = ({
     const newNode: Node = {
       id: `node-${Date.now()}`,
       type: 'custom',
-      position: { x: Math.random() * 300 + 100, y: Math.random() * 300 + 100 },
+      position: { 
+        x: Math.random() * 300 + 100, 
+        y: Math.random() * 300 + 100 
+      },
       data: { 
         label: type === 'process' ? 'New Step' : type.charAt(0).toUpperCase() + type.slice(1), 
         type: type,
         highlighted: false,
         color: null
       },
+      draggable: true,
     };
     setNodes((nds) => [...nds, newNode]);
   };
@@ -266,8 +313,9 @@ const InteractiveWorkflowModal: React.FC<InteractiveWorkflowModalProps> = ({
     setSelectedNodes([]);
   };
 
-  const toggleConnecting = () => {
-    setIsConnecting(!isConnecting);
+  const toggleConnectionMode = () => {
+    setConnectionMode(!connectionMode);
+    setIsDragMode(!connectionMode);
   };
 
   const toggleFullScreen = () => {
@@ -298,7 +346,6 @@ const InteractiveWorkflowModal: React.FC<InteractiveWorkflowModalProps> = ({
     setShowColorPicker(false);
   };
 
-  // Now handle the conditional rendering AFTER all hooks have been called
   if (!isOpen) return null;
 
   const modalClasses = isFullScreen 
@@ -319,16 +366,38 @@ const InteractiveWorkflowModal: React.FC<InteractiveWorkflowModalProps> = ({
               {title}
             </h1>
             <h2 className="text-lg text-gray-600 dark:text-gray-300 font-medium">
-              SOP – Interactive Workflow Editor
+              Enhanced Workflow Editor
             </h2>
             <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-              Drag, edit, and customize your workflow • Double-click to edit text
+              Drag nodes to reposition • Double-click to edit • Use connection mode to link steps
             </p>
           </div>
         </div>
 
-        {/* Toolbar */}
+        {/* Enhanced Toolbar */}
         <div className="flex items-center justify-center gap-2 p-4 border-b dark:border-gray-700 bg-gray-50 dark:bg-gray-700 flex-shrink-0 flex-wrap">
+          <Button 
+            variant={isDragMode ? "default" : "outline"} 
+            size="sm" 
+            onClick={() => { setIsDragMode(true); setConnectionMode(false); }}
+            className="flex items-center gap-2"
+          >
+            <Move size={16} />
+            Drag Mode
+          </Button>
+          
+          <Button 
+            variant={connectionMode ? "default" : "outline"} 
+            size="sm" 
+            onClick={toggleConnectionMode}
+            className="flex items-center gap-2"
+          >
+            <ArrowRight size={16} />
+            Connect Mode
+          </Button>
+          
+          <div className="w-px h-6 bg-gray-300 mx-2"></div>
+          
           <Button 
             variant="outline" 
             size="sm" 
@@ -356,15 +425,9 @@ const InteractiveWorkflowModal: React.FC<InteractiveWorkflowModalProps> = ({
             <Square size={16} />
             Square
           </Button>
-          <Button 
-            variant={isConnecting ? "default" : "outline"} 
-            size="sm" 
-            onClick={toggleConnecting}
-            className="flex items-center gap-2"
-          >
-            <ArrowRight size={16} />
-            Arrow
-          </Button>
+          
+          <div className="w-px h-6 bg-gray-300 mx-2"></div>
+          
           <Button 
             variant="outline" 
             size="sm" 
@@ -375,15 +438,7 @@ const InteractiveWorkflowModal: React.FC<InteractiveWorkflowModalProps> = ({
             <Highlighter size={16} />
             Highlight
           </Button>
-          <Button 
-            variant="outline" 
-            size="sm" 
-            onClick={deleteSelectedNodes}
-            disabled={selectedNodes.length === 0}
-            className="flex items-center gap-2 text-red-600 hover:text-red-700"
-          >
-            Delete
-          </Button>
+          
           <div className="relative">
             <Button 
               variant="outline" 
@@ -416,6 +471,18 @@ const InteractiveWorkflowModal: React.FC<InteractiveWorkflowModalProps> = ({
             )}
           </div>
           
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={deleteSelectedNodes}
+            disabled={selectedNodes.length === 0}
+            className="flex items-center gap-2 text-red-600 hover:text-red-700"
+          >
+            Delete ({selectedNodes.length})
+          </Button>
+          
+          <div className="w-px h-6 bg-gray-300 mx-2"></div>
+          
           {/* Zoom Controls */}
           <div className="flex items-center gap-1 border rounded-md">
             <Button 
@@ -437,7 +504,6 @@ const InteractiveWorkflowModal: React.FC<InteractiveWorkflowModalProps> = ({
             </Button>
           </div>
 
-          {/* Download Button */}
           <Button 
             variant="outline" 
             size="sm" 
@@ -448,7 +514,6 @@ const InteractiveWorkflowModal: React.FC<InteractiveWorkflowModalProps> = ({
             Export
           </Button>
           
-          {/* Full Screen Toggle */}
           <Button 
             variant="outline" 
             size="sm" 
@@ -459,7 +524,6 @@ const InteractiveWorkflowModal: React.FC<InteractiveWorkflowModalProps> = ({
             {isFullScreen ? 'Exit' : 'Fullscreen'}
           </Button>
           
-          {/* Close Button */}
           <Button 
             variant="outline" 
             size="sm" 
@@ -471,8 +535,14 @@ const InteractiveWorkflowModal: React.FC<InteractiveWorkflowModalProps> = ({
           </Button>
         </div>
 
-        {/* Workflow Canvas */}
-        <div className={`overflow-hidden flex-1 ${isFullScreen ? 'h-full' : 'h-[500px]'}`}>
+        {/* Enhanced Workflow Canvas */}
+        <div className={`overflow-hidden flex-1 ${isFullScreen ? 'h-full' : 'h-[500px]'} relative`}>
+          {connectionMode && (
+            <div className="absolute top-4 left-4 z-10 bg-blue-100 border border-blue-300 rounded-lg p-2 text-sm text-blue-800">
+              <strong>Connection Mode:</strong> Drag from node edges to create connections
+            </div>
+          )}
+          
           <ReactFlow
             nodes={nodes}
             edges={edges}
@@ -484,26 +554,44 @@ const InteractiveWorkflowModal: React.FC<InteractiveWorkflowModalProps> = ({
             fitView
             attributionPosition="bottom-left"
             multiSelectionKeyCode="Shift"
-            connectionMode={isConnecting ? ConnectionMode.Loose : ConnectionMode.Strict}
-            panOnDrag={!isConnecting}
-            nodesDraggable={!isConnecting}
+            connectionMode={connectionMode ? ConnectionMode.Loose : ConnectionMode.Strict}
+            panOnDrag={!connectionMode}
+            nodesDraggable={isDragMode}
+            nodesConnectable={true}
             elementsSelectable={true}
+            snapToGrid={true}
+            snapGrid={[15, 15]}
           >
             <Controls />
             <MiniMap 
               nodeStrokeColor="#374151"
               nodeColor="#6B7280"
               nodeBorderRadius={2}
+              className="bg-white border rounded-lg"
             />
-            <Background variant={BackgroundVariant.Dots} gap={12} size={1} />
+            <Background 
+              variant={BackgroundVariant.Dots} 
+              gap={15} 
+              size={1}
+              color="#e5e7eb"
+            />
           </ReactFlow>
         </div>
 
-        {/* Footer with Instructions */}
+        {/* Enhanced Footer with Mode Indicators */}
         {!isFullScreen && (
           <div className="border-t dark:border-gray-700 p-4 bg-gray-50 dark:bg-gray-700 flex-shrink-0">
-            <div className="text-center text-sm text-gray-500 dark:text-gray-400">
-              💡 Double-click nodes to edit • Drag to rearrange • Shift+click to select multiple • Click Arrow then drag from node edges to connect • Select nodes and use Color to change appearance
+            <div className="text-center text-sm text-gray-500 dark:text-gray-400 flex items-center justify-center gap-4">
+              <span className="flex items-center gap-1">
+                <div className={`w-2 h-2 rounded-full ${isDragMode ? 'bg-green-500' : 'bg-gray-400'}`}></div>
+                Drag Mode
+              </span>
+              <span className="flex items-center gap-1">
+                <div className={`w-2 h-2 rounded-full ${connectionMode ? 'bg-blue-500' : 'bg-gray-400'}`}></div>
+                Connect Mode
+              </span>
+              <span className="text-gray-400">|</span>
+              <span>💡 Drag nodes • Double-click to edit • Shift+click to select multiple • Hover edges to connect</span>
             </div>
           </div>
         )}
