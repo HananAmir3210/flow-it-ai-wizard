@@ -10,6 +10,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import SOPViewModal from '@/components/modals/SOPViewModal';
 import DeleteConfirmModal from '@/components/modals/DeleteConfirmModal';
+import InteractiveWorkflowModal from '@/components/InteractiveWorkflowModal';
 import { exportSOPToPDF } from '@/utils/pdfExport';
 import type { Database } from '@/integrations/supabase/types';
 
@@ -28,6 +29,7 @@ const MySOPs: React.FC<MySOPsProps> = ({ onEdit }) => {
   const [selectedSOP, setSelectedSOP] = useState<SOP | null>(null);
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
   const [deleteSOPId, setDeleteSOPId] = useState<string | null>(null);
+  const [workflowModalSOP, setWorkflowModalSOP] = useState<SOP | null>(null);
   const { toast } = useToast();
   const { user } = useAuth();
 
@@ -206,6 +208,10 @@ const MySOPs: React.FC<MySOPsProps> = ({ onEdit }) => {
     }
   };
 
+  const handleViewWorkflow = (sop: SOP) => {
+    setWorkflowModalSOP(sop);
+  };
+
   if (loading) {
     return (
       <div className="space-y-6">
@@ -323,6 +329,17 @@ const MySOPs: React.FC<MySOPsProps> = ({ onEdit }) => {
                     <Edit className="h-4 w-4 mr-1" />
                     Edit
                   </Button>
+                  {sop.workflow_data && (
+                    <Button 
+                      size="sm" 
+                      variant="outline" 
+                      onClick={() => handleViewWorkflow(sop)}
+                      className="col-span-2"
+                    >
+                      <Workflow className="h-4 w-4 mr-1" />
+                      Interactive Workflow
+                    </Button>
+                  )}
                   <Button size="sm" variant="outline" onClick={() => handleExportMarkdown(sop)}>
                     <Download className="h-4 w-4 mr-1" />
                     MD
@@ -379,6 +396,16 @@ const MySOPs: React.FC<MySOPsProps> = ({ onEdit }) => {
         title="Delete SOP"
         description="Are you sure you want to delete this SOP? This action cannot be undone."
       />
+
+      {/* Interactive Workflow Modal */}
+      {workflowModalSOP && (
+        <InteractiveWorkflowModal
+          isOpen={!!workflowModalSOP}
+          onClose={() => setWorkflowModalSOP(null)}
+          steps={workflowModalSOP.workflow_data as any[] || []}
+          title={`${workflowModalSOP.title} - Workflow`}
+        />
+      )}
     </div>
   );
 };

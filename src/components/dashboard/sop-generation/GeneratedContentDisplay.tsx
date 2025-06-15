@@ -1,10 +1,10 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Loader2, FileText, Workflow, Save, Download, Eye } from 'lucide-react';
-import WorkflowWhiteboard from '@/components/WorkflowWhiteboard';
+import InteractiveWorkflowModal from '@/components/InteractiveWorkflowModal';
 
 interface WorkflowStep {
   id: string;
@@ -53,6 +53,8 @@ const GeneratedContentDisplay: React.FC<GeneratedContentDisplayProps> = ({
   onExport,
   onSave
 }) => {
+  const [isWorkflowModalOpen, setIsWorkflowModalOpen] = useState(false);
+
   return (
     <Card>
       <CardHeader>
@@ -87,7 +89,7 @@ const GeneratedContentDisplay: React.FC<GeneratedContentDisplayProps> = ({
             </TabsTrigger>
             <TabsTrigger value="workflow">
               <Workflow className="h-4 w-4 mr-2" />
-              Visual Workflow
+              Interactive Workflow
             </TabsTrigger>
           </TabsList>
           
@@ -117,13 +119,32 @@ const GeneratedContentDisplay: React.FC<GeneratedContentDisplayProps> = ({
           </TabsContent>
           
           <TabsContent value="workflow" className="mt-4">
-            <WorkflowWhiteboard 
-              steps={generatedContent.workflow}
-              title={title}
-              readonly={false}
-            />
+            <div className="space-y-4">
+              <div className="flex justify-center">
+                <Button 
+                  onClick={() => setIsWorkflowModalOpen(true)}
+                  className="flex items-center gap-2"
+                >
+                  <Workflow className="h-4 w-4" />
+                  Open Interactive Workflow Editor
+                </Button>
+              </div>
+              <div className="bg-gray-50 p-6 rounded-lg text-center text-gray-600">
+                <Workflow className="h-12 w-12 mx-auto mb-2 opacity-50" />
+                <p>Click the button above to open the enhanced interactive workflow editor</p>
+                <p className="text-sm mt-1">Features: Drag & drop, connection mode, color coding, fullscreen editing</p>
+              </div>
+            </div>
           </TabsContent>
         </Tabs>
+
+        {/* Interactive Workflow Modal */}
+        <InteractiveWorkflowModal
+          isOpen={isWorkflowModalOpen}
+          onClose={() => setIsWorkflowModalOpen(false)}
+          steps={generatedContent.workflow}
+          title={title}
+        />
       </CardContent>
     </Card>
   );
