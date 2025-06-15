@@ -1,3 +1,4 @@
+
 import React, { useCallback, useState, useMemo } from 'react';
 import { X, Plus, Square, Circle, ArrowRight, Highlighter, Palette, Maximize, Minimize, ZoomIn, ZoomOut, Download, Move } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -19,6 +20,8 @@ import {
   MarkerType,
   NodeMouseHandler,
   OnConnect,
+  Handle,
+  Position,
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 
@@ -36,7 +39,7 @@ interface InteractiveWorkflowModalProps {
   title: string;
 }
 
-// Enhanced editable node component with better drag feedback
+// Enhanced editable node component with improved connection handles
 const EditableNode = ({ data, selected, id }: { data: any; selected: boolean; id: string }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [label, setLabel] = useState(data?.label || 'New Node');
@@ -121,6 +124,32 @@ const EditableNode = ({ data, selected, id }: { data: any; selected: boolean; id
       onMouseDown={handleMouseDown}
       onMouseUp={handleMouseUp}
     >
+      {/* Enhanced connection handles with better styling */}
+      <Handle
+        type="target"
+        position={Position.Top}
+        className="w-3 h-3 !bg-gradient-to-b from-indigo-400 to-indigo-600 !border-2 !border-white shadow-lg hover:!scale-125 transition-transform duration-200"
+        style={{ top: -6 }}
+      />
+      <Handle
+        type="source"
+        position={Position.Bottom}
+        className="w-3 h-3 !bg-gradient-to-b from-indigo-400 to-indigo-600 !border-2 !border-white shadow-lg hover:!scale-125 transition-transform duration-200"
+        style={{ bottom: -6 }}
+      />
+      <Handle
+        type="target"
+        position={Position.Left}
+        className="w-3 h-3 !bg-gradient-to-r from-indigo-400 to-indigo-600 !border-2 !border-white shadow-lg hover:!scale-125 transition-transform duration-200"
+        style={{ left: -6 }}
+      />
+      <Handle
+        type="source"
+        position={Position.Right}
+        className="w-3 h-3 !bg-gradient-to-r from-indigo-400 to-indigo-600 !border-2 !border-white shadow-lg hover:!scale-125 transition-transform duration-200"
+        style={{ right: -6 }}
+      />
+
       {isEditing ? (
         <form onSubmit={handleSubmit}>
           <input
@@ -140,22 +169,8 @@ const EditableNode = ({ data, selected, id }: { data: any; selected: boolean; id
         </div>
       )}
       {selected && (
-        <div className="absolute -top-2 -right-2 w-4 h-4 bg-blue-500 rounded-full border-2 border-white"></div>
+        <div className="absolute -top-2 -right-2 w-4 h-4 bg-blue-500 rounded-full border-2 border-white animate-pulse"></div>
       )}
-      
-      {/* Enhanced connection handles with better visibility */}
-      <div className="absolute -top-1 left-1/2 transform -translate-x-1/2 w-3 h-2 bg-gray-400 rounded-full opacity-0 hover:opacity-100 transition-opacity cursor-crosshair" 
-           style={{ background: 'linear-gradient(to bottom, #6b7280, #9ca3af)' }}
-           title="Connect from top" />
-      <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-3 h-2 bg-gray-400 rounded-full opacity-0 hover:opacity-100 transition-opacity cursor-crosshair"
-           style={{ background: 'linear-gradient(to bottom, #6b7280, #9ca3af)' }}
-           title="Connect from bottom" />
-      <div className="absolute top-1/2 -left-1 transform -translate-y-1/2 w-2 h-3 bg-gray-400 rounded-full opacity-0 hover:opacity-100 transition-opacity cursor-crosshair"
-           style={{ background: 'linear-gradient(to right, #6b7280, #9ca3af)' }}
-           title="Connect from left" />
-      <div className="absolute top-1/2 -right-1 transform -translate-y-1/2 w-2 h-3 bg-gray-400 rounded-full opacity-0 hover:opacity-100 transition-opacity cursor-crosshair"
-           style={{ background: 'linear-gradient(to right, #6b7280, #9ca3af)' }}
-           title="Connect from right" />
     </div>
   );
 };
@@ -224,11 +239,22 @@ const InteractiveWorkflowModal: React.FC<InteractiveWorkflowModalProps> = ({
             target: nextId,
             type: 'smoothstep',
             animated: true,
-            style: { stroke: '#6366f1', strokeWidth: 2 },
+            style: { 
+              stroke: 'url(#gradient)', 
+              strokeWidth: 3,
+              filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.1))'
+            },
             markerEnd: {
               type: MarkerType.ArrowClosed,
               color: '#6366f1',
+              width: 20,
+              height: 20,
             },
+            labelStyle: {
+              fill: '#374151',
+              fontWeight: 600,
+              fontSize: 12
+            }
           });
         });
       }
@@ -255,15 +281,24 @@ const InteractiveWorkflowModal: React.FC<InteractiveWorkflowModalProps> = ({
 
   const onConnect: OnConnect = useCallback(
     (params: Connection) => {
-      const newEdge = {
-        ...params,
+      const newEdge: Edge = {
         id: `edge-${params.source}-${params.target}-${Date.now()}`,
+        source: params.source!,
+        target: params.target!,
+        sourceHandle: params.sourceHandle,
+        targetHandle: params.targetHandle,
         type: 'smoothstep',
         animated: true,
-        style: { stroke: '#6366f1', strokeWidth: 2 },
+        style: { 
+          stroke: 'url(#gradient)', 
+          strokeWidth: 3,
+          filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.1))'
+        },
         markerEnd: {
           type: MarkerType.ArrowClosed,
           color: '#6366f1',
+          width: 20,
+          height: 20,
         },
       };
       setEdges((eds) => addEdge(newEdge, eds));
@@ -358,6 +393,25 @@ const InteractiveWorkflowModal: React.FC<InteractiveWorkflowModalProps> = ({
   return (
     <div className={modalClasses}>
       <div className={contentClasses}>
+        {/* SVG Definitions for Enhanced Gradients */}
+        <svg width="0" height="0" className="absolute">
+          <defs>
+            <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stopColor="#6366f1" />
+              <stop offset="50%" stopColor="#8b5cf6" />
+              <stop offset="100%" stopColor="#ec4899" />
+            </linearGradient>
+            <linearGradient id="pulseGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stopColor="#10b981">
+                <animate attributeName="stop-color" values="#10b981;#6366f1;#10b981" dur="2s" repeatCount="indefinite" />
+              </stop>
+              <stop offset="100%" stopColor="#6366f1">
+                <animate attributeName="stop-color" values="#6366f1;#ec4899;#6366f1" dur="2s" repeatCount="indefinite" />
+              </stop>
+            </linearGradient>
+          </defs>
+        </svg>
+
         {/* Title Section */}
         <div className="p-6 border-b dark:border-gray-700 bg-white dark:bg-gray-800 flex-shrink-0">
           <div className="text-center">
@@ -538,7 +592,7 @@ const InteractiveWorkflowModal: React.FC<InteractiveWorkflowModalProps> = ({
         <div className={`overflow-hidden flex-1 ${isFullScreen ? 'h-full' : 'h-[500px]'} relative`}>
           {connectionMode && (
             <div className="absolute top-4 left-4 z-10 bg-blue-100 border border-blue-300 rounded-lg p-2 text-sm text-blue-800">
-              <strong>Connection Mode:</strong> Drag from node edges to create connections
+              <strong>Connection Mode:</strong> Drag from node handles to create beautiful connections
             </div>
           )}
           
@@ -560,13 +614,26 @@ const InteractiveWorkflowModal: React.FC<InteractiveWorkflowModalProps> = ({
             elementsSelectable={true}
             snapToGrid={true}
             snapGrid={[15, 15]}
+            defaultEdgeOptions={{
+              style: { 
+                stroke: 'url(#gradient)', 
+                strokeWidth: 3,
+                filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.1))'
+              },
+              markerEnd: {
+                type: MarkerType.ArrowClosed,
+                color: '#6366f1',
+                width: 20,
+                height: 20,
+              },
+            }}
           >
             <Controls />
             <MiniMap 
               nodeStrokeColor="#374151"
               nodeColor="#6B7280"
               nodeBorderRadius={2}
-              className="bg-white border rounded-lg"
+              className="bg-white border rounded-lg shadow-lg"
             />
             <Background 
               variant={BackgroundVariant.Dots} 
@@ -590,7 +657,7 @@ const InteractiveWorkflowModal: React.FC<InteractiveWorkflowModalProps> = ({
                 Connect Mode
               </span>
               <span className="text-gray-400">|</span>
-              <span>💡 Drag nodes • Double-click to edit • Shift+click to select multiple • Hover edges to connect</span>
+              <span>💡 Enhanced connections with gradients • Animated arrows • Drop shadows</span>
             </div>
           </div>
         )}
