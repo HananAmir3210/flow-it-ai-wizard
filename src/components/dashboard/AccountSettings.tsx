@@ -10,6 +10,10 @@ import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { Loader2 } from 'lucide-react';
+import type { Database } from '@/integrations/supabase/types';
+
+type AppTheme = Database['public']['Enums']['app_theme'];
+type AppLanguage = Database['public']['Enums']['app_language'];
 
 const AccountSettings = () => {
   const { user } = useAuth();
@@ -25,8 +29,8 @@ const AccountSettings = () => {
   });
 
   const [preferences, setPreferences] = useState({
-    theme: 'light',
-    language: 'en',
+    theme: 'light' as AppTheme,
+    language: 'en' as AppLanguage,
     email_notifications: true,
     push_notifications: false,
     weekly_digest: true,
@@ -68,8 +72,8 @@ const AccountSettings = () => {
         });
 
         setPreferences({
-          theme: data.theme || 'light',
-          language: data.language || 'en',
+          theme: (data.theme || 'light') as AppTheme,
+          language: (data.language || 'en') as AppLanguage,
           email_notifications: data.email_notifications ?? true,
           push_notifications: data.push_notifications ?? false,
           weekly_digest: data.weekly_digest ?? true,
@@ -114,7 +118,11 @@ const AccountSettings = () => {
           email: profile.email,
           company: profile.company,
           role: profile.role,
-          ...preferences,
+          theme: preferences.theme,
+          language: preferences.language,
+          email_notifications: preferences.email_notifications,
+          push_notifications: preferences.push_notifications,
+          weekly_digest: preferences.weekly_digest,
         });
 
       if (error) throw error;
@@ -144,7 +152,11 @@ const AccountSettings = () => {
         .from('user_profiles')
         .upsert({
           id: user.id,
-          ...preferences,
+          theme: preferences.theme,
+          language: preferences.language,
+          email_notifications: preferences.email_notifications,
+          push_notifications: preferences.push_notifications,
+          weekly_digest: preferences.weekly_digest,
         });
 
       if (error) throw error;
@@ -321,7 +333,7 @@ const AccountSettings = () => {
           <CardContent className="space-y-4">
             <div>
               <Label htmlFor="theme">Theme</Label>
-              <Select value={preferences.theme} onValueChange={(value) => handlePreferenceChange('theme', value)}>
+              <Select value={preferences.theme} onValueChange={(value: AppTheme) => handlePreferenceChange('theme', value)}>
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
@@ -334,7 +346,7 @@ const AccountSettings = () => {
             </div>
             <div>
               <Label htmlFor="language">Language</Label>
-              <Select value={preferences.language} onValueChange={(value) => handlePreferenceChange('language', value)}>
+              <Select value={preferences.language} onValueChange={(value: AppLanguage) => handlePreferenceChange('language', value)}>
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
@@ -392,6 +404,55 @@ const AccountSettings = () => {
       </div>
     </div>
   );
+
+  async function updatePassword() {
+    if (passwords.newPassword !== passwords.confirmPassword) {
+      toast({
+        title: "Error",
+        description: "New passwords don't match",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (passwords.newPassword.length < 6) {
+      toast({
+        title: "Error",
+        description: "Password must be at least 6 characters long",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      setPasswordLoading(true);
+      const { error } = await supabase.auth.updateUser({
+        password: passwords.newPassword
+      });
+
+      if (error) throw error;
+
+      setPasswords({
+        currentPassword: '',
+        newPassword: '',
+        confirmPassword: '',
+      });
+
+      toast({
+        title: "Success",
+        description: "Password updated successfully",
+      });
+    } catch (error: any) {
+      console.error('Error updating password:', error);
+      toast({
+        title: "Error",
+        description: error.message || "Failed to update password",
+        variant: "destructive",
+      });
+    } finally {
+      setPasswordLoading(false);
+    }
+  }
 };
 
 export default AccountSettings;

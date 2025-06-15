@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -11,16 +10,9 @@ import { MessageCircle, Mail, Phone, Book, Loader2, ExternalLink } from 'lucide-
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import type { Database } from '@/integrations/supabase/types';
 
-interface SupportTicket {
-  id: string;
-  subject: string;
-  category: string;
-  priority: string;
-  description: string;
-  status: string;
-  created_at: string;
-}
+type SupportTicket = Database['public']['Tables']['support_tickets']['Row'];
 
 const SupportSection = () => {
   const { user } = useAuth();
