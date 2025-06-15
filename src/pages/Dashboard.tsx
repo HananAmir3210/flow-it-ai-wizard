@@ -14,6 +14,9 @@ import SupportSection from '@/components/dashboard/SupportSection';
 import ProfileModal from '@/components/ProfileModal';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
+import type { Database } from '@/integrations/supabase/types';
+
+type SOP = Database['public']['Tables']['sops']['Row'];
 
 const menuItems = [
   { id: 'overview', label: 'Dashboard Overview', icon: Home },
@@ -29,6 +32,7 @@ const Dashboard = () => {
   const [activeSection, setActiveSection] = useState('overview');
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
+  const [editingSOP, setEditingSOP] = useState<SOP | null>(null);
   const navigate = useNavigate();
   const { toast } = useToast();
   const { signOut, user } = useAuth();
@@ -36,13 +40,32 @@ const Dashboard = () => {
   const renderContent = () => {
     switch (activeSection) {
       case 'overview':
-        return <DashboardOverview />;
+        return (
+          <DashboardOverview 
+            onNavigateToSOPs={() => setActiveSection('sops')}
+            onNavigateToGenerate={() => setActiveSection('generate')}
+            onNavigateToWorkflows={() => setActiveSection('workflows')}
+          />
+        );
       case 'sops':
-        return <MySOPs />;
+        return (
+          <MySOPs 
+            onEdit={(sop) => {
+              setEditingSOP(sop);
+              setActiveSection('generate');
+            }}
+          />
+        );
       case 'workflows':
         return <VisualWorkflows />;
       case 'generate':
-        return <GenerateNewSOP />;
+        return (
+          <GenerateNewSOP 
+            editingSOP={editingSOP}
+            onSOPCreated={() => setActiveSection('sops')}
+            onClearEdit={() => setEditingSOP(null)}
+          />
+        );
       case 'settings':
         return <AccountSettings />;
       case 'billing':
@@ -88,7 +111,12 @@ const Dashboard = () => {
                 {menuItems.map((item) => (
                   <SidebarMenuItem key={item.id}>
                     <SidebarMenuButton 
-                      onClick={() => setActiveSection(item.id)}
+                      onClick={() => {
+                        setActiveSection(item.id);
+                        if (item.id !== 'generate') {
+                          setEditingSOP(null);
+                        }
+                      }}
                       isActive={activeSection === item.id}
                       className="w-full justify-start"
                     >
@@ -153,7 +181,10 @@ const Dashboard = () => {
         isDarkMode={isDarkMode}
         onToggleDarkMode={toggleTheme}
         onLogout={handleLogout}
-        onViewAccount={() => setActiveSection('settings')}
+        onViewAccount={() => {
+          setActiveSection('settings');
+          setIsProfileModalOpen(false);
+        }}
       />
     </div>
   );

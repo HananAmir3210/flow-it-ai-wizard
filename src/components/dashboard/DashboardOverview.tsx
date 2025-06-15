@@ -22,7 +22,17 @@ interface RecentActivity {
   item: string;
 }
 
-const DashboardOverview = () => {
+interface DashboardOverviewProps {
+  onNavigateToSOPs?: () => void;
+  onNavigateToGenerate?: () => void;
+  onNavigateToWorkflows?: () => void;
+}
+
+const DashboardOverview: React.FC<DashboardOverviewProps> = ({
+  onNavigateToSOPs,
+  onNavigateToGenerate,
+  onNavigateToWorkflows
+}) => {
   const { user } = useAuth();
   const [stats, setStats] = useState<DashboardStats>({
     totalSOPs: 0,
@@ -298,15 +308,26 @@ const DashboardOverview = () => {
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <Button className="h-24 flex flex-col items-center justify-center space-y-2">
+            <Button 
+              className="h-24 flex flex-col items-center justify-center space-y-2"
+              onClick={onNavigateToGenerate}
+            >
               <Zap className="h-6 w-6" />
               <span>Generate New SOP</span>
             </Button>
-            <Button variant="outline" className="h-24 flex flex-col items-center justify-center space-y-2">
+            <Button 
+              variant="outline" 
+              className="h-24 flex flex-col items-center justify-center space-y-2"
+              onClick={onNavigateToSOPs}
+            >
               <FileText className="h-6 w-6" />
               <span>View My SOPs</span>
             </Button>
-            <Button variant="outline" className="h-24 flex flex-col items-center justify-center space-y-2">
+            <Button 
+              variant="outline" 
+              className="h-24 flex flex-col items-center justify-center space-y-2"
+              onClick={onNavigateToWorkflows}
+            >
               <GitBranch className="h-6 w-6" />
               <span>Create Workflow</span>
             </Button>
