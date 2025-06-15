@@ -20,9 +20,9 @@ serve(async (req) => {
     let content;
     
     if (type === 'sop') {
-      content = generateMockSOPContent(prompt);
+      content = generateEnhancedSOPContent(prompt);
     } else if (type === 'workflow') {
-      content = generateMockWorkflowContent(prompt);
+      content = generateEnhancedWorkflowContent(prompt);
     } else {
       throw new Error('Invalid content type');
     }
@@ -49,64 +49,85 @@ serve(async (req) => {
   }
 })
 
-function generateMockSOPContent(prompt: string) {
+function generateEnhancedSOPContent(prompt: string) {
   // Extract title from prompt for more relevant content
   const titleMatch = prompt.match(/for: "([^"]+)"/);
   const title = titleMatch ? titleMatch[1] : "Process";
   
   return {
     title: `${title} - Standard Operating Procedure`,
-    content: `## Overview\nThis SOP provides detailed guidance for ${title.toLowerCase()}.\n\n## Process Steps\n\n### Step 1: Initial Setup\nPrepare all necessary resources and documentation.\n\n### Step 2: Execution\nCarry out the main process activities.\n\n### Step 3: Quality Check\nValidate all work meets required standards.\n\n### Step 4: Completion\nFinalize documentation and communicate results.`,
+    content: `## Overview\nThis SOP provides detailed guidance for ${title.toLowerCase()}.\n\n## Process Steps\n\n### Step 1: Initial Assessment and Planning\nConduct thorough assessment and develop comprehensive plan.\n\n### Step 2: Resource Preparation and Setup\nPrepare all necessary resources and create optimal environment.\n\n### Step 3: Process Implementation\nExecute main process steps following established protocols.\n\n### Step 4: Quality Assurance\nConduct comprehensive quality checks and validation.\n\n### Step 5: Documentation and Closure\nComplete final documentation and knowledge transfer.`,
     steps: [
       {
         number: 1,
-        title: "Initial Setup and Preparation",
-        description: `Prepare all necessary resources and documentation for ${title.toLowerCase()}.`,
+        title: "Initial Assessment and Planning",
+        description: `Begin by conducting a thorough assessment of the current situation and developing a comprehensive plan for ${title.toLowerCase()}. This foundational step ensures all stakeholders understand the scope and requirements.`,
         details: [
-          "Gather required materials and tools",
-          "Review relevant policies and procedures",
-          "Set up workspace and environment",
-          "Brief team members on their roles"
+          "Review existing documentation and previous implementations",
+          "Identify key stakeholders and their roles in the process",
+          "Assess available resources including personnel, tools, and budget",
+          "Define clear success criteria and measurable outcomes",
+          "Create a detailed timeline with realistic milestones and deadlines",
+          "Establish communication protocols and reporting structures"
         ]
       },
       {
         number: 2,
-        title: "Process Execution",
-        description: "Carry out the main process activities according to established protocols.",
+        title: "Resource Preparation and Environment Setup",
+        description: "Systematically prepare all necessary resources, tools, and create the optimal environment for successful execution of the process.",
         details: [
-          "Follow step-by-step procedures",
-          "Monitor progress and quality",
-          "Document all activities",
-          "Address issues as they arise"
+          "Gather and organize all required documentation, templates, and reference materials",
+          "Configure necessary software tools, systems, and access permissions",
+          "Prepare physical workspace with proper equipment and safety measures",
+          "Brief all team members on their specific roles, responsibilities, and expectations",
+          "Establish backup procedures and contingency plans for potential issues",
+          "Verify compliance with relevant regulations and company policies"
         ]
       },
       {
         number: 3,
-        title: "Quality Assurance",
-        description: "Validate that all work meets required standards and specifications.",
+        title: "Process Implementation and Execution",
+        description: "Execute the main process steps following established protocols while maintaining consistent monitoring and documentation throughout.",
         details: [
-          "Perform quality control checks",
-          "Review work against standards",
-          "Obtain necessary approvals",
-          "Document quality assurance activities"
+          "Follow the documented step-by-step procedures exactly as outlined",
+          "Monitor progress continuously against established milestones and KPIs",
+          "Document all activities, decisions, and any deviations from the plan",
+          "Maintain regular communication with stakeholders through status updates",
+          "Address any issues or obstacles immediately using established escalation procedures",
+          "Ensure all work meets quality standards and regulatory requirements"
         ]
       },
       {
         number: 4,
-        title: "Completion and Documentation",
-        description: "Finalize all documentation and communicate results to stakeholders.",
+        title: "Quality Assurance and Validation",
+        description: "Conduct comprehensive quality checks and validation procedures to ensure all requirements are met and obtain necessary approvals.",
         details: [
-          "Complete final documentation",
-          "Archive materials appropriately",
-          "Communicate results to stakeholders",
-          "Conduct lessons learned review"
+          "Perform detailed quality control checks against all established standards",
+          "Review completed work with supervisors, peers, or external auditors",
+          "Obtain all required approvals, sign-offs, and certifications",
+          "Address any identified issues, gaps, or non-compliance items immediately",
+          "Document all quality assurance activities and their outcomes",
+          "Verify that all deliverables meet customer or regulatory expectations"
+        ]
+      },
+      {
+        number: 5,
+        title: "Documentation, Closure, and Knowledge Transfer",
+        description: "Complete all final documentation, archive materials appropriately, and transfer knowledge to ensure sustainable process improvement.",
+        details: [
+          "Finalize all required documentation, reports, and compliance records",
+          "Archive all materials according to organizational retention policies",
+          "Update relevant systems, databases, and knowledge repositories",
+          "Conduct thorough lessons learned sessions with all participants",
+          "Document best practices and improvement recommendations for future iterations",
+          "Notify all stakeholders of successful completion and provide final reports"
         ]
       }
     ]
   };
 }
 
-function generateMockWorkflowContent(prompt: string) {
+function generateEnhancedWorkflowContent(prompt: string) {
   return [
     {
       id: "start",
@@ -114,52 +135,61 @@ function generateMockWorkflowContent(prompt: string) {
       description: "Begin Process",
       type: "start",
       x: 100,
-      y: 200,
-      connections: ["setup"]
+      y: 250,
+      connections: ["assess"]
     },
     {
-      id: "setup",
-      title: "Setup",
-      description: "Initial Setup & Preparation",
+      id: "assess",
+      title: "Assessment",
+      description: "Initial Assessment & Planning",
       type: "process",
-      x: 300,
-      y: 200,
+      x: 280,
+      y: 250,
+      connections: ["prepare"]
+    },
+    {
+      id: "prepare",
+      title: "Preparation",
+      description: "Resource Preparation & Setup",
+      type: "process",
+      x: 460,
+      y: 250,
       connections: ["execute"]
     },
     {
       id: "execute",
       title: "Execute",
-      description: "Process Execution",
+      description: "Implementation & Execution",
       type: "process",
-      x: 500,
-      y: 200,
-      connections: ["check"]
+      x: 640,
+      y: 250,
+      connections: ["quality_check"]
     },
     {
-      id: "check",
+      id: "quality_check",
       title: "Quality Check",
       description: "Meets Standards?",
       type: "decision",
-      x: 700,
-      y: 200,
-      connections: ["complete", "execute"]
+      x: 820,
+      y: 250,
+      connections: ["finalize", "execute"]
     },
     {
-      id: "complete",
-      title: "Complete",
-      description: "Finalize & Document",
+      id: "finalize",
+      title: "Finalize",
+      description: "Documentation & Closure",
       type: "process",
-      x: 900,
-      y: 200,
+      x: 1000,
+      y: 250,
       connections: ["end"]
     },
     {
       id: "end",
-      title: "End",
+      title: "Complete",
       description: "Process Complete",
       type: "end",
-      x: 1100,
-      y: 200,
+      x: 1180,
+      y: 250,
       connections: []
     }
   ];
