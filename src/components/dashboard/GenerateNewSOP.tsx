@@ -160,11 +160,16 @@ const GenerateNewSOP: React.FC<GenerateNewSOPProps> = ({
     }
 
     try {
+      // Format the SOP content properly for storage
+      const formattedContent = generatedContent.sop.steps.map(step => 
+        `## Step ${step.number}: ${step.title}\n\n${step.description}\n\n${step.details.map(detail => `• ${detail}`).join('\n')}`
+      ).join('\n\n');
+
       const sopData = {
         title,
         description,
         category,
-        generatedContent: JSON.stringify(generatedContent.sop),
+        generatedContent: formattedContent, // Store formatted content instead of raw JSON
         tags,
       };
 

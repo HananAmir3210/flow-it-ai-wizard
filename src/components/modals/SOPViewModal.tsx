@@ -1,11 +1,23 @@
 
-import React from 'react';
-import { X, Download, Copy } from 'lucide-react';
+import React, { useState } from 'react';
+import { X, Download, Copy, FileText, Workflow } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
+import WorkflowWhiteboard from '@/components/WorkflowWhiteboard';
 import type { Database } from '@/integrations/supabase/types';
 
 type SOP = Database['public']['Tables']['sops']['Row'];
+
+interface WorkflowStep {
+  id: string;
+  title: string;
+  description: string;
+  type: 'start' | 'process' | 'decision' | 'end';
+  x: number;
+  y: number;
+  connections: string[];
+}
 
 interface SOPViewModalProps {
   isOpen: boolean;
@@ -15,6 +27,7 @@ interface SOPViewModalProps {
 
 const SOPViewModal: React.FC<SOPViewModalProps> = ({ isOpen, onClose, sop }) => {
   const { toast } = useToast();
+  const [activeTab, setActiveTab] = useState('sop');
 
   if (!isOpen || !sop) return null;
 
@@ -46,15 +59,27 @@ const SOPViewModal: React.FC<SOPViewModalProps> = ({ isOpen, onClose, sop }) => 
     });
   };
 
+  // Parse workflow data if available
+  const workflowSteps = sop.workflow_data as unknown as WorkflowStep[] | null;
+  const hasWorkflow = workflowSteps && workflowSteps.length > 0;
+
   return (
     <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden">
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-2xl max-w-6xl w-full max-h-[90vh] overflow-hidden">
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b dark:border-gray-700">
           <div>
-            <h2 className="text-2xl font-bold dark:text-white">{sop.title}</h2>
+            <h2 className="text-2xl font-bold dark:text-white flex items-center gap-2">
+              <FileText size={24} />
+              {sop.title}
+            </h2>
             <p className="text-gray-600 dark:text-gray-300 mt-1">
               Category: {sop.category} • Created: {new Date(sop.created_at).toLocaleDateString()}
+              {hasWorkflow && (
+                <span className="ml-2 text-blue-600 dark:text-blue-400">
+                  • Includes Workflow
+                </span>
+              )}
             </p>
           </div>
           <div className="flex items-center gap-2">
@@ -74,37 +99,143 @@ const SOPViewModal: React.FC<SOPViewModalProps> = ({ isOpen, onClose, sop }) => 
 
         {/* Content */}
         <div className="p-6 overflow-auto max-h-[calc(90vh-200px)]">
-          {sop.description && (
-            <div className="mb-6">
-              <h3 className="font-semibold text-lg mb-2 dark:text-white">Description</h3>
-              <p className="text-gray-700 dark:text-gray-300">{sop.description}</p>
-            </div>
-          )}
-          
-          {sop.generated_content && (
-            <div className="mb-6">
-              <h3 className="font-semibold text-lg mb-2 dark:text-white">Generated Content</h3>
-              <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
-                <pre className="whitespace-pre-wrap text-sm dark:text-gray-300 font-sans">
-                  {sop.generated_content}
-                </pre>
-              </div>
-            </div>
-          )}
+          {hasWorkflow ? (
+            <Tabs value={activeTab} onValueChange={setActiveTab}>
+              <TabsList className="grid w-full grid-cols-2">
+                <TabsTrigger value="sop">
+                  <FileText className="h-4 w-4 mr-2" />
+                  SOP Document
+                </TabsTrigger>
+                <TabsTrigger value="workflow">
+                  <Workflow className="h-4 w-4 mr-2" />
+                  Visual Workflow
+                </TabsTrigger>
+              </TabsList>
+              
+              <TabsContent value="sop" className="mt-4">
+                {sop.description && (
+                  <div className="mb-6">
+                    <h3 className="font-semibold text-lg mb-2 dark:text-white">Description</h3>
+                    <p className="text-gray-700 dark:text-gray-300">{sop.description}</p>
+                  </div>
+                )}
+                
+                {sop.generated_content && (
+                  <div className="mb-6">
+                    <h3 className="font-semibold text-lg mb-2 dark:text-white">SOP Content</h3>
+                    <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
+                      <div className="whitespace-pre-wrap text-sm dark:text-gray-300 font-sans prose max-w-none">
+                        {sop.generated_content.split('\n').map((line, index) => {
+                          if (line.startsWith('## Step')) {
+                            return (
+                              <h3 key={index} className="font-semibold text-lg text-blue-600 dark:text-blue-400 mt-4 mb-2">
+                                {line.replace('## ', '')}
+                              </h3>
+                            );
+                          } else if (line.startsWith('• ')) {
+                            return (
+                              <li key={index} className="ml-4 text-gray-600 dark:text-gray-400">
+                                {line.replace('• ', '')}
+                              </li>
+                            );
+                          } else if (line.trim()) {
+                            return (
+                              <p key={index} className="mb-2 text-gray-700 dark:text-gray-300">
+                                {line}
+                              </p>
+                            );
+                          }
+                          return <br key={index} />;
+                        })}
+                      </div>
+                    </div>
+                  </div>
+                )}
 
-          {sop.tags && sop.tags.length > 0 && (
+                {sop.tags && sop.tags.length > 0 && (
+                  <div>
+                    <h3 className="font-semibold text-lg mb-2 dark:text-white">Tags</h3>
+                    <div className="flex flex-wrap gap-2">
+                      {sop.tags.map((tag, index) => (
+                        <span 
+                          key={index} 
+                          className="bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300 px-2 py-1 rounded text-sm"
+                        >
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </TabsContent>
+              
+              <TabsContent value="workflow" className="mt-4">
+                {workflowSteps && (
+                  <WorkflowWhiteboard 
+                    steps={workflowSteps}
+                    title={sop.title}
+                    readonly={true}
+                  />
+                )}
+              </TabsContent>
+            </Tabs>
+          ) : (
+            // Show only SOP content when no workflow exists
             <div>
-              <h3 className="font-semibold text-lg mb-2 dark:text-white">Tags</h3>
-              <div className="flex flex-wrap gap-2">
-                {sop.tags.map((tag, index) => (
-                  <span 
-                    key={index} 
-                    className="bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300 px-2 py-1 rounded text-sm"
-                  >
-                    {tag}
-                  </span>
-                ))}
-              </div>
+              {sop.description && (
+                <div className="mb-6">
+                  <h3 className="font-semibold text-lg mb-2 dark:text-white">Description</h3>
+                  <p className="text-gray-700 dark:text-gray-300">{sop.description}</p>
+                </div>
+              )}
+              
+              {sop.generated_content && (
+                <div className="mb-6">
+                  <h3 className="font-semibold text-lg mb-2 dark:text-white">Generated Content</h3>
+                  <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
+                    <div className="whitespace-pre-wrap text-sm dark:text-gray-300 font-sans prose max-w-none">
+                      {sop.generated_content.split('\n').map((line, index) => {
+                        if (line.startsWith('## Step')) {
+                          return (
+                            <h3 key={index} className="font-semibold text-lg text-blue-600 dark:text-blue-400 mt-4 mb-2">
+                              {line.replace('## ', '')}
+                            </h3>
+                          );
+                        } else if (line.startsWith('• ')) {
+                          return (
+                            <li key={index} className="ml-4 text-gray-600 dark:text-gray-400">
+                              {line.replace('• ', '')}
+                            </li>
+                          );
+                        } else if (line.trim()) {
+                          return (
+                            <p key={index} className="mb-2 text-gray-700 dark:text-gray-300">
+                              {line}
+                            </p>
+                          );
+                        }
+                        return <br key={index} />;
+                      })}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {sop.tags && sop.tags.length > 0 && (
+                <div>
+                  <h3 className="font-semibold text-lg mb-2 dark:text-white">Tags</h3>
+                  <div className="flex flex-wrap gap-2">
+                    {sop.tags.map((tag, index) => (
+                      <span 
+                        key={index} 
+                        className="bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300 px-2 py-1 rounded text-sm"
+                      >
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           )}
         </div>
@@ -114,6 +245,7 @@ const SOPViewModal: React.FC<SOPViewModalProps> = ({ isOpen, onClose, sop }) => 
           <div className="flex items-center justify-between">
             <div className="text-sm text-gray-500 dark:text-gray-400">
               Last updated: {new Date(sop.updated_at).toLocaleString()}
+              {hasWorkflow && <span className="ml-2">• Includes workflow visualization</span>}
             </div>
             <Button onClick={onClose}>Close</Button>
           </div>
