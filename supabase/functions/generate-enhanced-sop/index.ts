@@ -1,6 +1,6 @@
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
-import "https://deno.land/x/xhr@0.1.0/mod.ts"
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -42,21 +42,11 @@ serve(async (req) => {
     
     console.log('Request data:', { title, description, category, tags });
 
-    const openaiApiKey = Deno.env.get('OPENAI_API_KEY')
-    if (!openaiApiKey) {
-      console.error('OpenAI API key not found');
-      const fallbackContent = {
-        sop: generateEnhancedMockSOP(title, description, category),
-        workflow: generateEnhancedMockWorkflow(title)
-      }
-
-      return new Response(
-        JSON.stringify(fallbackContent),
-        {
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        }
-      )
-    }
+    // Initialize Supabase client
+    const supabase = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+    )
 
     // Enhanced prompt for better SOP generation
     const sopPrompt = `Create a comprehensive, professional Standard Operating Procedure (SOP) for: "${title}"
@@ -112,115 +102,49 @@ Return as JSON array with this structure:
   }
 ]`
 
-    console.log('Making OpenAI API calls...');
-
-    // Generate SOP content with better error handling
-    let sopResponse;
-    try {
-      sopResponse = await fetch('https://api.openai.com/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${openaiApiKey}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          model: 'gpt-4o-mini',
-          messages: [
-            {
-              role: 'system',
-              content: 'You are an expert business process consultant specializing in creating detailed, actionable Standard Operating Procedures. Always return valid JSON responses.'
-            },
-            {
-              role: 'user',
-              content: sopPrompt
-            }
-          ],
-          temperature: 0.7,
-          max_tokens: 2000,
-        }),
-      });
-
-      if (!sopResponse.ok) {
-        const errorText = await sopResponse.text();
-        console.error('OpenAI SOP API error:', sopResponse.status, errorText);
-        throw new Error(`OpenAI API error: ${sopResponse.status}`);
-      }
-    } catch (error) {
-      console.error('Failed to call OpenAI for SOP:', error);
-      throw new Error('Failed to generate SOP content');
-    }
-
-    // Generate workflow with better error handling
-    let workflowResponse;
-    try {
-      workflowResponse = await fetch('https://api.openai.com/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${openaiApiKey}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          model: 'gpt-4o-mini',
-          messages: [
-            {
-              role: 'system',
-              content: 'You are an expert in creating logical workflow diagrams. Always return valid JSON arrays representing workflow steps.'
-            },
-            {
-              role: 'user',
-              content: workflowPrompt
-            }
-          ],
-          temperature: 0.5,
-          max_tokens: 1000,
-        }),
-      });
-
-      if (!workflowResponse.ok) {
-        const errorText = await workflowResponse.text();
-        console.error('OpenAI Workflow API error:', workflowResponse.status, errorText);
-        throw new Error(`OpenAI API error: ${workflowResponse.status}`);
-      }
-    } catch (error) {
-      console.error('Failed to call OpenAI for workflow:', error);
-      throw new Error('Failed to generate workflow content');
-    }
-
-    console.log('OpenAI API calls completed successfully');
-
-    let sopData, workflowData;
-    
-    try {
-      sopData = await sopResponse.json();
-      workflowData = await workflowResponse.json();
-    } catch (error) {
-      console.error('Failed to parse OpenAI responses as JSON:', error);
-      throw new Error('Invalid response format from OpenAI');
-    }
+    console.log('Using Supabase AI to generate content...');
 
     let sopContent, workflowSteps;
 
     try {
-      if (sopData.choices && sopData.choices[0] && sopData.choices[0].message) {
-        sopContent = JSON.parse(sopData.choices[0].message.content);
-        console.log('Successfully parsed SOP content');
-      } else {
-        throw new Error('Invalid SOP response structure');
+      // Generate SOP content using Supabase AI
+      const { data: sopData, error: sopError } = await supabase.functions.invoke('ai-content-generator', {
+        body: {
+          prompt: sopPrompt,
+          type: 'sop'
+        }
+      });
+
+      if (sopError) {
+        console.error('Supabase AI SOP error:', sopError);
+        throw new Error('Failed to generate SOP content');
       }
+
+      sopContent = sopData?.content || generateEnhancedMockSOP(title, description, category);
+      console.log('Successfully generated SOP content');
     } catch (error) {
-      console.error('Failed to parse SOP JSON, using fallback:', error);
+      console.error('Failed to generate SOP with Supabase AI, using fallback:', error);
       sopContent = generateEnhancedMockSOP(title, description, category);
     }
 
     try {
-      if (workflowData.choices && workflowData.choices[0] && workflowData.choices[0].message) {
-        workflowSteps = JSON.parse(workflowData.choices[0].message.content);
-        console.log('Successfully parsed workflow content');
-      } else {
-        throw new Error('Invalid workflow response structure');
+      // Generate workflow using Supabase AI
+      const { data: workflowData, error: workflowError } = await supabase.functions.invoke('ai-content-generator', {
+        body: {
+          prompt: workflowPrompt,
+          type: 'workflow'
+        }
+      });
+
+      if (workflowError) {
+        console.error('Supabase AI Workflow error:', workflowError);
+        throw new Error('Failed to generate workflow content');
       }
+
+      workflowSteps = workflowData?.content || generateEnhancedMockWorkflow(title);
+      console.log('Successfully generated workflow content');
     } catch (error) {
-      console.error('Failed to parse workflow JSON, using fallback:', error);
+      console.error('Failed to generate workflow with Supabase AI, using fallback:', error);
       workflowSteps = generateEnhancedMockWorkflow(title);
     }
 
