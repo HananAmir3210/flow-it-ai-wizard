@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { SidebarProvider, Sidebar, SidebarContent, SidebarHeader, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarTrigger, SidebarInset } from '@/components/ui/sidebar';
 import { Button } from '@/components/ui/button';
-import { Home, Clipboard, Repeat, Layout, Settings, CreditCard, HelpCircle, LogOut, Moon, Sun, User } from 'lucide-react';
+import { Home, Clipboard, Layout, Settings, CreditCard, HelpCircle, LogOut, Moon, Sun, User } from 'lucide-react';
 import DashboardOverview from '@/components/dashboard/DashboardOverview';
 import MySOPs from '@/components/dashboard/MySOPs';
 import VisualWorkflows from '@/components/dashboard/VisualWorkflows';
@@ -21,8 +21,8 @@ type SOP = Database['public']['Tables']['sops']['Row'];
 const menuItems = [
   { id: 'overview', label: 'Dashboard Overview', icon: Home },
   { id: 'sops', label: 'My SOPs', icon: Clipboard },
-  { id: 'workflows', label: 'Visual Workflows', icon: Repeat },
-  { id: 'generate', label: 'Generate New SOP', icon: Layout },
+  { id: 'workflows', label: 'Visual Workflows', icon: Layout },
+  { id: 'generate', label: 'Generate SOP & Workflow', icon: Layout },
   { id: 'settings', label: 'Account Settings', icon: Settings },
   { id: 'billing', label: 'Billing', icon: CreditCard },
   { id: 'support', label: 'Support', icon: HelpCircle },
