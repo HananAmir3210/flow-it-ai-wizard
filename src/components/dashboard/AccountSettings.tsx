@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -404,55 +403,6 @@ const AccountSettings = () => {
       </div>
     </div>
   );
-
-  async function updatePassword() {
-    if (passwords.newPassword !== passwords.confirmPassword) {
-      toast({
-        title: "Error",
-        description: "New passwords don't match",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    if (passwords.newPassword.length < 6) {
-      toast({
-        title: "Error",
-        description: "Password must be at least 6 characters long",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    try {
-      setPasswordLoading(true);
-      const { error } = await supabase.auth.updateUser({
-        password: passwords.newPassword
-      });
-
-      if (error) throw error;
-
-      setPasswords({
-        currentPassword: '',
-        newPassword: '',
-        confirmPassword: '',
-      });
-
-      toast({
-        title: "Success",
-        description: "Password updated successfully",
-      });
-    } catch (error: any) {
-      console.error('Error updating password:', error);
-      toast({
-        title: "Error",
-        description: error.message || "Failed to update password",
-        variant: "destructive",
-      });
-    } finally {
-      setPasswordLoading(false);
-    }
-  }
 };
 
 export default AccountSettings;
