@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -10,6 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Loader2, FileText, Workflow, Save, Download, Eye } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useSupabaseData } from '@/hooks/useSupabaseData';
+import { supabase } from '@/integrations/supabase/client';
 import SOPPreviewModal from '@/components/modals/SOPPreviewModal';
 import WorkflowWhiteboard from '@/components/WorkflowWhiteboard';
 import type { Database } from '@/integrations/supabase/types';
@@ -110,33 +110,27 @@ const GenerateNewSOP: React.FC<GenerateNewSOPProps> = ({
     try {
       console.log('Starting SOP generation...', { title, description, category, tags });
       
-      const response = await fetch('/api/generate-enhanced-sop', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
+      const { data, error } = await supabase.functions.invoke('generate-enhanced-sop', {
+        body: {
           title: title.trim(),
           description: description.trim(),
           category,
           tags
-        }),
+        }
       });
 
-      console.log('Response status:', response.status);
+      console.log('Supabase function response:', { data, error });
 
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error('API Error:', errorText);
-        throw new Error(`Failed to generate SOP and workflow: ${response.status} ${response.statusText}`);
+      if (error) {
+        console.error('Supabase function error:', error);
+        throw new Error(`Failed to generate SOP and workflow: ${error.message}`);
       }
 
-      const result = await response.json();
-      console.log('Successfully received result:', result);
-      
-      if (!result.sop || !result.workflow) {
-        throw new Error('Invalid response format from API');
+      if (!data || !data.sop || !data.workflow) {
+        throw new Error('Invalid response format from function');
       }
       
-      setGeneratedContent(result);
+      setGeneratedContent(data);
       setActiveTab('sop');
       
       toast({
