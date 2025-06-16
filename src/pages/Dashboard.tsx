@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { SidebarProvider, Sidebar, SidebarContent, SidebarHeader, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarTrigger, SidebarInset } from '@/components/ui/sidebar';
@@ -33,6 +34,10 @@ const Dashboard = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { signOut, user } = useAuth();
+
+  const handleLogoClick = () => {
+    navigate('/');
+  };
 
   const renderContent = () => {
     switch (activeSection) {
@@ -109,9 +114,12 @@ const Dashboard = () => {
         <div className="flex min-h-screen w-full">
           <Sidebar className="border-r hidden md:block">
             <SidebarHeader className="border-b p-3 sm:p-4">
-              <div className="flex items-center gap-2">
+              <div 
+                className="flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity"
+                onClick={handleLogoClick}
+              >
                 <img 
-                  src="/lovable-uploads/28ecf78f-ebcc-4848-849f-0a91d9cc951a.png" 
+                  src="/lovable-uploads/8ee0c56d-85fb-43b4-9935-9db5d67ef657.png" 
                   alt="FlowForge Logo" 
                   className="h-6 w-6 sm:h-8 sm:w-8 flex-shrink-0"
                 />

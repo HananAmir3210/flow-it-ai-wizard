@@ -1,3 +1,4 @@
+
 import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -34,6 +35,11 @@ const Index = () => {
     } else {
       setIsAuthModalOpen(true);
     }
+  };
+
+  const handleLogoClick = () => {
+    // Navigate to home page or refresh if already on home
+    navigate('/');
   };
 
   const handleSOPGeneration = async () => {
@@ -133,9 +139,12 @@ const Index = () => {
         <header className="container mx-auto px-4 py-4 lg:py-6">
           {/* Navigation */}
           <nav className="flex items-center justify-between">
-            <div className="flex items-center space-x-2">
+            <div 
+              className="flex items-center space-x-2 cursor-pointer hover:opacity-80 transition-opacity"
+              onClick={handleLogoClick}
+            >
               <img 
-                src="/lovable-uploads/28ecf78f-ebcc-4848-849f-0a91d9cc951a.png" 
+                src="/lovable-uploads/8ee0c56d-85fb-43b4-9935-9db5d67ef657.png" 
                 alt="FlowForge Logo" 
                 className="w-6 h-6 lg:w-8 lg:h-8"
               />
@@ -272,9 +281,12 @@ const Index = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
               {/* Company Info */}
               <div className="space-y-4">
-                <div className="flex items-center space-x-2">
+                <div 
+                  className="flex items-center space-x-2 cursor-pointer hover:opacity-80 transition-opacity"
+                  onClick={handleLogoClick}
+                >
                   <img 
-                    src="/lovable-uploads/28ecf78f-ebcc-4848-849f-0a91d9cc951a.png" 
+                    src="/lovable-uploads/8ee0c56d-85fb-43b4-9935-9db5d67ef657.png" 
                     alt="FlowForge Logo" 
                     className="w-8 h-8"
                   />
