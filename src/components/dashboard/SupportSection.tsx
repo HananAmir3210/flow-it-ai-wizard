@@ -8,7 +8,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { MessageCircle, Mail, Phone, Book, Loader2, ExternalLink, X } from 'lucide-react';
+import { MessageCircle, Mail, Phone, Book, Loader2, ExternalLink, X, Play, Users, FileText, Settings, CreditCard, HelpCircle } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
@@ -24,6 +24,8 @@ const SupportSection = () => {
   const [ticketsLoading, setTicketsLoading] = useState(false);
   const [liveChatOpen, setLiveChatOpen] = useState(false);
   const [knowledgeBaseOpen, setKnowledgeBaseOpen] = useState(false);
+  const [selectedArticle, setSelectedArticle] = useState<any>(null);
+  const [searchQuery, setSearchQuery] = useState('');
 
   // Live chat state
   const [chatMessages, setChatMessages] = useState<Array<{ id: string; message: string; sender: 'user' | 'support'; timestamp: Date }>>([
@@ -154,7 +156,7 @@ const SupportSection = () => {
   };
 
   const openEmailSupport = () => {
-    const subject = encodeURIComponent('Support Request - AI SOP Generator');
+    const subject = encodeURIComponent('Support Request - FlowForge');
     const body = encodeURIComponent(`Hi Support Team,
 
 I need assistance with:
@@ -164,7 +166,7 @@ Please describe your issue here...
 Best regards,
 ${user?.email || 'User'}`);
     
-    window.open(`mailto:support@aisopgenerator.com?subject=${subject}&body=${body}`, '_blank');
+    window.open(`mailto:support@flowforge.com?subject=${subject}&body=${body}`, '_blank');
     
     toast({
       title: "Email Client Opened",
@@ -187,8 +189,39 @@ ${user?.email || 'User'}`);
     });
   };
 
-  const openKnowledgeBase = () => {
-    setKnowledgeBaseOpen(true);
+  const openVideoTutorials = () => {
+    // Simulate opening video tutorials platform
+    toast({
+      title: "Video Tutorials",
+      description: "Opening our comprehensive video tutorial library...",
+    });
+    
+    // In a real app, this would open a video platform or YouTube channel
+    setTimeout(() => {
+      window.open('https://youtube.com/playlist?list=PLbVHz4urQBZkJiAWdG8HWoJTdgEysigIO', '_blank');
+    }, 1000);
+  };
+
+  const openCommunityForum = () => {
+    toast({
+      title: "Community Forum",
+      description: "Redirecting to our community forum...",
+    });
+    
+    setTimeout(() => {
+      window.open('https://community.flowforge.com', '_blank');
+    }, 1000);
+  };
+
+  const openAPIDocumentation = () => {
+    toast({
+      title: "API Documentation",
+      description: "Opening our comprehensive API documentation...",
+    });
+    
+    setTimeout(() => {
+      window.open('https://docs.flowforge.com/api', '_blank');
+    }, 1000);
   };
 
   const formatDate = (dateString: string) => {
@@ -224,41 +257,188 @@ ${user?.email || 'User'}`);
   const knowledgeBaseArticles = [
     {
       id: 1,
-      title: "Getting Started with AI SOP Generator",
+      title: "Getting Started with FlowForge",
       category: "Getting Started",
-      content: "Learn how to create your first SOP using our AI-powered platform. This comprehensive guide covers account setup, basic navigation, and creating your first Standard Operating Procedure."
+      content: "Learn how to create your first SOP using our AI-powered platform. This comprehensive guide covers account setup, basic navigation, and creating your first Standard Operating Procedure.",
+      detailedContent: `
+        Welcome to FlowForge! Here's how to get started:
+        
+        1. Account Setup
+        - Sign up for your free account
+        - Complete your profile information
+        - Choose your subscription plan
+        
+        2. Creating Your First SOP
+        - Navigate to "Generate SOP & Workflow"
+        - Describe your process in natural language
+        - Select appropriate categories and tags
+        - Review and customize the generated SOP
+        
+        3. Managing Your SOPs
+        - Access all SOPs from "My SOPs" section
+        - Edit, duplicate, or delete SOPs as needed
+        - Export SOPs in various formats (PDF, Word, HTML)
+        
+        4. Team Collaboration
+        - Invite team members to your workspace
+        - Assign roles and permissions
+        - Share SOPs with specific team members
+      `
     },
     {
       id: 2,
       title: "How to Export SOPs to Different Formats",
       category: "Features",
-      content: "Export your SOPs to PDF, Word, HTML, and other formats. Learn about formatting options, custom branding features, and batch export capabilities."
+      content: "Export your SOPs to PDF, Word, HTML, and other formats. Learn about formatting options, custom branding features, and batch export capabilities.",
+      detailedContent: `
+        FlowForge supports multiple export formats:
+        
+        1. PDF Export
+        - Professional formatting with your company branding
+        - Include flowcharts and visual elements
+        - Password protection options
+        
+        2. Microsoft Word Export
+        - Editable .docx format
+        - Maintains formatting and structure
+        - Perfect for further customization
+        
+        3. HTML Export
+        - Web-ready format
+        - Interactive elements included
+        - Mobile-responsive design
+        
+        4. Batch Export
+        - Export multiple SOPs at once
+        - Choose consistent formatting
+        - Organize by categories or tags
+      `
     },
     {
       id: 3,
       title: "Managing Team Collaboration",
       category: "Team Features",
-      content: "Set up team workspaces, assign roles and permissions, share SOPs with team members, and track collaborative editing sessions."
+      content: "Set up team workspaces, assign roles and permissions, share SOPs with team members, and track collaborative editing sessions.",
+      detailedContent: `
+        Collaborate effectively with your team:
+        
+        1. Team Workspaces
+        - Create separate workspaces for different departments
+        - Organize SOPs by projects or teams
+        - Centralized access control
+        
+        2. Roles and Permissions
+        - Admin: Full access to all features
+        - Editor: Can create and modify SOPs
+        - Viewer: Read-only access to assigned SOPs
+        - Guest: Limited access to specific SOPs
+        
+        3. Real-time Collaboration
+        - See who's editing in real-time
+        - Comment and suggestion system
+        - Version history and change tracking
+        
+        4. Sharing and Access Control
+        - Share SOPs via secure links
+        - Set expiration dates for shared links
+        - Track who has accessed shared content
+      `
     },
     {
       id: 4,
       title: "Billing and Subscription Management",
       category: "Account",
-      content: "Understand our pricing plans, manage your subscription, update payment methods, and access billing history."
+      content: "Understand our pricing plans, manage your subscription, update payment methods, and access billing history.",
+      detailedContent: `
+        Manage your FlowForge subscription:
+        
+        1. Pricing Plans
+        - Free: Basic features, limited SOPs
+        - Pro: Advanced features, unlimited SOPs
+        - Enterprise: Full features, team management
+        
+        2. Subscription Management
+        - Upgrade or downgrade anytime
+        - Prorate billing for plan changes
+        - Cancel subscription with data retention
+        
+        3. Payment Methods
+        - Credit/debit cards accepted
+        - PayPal integration
+        - Invoice billing for enterprises
+        
+        4. Billing History
+        - Download invoices and receipts
+        - Track usage and billing cycles
+        - Set up billing alerts
+      `
     },
     {
       id: 5,
       title: "API Documentation and Integration",
       category: "Developer",
-      content: "Integrate AI SOP Generator with your existing tools using our REST API. Includes authentication, endpoints reference, and code examples."
+      content: "Integrate FlowForge with your existing tools using our REST API. Includes authentication, endpoints reference, and code examples.",
+      detailedContent: `
+        FlowForge API Integration:
+        
+        1. Authentication
+        - API key generation and management
+        - OAuth 2.0 support for secure access
+        - Rate limiting and usage monitoring
+        
+        2. Available Endpoints
+        - SOPs: Create, read, update, delete
+        - Workflows: Generate and manage visual workflows
+        - Teams: Manage team members and permissions
+        - Analytics: Access usage statistics
+        
+        3. Code Examples
+        - JavaScript/Node.js examples
+        - Python integration samples
+        - PHP and other language examples
+        
+        4. Webhooks
+        - Real-time notifications for SOP changes
+        - Custom webhook endpoints
+        - Event filtering and payload customization
+      `
     },
     {
       id: 6,
       title: "Troubleshooting Common Issues",
       category: "Troubleshooting",
-      content: "Solutions to frequently encountered problems including login issues, generation errors, export problems, and performance optimization tips."
+      content: "Solutions to frequently encountered problems including login issues, generation errors, export problems, and performance optimization tips.",
+      detailedContent: `
+        Common issues and solutions:
+        
+        1. Login Problems
+        - Password reset procedures
+        - Two-factor authentication issues
+        - Account lockout resolution
+        
+        2. SOP Generation Issues
+        - Input validation errors
+        - AI generation timeouts
+        - Content quality improvements
+        
+        3. Export Problems
+        - Format compatibility issues
+        - Large file handling
+        - Browser-specific export issues
+        
+        4. Performance Optimization
+        - Browser cache management
+        - Internet connection requirements
+        - System requirements and recommendations
+      `
     }
   ];
+
+  const filteredArticles = knowledgeBaseArticles.filter(article =>
+    article.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    article.content.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    article.category.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   return (
     <div className="space-y-6">
@@ -328,37 +508,81 @@ ${user?.email || 'User'}`);
 
               <Dialog open={knowledgeBaseOpen} onOpenChange={setKnowledgeBaseOpen}>
                 <DialogTrigger asChild>
-                  <Button variant="outline" className="w-full justify-start" onClick={openKnowledgeBase}>
+                  <Button variant="outline" className="w-full justify-start">
                     <Book className="h-4 w-4 mr-2" />
                     Knowledge Base
                   </Button>
                 </DialogTrigger>
-                <DialogContent className="max-w-2xl max-h-[80vh]">
+                <DialogContent className="max-w-4xl max-h-[80vh]">
                   <DialogHeader>
                     <DialogTitle>Knowledge Base</DialogTitle>
                     <DialogDescription>
                       Browse our comprehensive help articles
                     </DialogDescription>
                   </DialogHeader>
-                  <div className="space-y-4 overflow-y-auto">
-                    {knowledgeBaseArticles.map((article) => (
-                      <Card key={article.id} className="cursor-pointer hover:shadow-md transition-shadow">
-                        <CardHeader className="pb-2">
-                          <div className="flex items-center justify-between">
-                            <CardTitle className="text-sm">{article.title}</CardTitle>
-                            <Badge variant="secondary" className="text-xs">
-                              {article.category}
-                            </Badge>
+                  
+                  {!selectedArticle ? (
+                    <div className="space-y-4">
+                      <div className="relative">
+                        <Input
+                          placeholder="Search articles..."
+                          value={searchQuery}
+                          onChange={(e) => setSearchQuery(e.target.value)}
+                          className="pl-4"
+                        />
+                      </div>
+                      
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 overflow-y-auto max-h-96">
+                        {filteredArticles.map((article) => (
+                          <Card 
+                            key={article.id} 
+                            className="cursor-pointer hover:shadow-md transition-shadow"
+                            onClick={() => setSelectedArticle(article)}
+                          >
+                            <CardHeader className="pb-2">
+                              <div className="flex items-center justify-between">
+                                <CardTitle className="text-sm">{article.title}</CardTitle>
+                                <Badge variant="secondary" className="text-xs">
+                                  {article.category}
+                                </Badge>
+                              </div>
+                            </CardHeader>
+                            <CardContent className="pt-0">
+                              <p className="text-sm text-muted-foreground">
+                                {article.content}
+                              </p>
+                            </CardContent>
+                          </Card>
+                        ))}
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => setSelectedArticle(null)}
+                          >
+                            ← Back
+                          </Button>
+                          <Badge variant="secondary">
+                            {selectedArticle.category}
+                          </Badge>
+                        </div>
+                      </div>
+                      
+                      <div className="space-y-4 overflow-y-auto max-h-96">
+                        <h3 className="text-lg font-semibold">{selectedArticle.title}</h3>
+                        <div className="prose prose-sm max-w-none">
+                          <div style={{ whiteSpace: 'pre-line' }}>
+                            {selectedArticle.detailedContent}
                           </div>
-                        </CardHeader>
-                        <CardContent className="pt-0">
-                          <p className="text-sm text-muted-foreground">
-                            {article.content}
-                          </p>
-                        </CardContent>
-                      </Card>
-                    ))}
-                  </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </DialogContent>
               </Dialog>
             </CardContent>
@@ -374,45 +598,70 @@ ${user?.email || 'User'}`);
                 className="h-auto p-0 justify-start" 
                 onClick={() => {
                   setKnowledgeBaseOpen(true);
-                  toast({
-                    title: "Knowledge Base",
-                    description: "Opening Getting Started section...",
-                  });
+                  setSelectedArticle(knowledgeBaseArticles[0]);
                 }}
               >
+                <FileText className="h-4 w-4 mr-2" />
                 Getting Started Guide
               </Button>
               <Button 
                 variant="link" 
                 className="h-auto p-0 justify-start"
-                onClick={() => {
-                  window.open('https://youtube.com/watch?v=dQw4w9WgXcQ', '_blank');
-                }}
+                onClick={openVideoTutorials}
               >
+                <Play className="h-4 w-4 mr-2" />
                 Video Tutorials
               </Button>
               <Button 
                 variant="link" 
                 className="h-auto p-0 justify-start"
-                onClick={() => {
-                  setKnowledgeBaseOpen(true);
-                  toast({
-                    title: "API Documentation",
-                    description: "Opening developer resources...",
-                  });
-                }}
+                onClick={openAPIDocumentation}
               >
+                <Settings className="h-4 w-4 mr-2" />
                 API Documentation
               </Button>
               <Button 
                 variant="link" 
                 className="h-auto p-0 justify-start"
-                onClick={() => {
-                  window.open('https://community.aisopgenerator.com', '_blank');
-                }}
+                onClick={openCommunityForum}
               >
+                <Users className="h-4 w-4 mr-2" />
                 Community Forum
               </Button>
+            </CardContent>
+          </Card>
+
+          {/* Company Information Card */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Company Information</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <div>
+                <h4 className="font-medium">FlowForge, Inc.</h4>
+                <p className="text-sm text-muted-foreground">
+                  123 Innovation Drive<br />
+                  San Francisco, CA 94105<br />
+                  United States
+                </p>
+              </div>
+              
+              <div className="pt-2 border-t">
+                <p className="text-sm">
+                  <strong>Business Hours:</strong><br />
+                  Monday - Friday: 9:00 AM - 6:00 PM PST<br />
+                  Saturday: 10:00 AM - 4:00 PM PST<br />
+                  Sunday: Closed
+                </p>
+              </div>
+              
+              <div className="pt-2 border-t">
+                <p className="text-sm">
+                  <strong>Emergency Support:</strong><br />
+                  Enterprise customers have access to 24/7 emergency support.<br />
+                  Contact your account manager for details.
+                </p>
+              </div>
             </CardContent>
           </Card>
         </div>
@@ -444,6 +693,8 @@ ${user?.email || 'User'}`);
                   <SelectItem value="billing">Billing Question</SelectItem>
                   <SelectItem value="feature">Feature Request</SelectItem>
                   <SelectItem value="account">Account Issue</SelectItem>
+                  <SelectItem value="integration">API/Integration</SelectItem>
+                  <SelectItem value="training">Training Request</SelectItem>
                   <SelectItem value="other">Other</SelectItem>
                 </SelectContent>
               </Select>
@@ -456,10 +707,10 @@ ${user?.email || 'User'}`);
                   <SelectValue placeholder="Select priority" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="low">Low</SelectItem>
-                  <SelectItem value="medium">Medium</SelectItem>
-                  <SelectItem value="high">High</SelectItem>
-                  <SelectItem value="urgent">Urgent</SelectItem>
+                  <SelectItem value="low">Low - General questions</SelectItem>
+                  <SelectItem value="medium">Medium - Minor issues</SelectItem>
+                  <SelectItem value="high">High - Impacting productivity</SelectItem>
+                  <SelectItem value="urgent">Urgent - System down</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -470,7 +721,7 @@ ${user?.email || 'User'}`);
                 id="description"
                 value={ticket.description}
                 onChange={(e) => setTicket(prev => ({ ...prev, description: e.target.value }))}
-                placeholder="Please provide detailed information about your issue"
+                placeholder="Please provide detailed information about your issue, including steps to reproduce if applicable"
                 className="min-h-32"
               />
             </div>
@@ -479,6 +730,10 @@ ${user?.email || 'User'}`);
               {loading && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
               Submit Ticket
             </Button>
+            
+            <p className="text-xs text-muted-foreground">
+              Expected response time: Low (24-48 hrs), Medium (12-24 hrs), High (4-12 hrs), Urgent (1-4 hrs)
+            </p>
           </CardContent>
         </Card>
       </div>
@@ -506,7 +761,7 @@ ${user?.email || 'User'}`);
                     <div>
                       <h3 className="font-medium">{supportTicket.subject}</h3>
                       <p className="text-sm text-muted-foreground">
-                        {formatDate(supportTicket.created_at)}
+                        Ticket #{supportTicket.id} • {formatDate(supportTicket.created_at)}
                       </p>
                     </div>
                     <div className="flex gap-2">
@@ -541,8 +796,8 @@ ${user?.email || 'User'}`);
               <span className="ml-2 transform transition-transform group-open:rotate-180">▼</span>
             </summary>
             <p className="mt-2 text-sm text-muted-foreground">
-              To generate your first SOP, navigate to the "Generate New SOP" section, describe your process, 
-              select a category, and click "Generate SOP". Our AI will create a comprehensive SOP for you.
+              To generate your first SOP, navigate to the "Generate SOP & Workflow" section, describe your process in natural language, 
+              select a category, and click "Generate SOP". Our AI will create a comprehensive SOP for you in seconds.
             </p>
           </details>
 
@@ -553,7 +808,7 @@ ${user?.email || 'User'}`);
             </summary>
             <p className="mt-2 text-sm text-muted-foreground">
               Yes! You can export your SOPs to PDF, Word, and HTML formats. Premium users also have access 
-              to custom branding options.
+              to custom branding options and batch export capabilities.
             </p>
           </details>
 
@@ -564,7 +819,29 @@ ${user?.email || 'User'}`);
             </summary>
             <p className="mt-2 text-sm text-muted-foreground">
               You can upgrade your subscription by going to the Billing section and selecting a new plan. 
-              Changes take effect immediately.
+              Changes take effect immediately and are prorated based on your current billing cycle.
+            </p>
+          </details>
+
+          <details className="group">
+            <summary className="flex cursor-pointer items-center justify-between py-2 font-medium">
+              Can I collaborate with my team?
+              <span className="ml-2 transform transition-transform group-open:rotate-180">▼</span>
+            </summary>
+            <p className="mt-2 text-sm text-muted-foreground">
+              Absolutely! FlowForge supports team collaboration with role-based permissions, real-time editing, 
+              commenting, and sharing capabilities. Invite team members from your Account Settings.
+            </p>
+          </details>
+
+          <details className="group">
+            <summary className="flex cursor-pointer items-center justify-between py-2 font-medium">
+              Is there an API for integrations?
+              <span className="ml-2 transform transition-transform group-open:rotate-180">▼</span>
+            </summary>
+            <p className="mt-2 text-sm text-muted-foreground">
+              Yes! FlowForge provides a comprehensive REST API for integrating with your existing tools and workflows. 
+              Check our API documentation for detailed information and code examples.
             </p>
           </details>
         </CardContent>
