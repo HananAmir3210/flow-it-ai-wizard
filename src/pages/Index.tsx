@@ -134,7 +134,11 @@ const Index = () => {
           {/* Navigation */}
           <nav className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
-              <div className="w-6 h-6 lg:w-8 lg:h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg"></div>
+              <img 
+                src="/lovable-uploads/28ecf78f-ebcc-4848-849f-0a91d9cc951a.png" 
+                alt="FlowForge Logo" 
+                className="w-6 h-6 lg:w-8 lg:h-8"
+              />
               <span className="text-lg lg:text-xl font-bold text-gray-900">FlowForge</span>
             </div>
             <div className="flex items-center space-x-2 lg:space-x-4">
@@ -269,7 +273,11 @@ const Index = () => {
               {/* Company Info */}
               <div className="space-y-4">
                 <div className="flex items-center space-x-2">
-                  <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg"></div>
+                  <img 
+                    src="/lovable-uploads/28ecf78f-ebcc-4848-849f-0a91d9cc951a.png" 
+                    alt="FlowForge Logo" 
+                    className="w-8 h-8"
+                  />
                   <span className="text-xl font-bold text-gray-900">FlowForge</span>
                 </div>
                 <p className="text-gray-600 text-sm">

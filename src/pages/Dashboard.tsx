@@ -110,7 +110,11 @@ const Dashboard = () => {
           <Sidebar className="border-r hidden md:block">
             <SidebarHeader className="border-b p-3 sm:p-4">
               <div className="flex items-center gap-2">
-                <div className="h-6 w-6 sm:h-8 sm:w-8 rounded bg-primary flex-shrink-0"></div>
+                <img 
+                  src="/lovable-uploads/28ecf78f-ebcc-4848-849f-0a91d9cc951a.png" 
+                  alt="FlowForge Logo" 
+                  className="h-6 w-6 sm:h-8 sm:w-8 flex-shrink-0"
+                />
                 <span className="font-semibold text-sm sm:text-base truncate">FlowForge</span>
               </div>
             </SidebarHeader>
