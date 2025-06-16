@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { SidebarProvider, Sidebar, SidebarContent, SidebarHeader, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarTrigger, SidebarInset } from '@/components/ui/sidebar';
@@ -112,7 +111,7 @@ const Dashboard = () => {
             <SidebarHeader className="border-b p-3 sm:p-4">
               <div className="flex items-center gap-2">
                 <div className="h-6 w-6 sm:h-8 sm:w-8 rounded bg-primary flex-shrink-0"></div>
-                <span className="font-semibold text-sm sm:text-base truncate">AI SOP Generator</span>
+                <span className="font-semibold text-sm sm:text-base truncate">FlowForge</span>
               </div>
             </SidebarHeader>
             

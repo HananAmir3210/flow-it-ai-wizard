@@ -112,7 +112,7 @@ const Index = () => {
       },
       {
         number: 3,
- title: "Proposal Creation",
+        title: "Proposal Creation",
         description: "Create customized proposal based on customer requirements",
         details: ["Draft initial proposal", "Review with internal team", "Send to customer for review"]
       }
@@ -135,7 +135,7 @@ const Index = () => {
           <nav className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
               <div className="w-6 h-6 lg:w-8 lg:h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg"></div>
-              <span className="text-lg lg:text-xl font-bold text-gray-900">AI SOP Generator</span>
+              <span className="text-lg lg:text-xl font-bold text-gray-900">FlowForge</span>
             </div>
             <div className="flex items-center space-x-2 lg:space-x-4">
               <Button variant="ghost" onClick={() => setIsFeatureModalOpen(true)} className="text-sm lg:text-base">
@@ -166,12 +166,12 @@ const Index = () => {
         <main className="container mx-auto px-4 py-8 lg:py-16">
           <div className="text-center mb-12 lg:mb-16">
             <h1 className="text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold text-gray-900 mb-4 lg:mb-6 leading-tight">
-              Create Professional SOPs with
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600 block lg:inline"> AI Power</span>
+              Turn prompts into processes —
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600 block lg:inline"> instantly</span>
             </h1>
             <p className="text-base md:text-lg lg:text-xl text-gray-600 mb-6 lg:mb-8 max-w-3xl mx-auto leading-relaxed">
-              Transform your business processes into clear, actionable Standard Operating Procedures in minutes, not hours. 
-              Our AI understands your workflow and creates comprehensive documentation automatically.
+              Transform your ideas into clear, actionable Standard Operating Procedures in minutes, not hours. 
+              Simply describe your workflow and FlowForge creates comprehensive documentation automatically.
             </p>
             <div className="flex flex-col sm:flex-row justify-center gap-3 lg:gap-4 max-w-md sm:max-w-none mx-auto">
               <Button 
@@ -241,7 +241,7 @@ const Index = () => {
           {/* CTA Section */}
           <div className="text-center bg-white rounded-lg shadow-lg p-6 lg:p-8 mb-8">
             <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold text-gray-900 mb-3 lg:mb-4">Ready to Streamline Your Operations?</h2>
-            <p className="text-gray-600 mb-4 lg:mb-6 text-sm lg:text-base">Join thousands of businesses already using AI SOP Generator</p>
+            <p className="text-gray-600 mb-4 lg:mb-6 text-sm lg:text-base">Join thousands of businesses already using FlowForge</p>
             <div className="flex flex-col sm:flex-row justify-center gap-3 lg:gap-4 max-w-md sm:max-w-none mx-auto">
               <Button 
                 size="lg" 
@@ -270,10 +270,10 @@ const Index = () => {
               <div className="space-y-4">
                 <div className="flex items-center space-x-2">
                   <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg"></div>
-                  <span className="text-xl font-bold text-gray-900">AI SOP Generator</span>
+                  <span className="text-xl font-bold text-gray-900">FlowForge</span>
                 </div>
                 <p className="text-gray-600 text-sm">
-                  Transform your business processes into clear, actionable Standard Operating Procedures with the power of AI.
+                  Turn prompts into processes — instantly. Transform your business workflows into clear, actionable Standard Operating Procedures with the power of AI.
                 </p>
                 <div className="flex space-x-4">
                   <a href="#" className="text-gray-400 hover:text-gray-600 transition-colors">
@@ -385,7 +385,7 @@ const Index = () => {
             {/* Bottom Section */}
             <div className="border-t border-gray-200 mt-8 pt-8 flex flex-col md:flex-row justify-between items-center">
               <p className="text-gray-600 text-sm">
-                © 2024 AI SOP Generator. All rights reserved.
+                © 2024 FlowForge. All rights reserved.
               </p>
               <div className="mt-4 md:mt-0 flex space-x-6">
                 <a href="#" className="text-gray-600 hover:text-gray-900 transition-colors text-sm">
