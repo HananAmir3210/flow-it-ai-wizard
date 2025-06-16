@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { SidebarProvider, Sidebar, SidebarContent, SidebarHeader, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarTrigger, SidebarInset } from '@/components/ui/sidebar';
@@ -115,15 +114,14 @@ const Dashboard = () => {
           <Sidebar className="border-r hidden md:block">
             <SidebarHeader className="border-b p-3 sm:p-4">
               <div 
-                className="flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity"
+                className="cursor-pointer hover:opacity-80 transition-opacity"
                 onClick={handleLogoClick}
               >
                 <img 
-                  src="/lovable-uploads/8ee0c56d-85fb-43b4-9935-9db5d67ef657.png" 
+                  src="/lovable-uploads/72540588-b683-4db2-9c5a-ec9b9a8a53b6.png" 
                   alt="FlowForge Logo" 
-                  className="h-6 w-6 sm:h-8 sm:w-8 flex-shrink-0"
+                  className="h-8 sm:h-10"
                 />
-                <span className="font-semibold text-sm sm:text-base truncate">FlowForge</span>
               </div>
             </SidebarHeader>
             

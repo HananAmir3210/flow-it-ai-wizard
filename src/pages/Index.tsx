@@ -1,4 +1,3 @@
-
 import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -140,15 +139,14 @@ const Index = () => {
           {/* Navigation */}
           <nav className="flex items-center justify-between">
             <div 
-              className="flex items-center space-x-2 cursor-pointer hover:opacity-80 transition-opacity"
+              className="flex items-center cursor-pointer hover:opacity-80 transition-opacity"
               onClick={handleLogoClick}
             >
               <img 
-                src="/lovable-uploads/8ee0c56d-85fb-43b4-9935-9db5d67ef657.png" 
+                src="/lovable-uploads/72540588-b683-4db2-9c5a-ec9b9a8a53b6.png" 
                 alt="FlowForge Logo" 
-                className="w-6 h-6 lg:w-8 lg:h-8"
+                className="h-8 lg:h-10"
               />
-              <span className="text-lg lg:text-xl font-bold text-gray-900">FlowForge</span>
             </div>
             <div className="flex items-center space-x-2 lg:space-x-4">
               <Button variant="ghost" onClick={() => setIsFeatureModalOpen(true)} className="text-sm lg:text-base">
@@ -282,15 +280,14 @@ const Index = () => {
               {/* Company Info */}
               <div className="space-y-4">
                 <div 
-                  className="flex items-center space-x-2 cursor-pointer hover:opacity-80 transition-opacity"
+                  className="cursor-pointer hover:opacity-80 transition-opacity"
                   onClick={handleLogoClick}
                 >
                   <img 
-                    src="/lovable-uploads/8ee0c56d-85fb-43b4-9935-9db5d67ef657.png" 
+                    src="/lovable-uploads/72540588-b683-4db2-9c5a-ec9b9a8a53b6.png" 
                     alt="FlowForge Logo" 
-                    className="w-8 h-8"
+                    className="h-8"
                   />
-                  <span className="text-xl font-bold text-gray-900">FlowForge</span>
                 </div>
                 <p className="text-gray-600 text-sm">
                   Turn prompts into processes — instantly. Transform your business workflows into clear, actionable Standard Operating Procedures with the power of AI.
