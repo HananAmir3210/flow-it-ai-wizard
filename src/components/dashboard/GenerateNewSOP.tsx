@@ -3,13 +3,20 @@ import React, { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { useSupabaseData } from '@/hooks/useSupabaseData';
 import SOPPreviewModal from '@/components/modals/SOPPreviewModal';
-import SOPInputForm from './sop-generation/SOPInputForm';
-import GeneratedContentDisplay from './sop-generation/GeneratedContentDisplay';
-import { useSOPGeneration } from './sop-generation/useSOPGeneration';
+import SteppedSOPForm from './sop-generation/SteppedSOPForm';
+import EnhancedResultDisplay from './sop-generation/EnhancedResultDisplay';
+import { useEnhancedSOPGeneration } from './sop-generation/useEnhancedSOPGeneration';
 import type { Database } from '@/integrations/supabase/types';
 
 type SOP = Database['public']['Tables']['sops']['Row'];
 type SOPCategory = Database['public']['Enums']['sop_category'];
+
+interface SOPPreferences {
+  tone: 'formal' | 'casual' | 'instructional';
+  outputLength: 'concise' | 'detailed';
+  includeCompliance: boolean;
+  language: string;
+}
 
 interface GenerateNewSOPProps {
   editingSOP?: SOP | null;
@@ -28,10 +35,16 @@ const GenerateNewSOP: React.FC<GenerateNewSOPProps> = ({
   const [tags, setTags] = useState<string[]>(editingSOP?.tags || []);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const [activeTab, setActiveTab] = useState('sop');
+  const [lastPreferences, setLastPreferences] = useState<SOPPreferences>({
+    tone: 'formal',
+    outputLength: 'detailed',
+    includeCompliance: false,
+    language: 'English'
+  });
 
   const { toast } = useToast();
   const { createSOP, updateSOP, loading } = useSupabaseData();
-  const { isGenerating, generatedContent, setGeneratedContent, generateSOPAndWorkflow } = useSOPGeneration();
+  const { isGenerating, generatedContent, setGeneratedContent, generateSOPAndWorkflow } = useEnhancedSOPGeneration();
 
   // Initialize with existing SOP data if editing
   React.useEffect(() => {
@@ -53,9 +66,20 @@ const GenerateNewSOP: React.FC<GenerateNewSOPProps> = ({
     }
   }, [editingSOP, setGeneratedContent]);
 
-  const handleGenerate = () => {
-    generateSOPAndWorkflow(title, description, category, tags);
+  const handleGenerate = (preferences: SOPPreferences) => {
+    setLastPreferences(preferences);
+    generateSOPAndWorkflow(title, description, category, tags, preferences);
     setActiveTab('sop');
+  };
+
+  const handleRegenerate = () => {
+    if (lastPreferences) {
+      generateSOPAndWorkflow(title, description, category, tags, lastPreferences);
+      toast({
+        title: "Regenerating SOP",
+        description: "Creating a new version with the same preferences...",
+      });
+    }
   };
 
   const saveSOP = async () => {
@@ -98,6 +122,9 @@ const GenerateNewSOP: React.FC<GenerateNewSOPProps> = ({
       if (result.error) {
         throw new Error(result.error.message);
       }
+
+      // Clear localStorage draft on successful save
+      localStorage.removeItem('sop-form-draft');
 
       toast({
         title: editingSOP ? "SOP Updated" : "SOP Saved",
@@ -146,7 +173,7 @@ const GenerateNewSOP: React.FC<GenerateNewSOPProps> = ({
 
   return (
     <div className="space-y-6">
-      <SOPInputForm
+      <SteppedSOPForm
         title={title}
         setTitle={setTitle}
         description={description}
@@ -162,7 +189,7 @@ const GenerateNewSOP: React.FC<GenerateNewSOPProps> = ({
       />
 
       {generatedContent && (
-        <GeneratedContentDisplay
+        <EnhancedResultDisplay
           generatedContent={generatedContent}
           title={title}
           activeTab={activeTab}
@@ -172,6 +199,7 @@ const GenerateNewSOP: React.FC<GenerateNewSOPProps> = ({
           onPreview={() => setIsPreviewOpen(true)}
           onExport={exportSOP}
           onSave={saveSOP}
+          onRegenerate={handleRegenerate}
         />
       )}
 
