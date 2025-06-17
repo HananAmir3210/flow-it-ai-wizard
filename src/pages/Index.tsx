@@ -143,9 +143,9 @@ const Index = () => {
               onClick={handleLogoClick}
             >
               <img 
-                src="/lovable-uploads/72540588-b683-4db2-9c5a-ec9b9a8a53b6.png" 
+                src="/lovable-uploads/684a1ef7-80d1-4c48-86f8-3546b9693236.png" 
                 alt="FlowForge Logo" 
-                className="h-8 lg:h-10"
+                className="h-12 lg:h-16"
               />
             </div>
             <div className="flex items-center space-x-2 lg:space-x-4">
@@ -284,9 +284,9 @@ const Index = () => {
                   onClick={handleLogoClick}
                 >
                   <img 
-                    src="/lovable-uploads/72540588-b683-4db2-9c5a-ec9b9a8a53b6.png" 
+                    src="/lovable-uploads/684a1ef7-80d1-4c48-86f8-3546b9693236.png" 
                     alt="FlowForge Logo" 
-                    className="h-8"
+                    className="h-10"
                   />
                 </div>
                 <p className="text-gray-600 text-sm">

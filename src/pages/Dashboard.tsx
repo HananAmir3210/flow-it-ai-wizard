@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { SidebarProvider, Sidebar, SidebarContent, SidebarHeader, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarTrigger, SidebarInset } from '@/components/ui/sidebar';
@@ -118,9 +119,9 @@ const Dashboard = () => {
                 onClick={handleLogoClick}
               >
                 <img 
-                  src="/lovable-uploads/72540588-b683-4db2-9c5a-ec9b9a8a53b6.png" 
+                  src="/lovable-uploads/684a1ef7-80d1-4c48-86f8-3546b9693236.png" 
                   alt="FlowForge Logo" 
-                  className="h-8 sm:h-10"
+                  className="h-10 sm:h-12"
                 />
               </div>
             </SidebarHeader>
