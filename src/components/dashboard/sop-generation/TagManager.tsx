@@ -7,9 +7,10 @@ import { Badge } from '@/components/ui/badge';
 interface TagManagerProps {
   tags: string[];
   setTags: (tags: string[]) => void;
+  placeholder?: string;
 }
 
-const TagManager: React.FC<TagManagerProps> = ({ tags, setTags }) => {
+const TagManager: React.FC<TagManagerProps> = ({ tags, setTags, placeholder = "Add a tag and press Enter" }) => {
   const [tagInput, setTagInput] = useState('');
 
   const addTag = () => {
@@ -28,7 +29,7 @@ const TagManager: React.FC<TagManagerProps> = ({ tags, setTags }) => {
       <label className="text-sm font-medium">Tags</label>
       <div className="flex gap-2">
         <Input
-          placeholder="Add a tag and press Enter"
+          placeholder={placeholder}
           value={tagInput}
           onChange={(e) => setTagInput(e.target.value)}
           onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addTag())}
