@@ -1,4 +1,3 @@
-
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 
 const corsHeaders = {
@@ -57,24 +56,19 @@ serve(async (req) => {
       throw new Error('OpenAI API key not configured');
     }
 
-    // Construct the expert prompt
+    // Construct the improved expert prompt for visual workflow generation
     const toneInstruction = preferences?.tone ? `with a ${preferences.tone} tone` : 'with a professional tone';
     const lengthInstruction = preferences?.outputLength === 'detailed' ? 'detailed and comprehensive' : 'concise but complete';
     const complianceInstruction = preferences?.includeCompliance ? 'Include compliance and safety considerations where applicable.' : '';
     const languageInstruction = preferences?.language && preferences.language !== 'English' ? `Generate the response in ${preferences.language}.` : '';
 
-    const sopPrompt = `I want you to act as an expert in process optimization and operations documentation. Based on the goal I provide, generate a detailed and actionable Standard Operating Procedure (SOP) along with a workflow diagram.
+    const sopPrompt = `I want you to act as an intelligent operations designer. Based on the goal I give you, generate a complete and optimized SOP along with a structured workflow that can be visually rendered in a node-based interface like a flowchart editor. The output should be clear, logically ordered, and ready for professional use.
 
-Instructions:
-1. Understand the goal clearly.
-2. Break down the goal into logical, step-by-step actions.
-3. For each step, provide:
-   - Step number
-   - Step title
-   - Description
-   - Responsible role (if applicable)
-   - Tools or resources needed
-   - Estimated time
+Your Task:
+1. Understand the goal clearly
+2. Break it into 6-10 logical steps (fewer if it's simple)
+3. Each step must be actionable and specific
+4. Structure the steps in a way that can be visualized as a flowchart
 
 Generate a ${lengthInstruction} SOP ${toneInstruction}. ${complianceInstruction} ${languageInstruction}
 
@@ -86,42 +80,54 @@ Keywords/Tags: ${tags.join(', ')}
 Please return the response as a valid JSON object with this exact structure:
 {
   "title": "Complete SOP Title",
-  "content": "Full formatted markdown content",
+  "content": "Full formatted markdown content with detailed sections",
   "steps": [
     {
       "number": 1,
-      "title": "Step Title",
+      "title": "Step Title (keep short and descriptive)",
       "description": "Detailed description of what needs to be done",
-      "details": ["Specific action 1", "Specific action 2"],
+      "details": ["Specific action 1", "Specific action 2", "Specific action 3"],
       "responsible_role": "Role responsible for this step",
       "tools_needed": ["Tool 1", "Tool 2"],
       "estimated_time": "Time estimate"
     }
   ]
-}`;
+}
 
-    const workflowPrompt = `Based on the SOP "${title}" with description "${description}", create a logical workflow diagram in structured format.
+Important: Keep step titles short and descriptive for visual workflow display. Avoid ambiguous names like "Do work" - be specific about what each step accomplishes.`;
 
-Generate 5-8 workflow steps that represent the process flow, including:
-- One START node
-- Multiple PROCESS nodes for main activities  
-- At least one DECISION node for quality checks or approvals
-- One END node
+    const workflowPrompt = `I want you to act as an intelligent workflow designer. Based on the SOP "${title}" with description "${description}", create a structured visual workflow that works perfectly in a drag-and-drop node editor interface.
 
-Position them in a logical left-to-right flow with appropriate spacing (x positions: 100, 280, 460, 640, 820, 1000, 1180; y position: 250).
+Requirements:
+- Generate 6-8 workflow nodes that represent the complete process flow
+- Include one START node (green)
+- Multiple PROCESS nodes for main activities (blue) 
+- At least one DECISION node for quality checks or approvals (yellow)
+- One END node (red)
+- Position them in a logical top-to-bottom or left-to-right flow
+- Each node should have a short, clear title (2-4 words max)
+- Connections should create a logical flow path
+
+Use these positioning guidelines:
+- Start at position x: 100, y: 50
+- Space nodes vertically by 150px
+- Keep x position around 100-200 for a clean vertical flow
+- Decision nodes can branch left/right if needed
 
 Return as a valid JSON array with this structure:
 [
   {
     "id": "unique_id",
-    "title": "Short Title",
-    "description": "Brief description",
+    "title": "Short Node Title",
+    "description": "Brief description of this step",
     "type": "start|process|decision|end",
     "x": number,
     "y": number,
     "connections": ["connected_node_id"]
   }
-]`;
+]
+
+Make sure the workflow visually makes sense when rendered as connected nodes in a flowchart editor.`;
 
     console.log('Generating SOP with OpenAI...');
 
@@ -140,7 +146,7 @@ Return as a valid JSON array with this structure:
           messages: [
             {
               role: 'system',
-              content: 'You are an expert in process optimization and operations documentation. You generate detailed, actionable SOPs. Always return valid JSON responses.'
+              content: 'You are an expert operations designer who creates professional SOPs and visual workflows. You generate structured, actionable documentation that works perfectly with visual workflow editors. Always return valid JSON responses.'
             },
             {
               role: 'user',
@@ -187,7 +193,7 @@ Return as a valid JSON array with this structure:
           messages: [
             {
               role: 'system',
-              content: 'You are an expert in workflow design. You create logical, well-structured workflow diagrams. Always return valid JSON responses.'
+              content: 'You are an expert workflow designer who creates visual node-based workflows. You understand how to structure workflows for drag-and-drop flowchart editors with proper node positioning and connections. Always return valid JSON responses.'
             },
             {
               role: 'user',
@@ -376,7 +382,7 @@ function generateEnhancedMockWorkflow(title: string): WorkflowStep[] {
       description: "Begin Process",
       type: "start" as const,
       x: 100,
-      y: 250,
+      y: 50,
       connections: ["assess"]
     },
     {
@@ -384,8 +390,8 @@ function generateEnhancedMockWorkflow(title: string): WorkflowStep[] {
       title: "Assessment",
       description: "Initial Assessment & Planning",
       type: "process" as const,
-      x: 280,
-      y: 250,
+      x: 100,
+      y: 200,
       connections: ["prepare"]
     },
     {
@@ -393,8 +399,8 @@ function generateEnhancedMockWorkflow(title: string): WorkflowStep[] {
       title: "Preparation",
       description: "Resource Preparation & Setup",
       type: "process" as const,
-      x: 460,
-      y: 250,
+      x: 100,
+      y: 350,
       connections: ["execute"]
     },
     {
@@ -402,8 +408,8 @@ function generateEnhancedMockWorkflow(title: string): WorkflowStep[] {
       title: "Execute",
       description: "Implementation & Execution",
       type: "process" as const,
-      x: 640,
-      y: 250,
+      x: 100,
+      y: 500,
       connections: ["quality_check"]
     },
     {
@@ -411,8 +417,8 @@ function generateEnhancedMockWorkflow(title: string): WorkflowStep[] {
       title: "Quality Check",
       description: "Meets Standards?",
       type: "decision" as const,
-      x: 820,
-      y: 250,
+      x: 100,
+      y: 650,
       connections: ["finalize", "execute"]
     },
     {
@@ -420,8 +426,8 @@ function generateEnhancedMockWorkflow(title: string): WorkflowStep[] {
       title: "Finalize",
       description: "Documentation & Closure",
       type: "process" as const,
-      x: 1000,
-      y: 250,
+      x: 100,
+      y: 800,
       connections: ["end"]
     },
     {
@@ -429,8 +435,8 @@ function generateEnhancedMockWorkflow(title: string): WorkflowStep[] {
       title: "Complete",
       description: "Process Complete",
       type: "end" as const,
-      x: 1180,
-      y: 250,
+      x: 100,
+      y: 950,
       connections: []
     }
   ];
