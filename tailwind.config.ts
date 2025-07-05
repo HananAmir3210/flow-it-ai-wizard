@@ -19,6 +19,10 @@ export default {
 			}
 		},
 		extend: {
+			fontFamily: {
+				'montserrat': ['Montserrat', 'sans-serif'],
+				'open-sans': ['Open Sans', 'sans-serif'],
+			},
 			colors: {
 				border: 'hsl(var(--border))',
 				input: 'hsl(var(--input))',
@@ -62,7 +66,12 @@ export default {
 					'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
-				}
+				},
+				// Sopfuel brand colors
+				'sopfuel-blue': '#003366',
+				'sopfuel-green': '#66CC99',
+				'sopfuel-gray': '#F5F5F5',
+				'sopfuel-dark': '#333333'
 			},
 			borderRadius: {
 				lg: 'var(--radius)',
