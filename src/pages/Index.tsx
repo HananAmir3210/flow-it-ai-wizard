@@ -1,5 +1,5 @@
 
-import { useState, useRef, useEffect } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -9,11 +9,10 @@ import { Textarea } from "@/components/ui/textarea";
 import AuthModal from "@/components/AuthModal";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
-import { Twitter, Linkedin, Facebook, Star, CheckCircle, Users, Zap, Settings } from "lucide-react";
+import { Twitter, Linkedin, Facebook, Star, CheckCircle, Users, Zap, Settings, ArrowRight, Bot, Workflow, FileText } from "lucide-react";
 
 const Index = () => {
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
-  const [signupForm, setSignupForm] = useState({ name: "", email: "", password: "" });
   const [contactForm, setContactForm] = useState({ name: "", email: "", message: "" });
   const { user } = useAuth();
   const { toast } = useToast();
@@ -27,15 +26,6 @@ const Index = () => {
     }
   };
 
-  const handleSignupSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsAuthModalOpen(true);
-    toast({
-      title: "Getting Started",
-      description: "Please complete your registration in the signup modal.",
-    });
-  };
-
   const handleContactSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     toast({
@@ -47,19 +37,24 @@ const Index = () => {
 
   const features = [
     {
-      icon: <Zap className="h-8 w-8 text-[#003366]" />,
-      title: "AI-Driven Templates",
-      description: "Generate comprehensive SOPs instantly using advanced AI technology tailored to your industry."
+      icon: <Bot className="h-8 w-8 text-sopfuel-blue" />,
+      title: "AI-Powered Generation",
+      description: "Create comprehensive SOPs instantly with advanced AI that understands your business processes and industry requirements."
     },
     {
-      icon: <Settings className="h-8 w-8 text-[#003366]" />,
-      title: "Customization Options",
-      description: "Fully customize your SOPs with drag-and-drop editing, role assignments, and workflow visualization."
+      icon: <Workflow className="h-8 w-8 text-sopfuel-blue" />,
+      title: "Visual Workflow Builder",
+      description: "Design and visualize your processes with our intuitive drag-and-drop workflow builder and real-time collaboration tools."
     },
     {
-      icon: <Users className="h-8 w-8 text-[#003366]" />,
-      title: "Collaboration Tools",
-      description: "Share, review, and collaborate on SOPs with your team in real-time with version control."
+      icon: <Users className="h-8 w-8 text-sopfuel-blue" />,
+      title: "Team Collaboration",
+      description: "Share, review, and iterate on SOPs with your team in real-time with version control and role-based permissions."
+    },
+    {
+      icon: <FileText className="h-8 w-8 text-sopfuel-blue" />,
+      title: "Smart Templates",
+      description: "Access industry-specific templates that adapt to your needs, with customizable formats and automated compliance checks."
     }
   ];
 
@@ -68,225 +63,216 @@ const Index = () => {
       name: "Basic",
       price: "$9",
       period: "/month",
-      features: ["5 SOPs per month", "Basic templates", "Email support", "PDF export"],
-      popular: false
+      features: ["5 SOPs per month", "Basic AI templates", "Email support", "PDF export", "Team sharing"],
+      popular: false,
+      cta: "Start Basic"
     },
     {
       name: "Pro",
       price: "$29",
       period: "/month",
-      features: ["Unlimited SOPs", "Advanced AI templates", "Team collaboration", "Priority support", "Workflow visualization"],
-      popular: true
+      features: ["Unlimited SOPs", "Advanced AI generation", "Workflow visualization", "Priority support", "Team collaboration", "Custom branding"],
+      popular: true,
+      cta: "Start Pro"
     },
     {
       name: "Enterprise",
       price: "Custom",
       period: "",
-      features: ["Custom solutions", "Dedicated support", "API access", "Advanced integrations", "Custom branding"],
-      popular: false
+      features: ["Everything in Pro", "Custom integrations", "Dedicated support", "Advanced analytics", "SSO & compliance", "Custom training"],
+      popular: false,
+      cta: "Contact Sales"
     }
   ];
 
   const testimonials = [
     {
       name: "Sarah Johnson",
-      role: "Operations Manager",
-      company: "TechStart Inc.",
-      content: "Sopfuel transformed how we document our processes. What used to take hours now takes minutes!",
+      role: "Operations Director",
+      company: "TechFlow",
+      content: "Sopfuel transformed how we document processes. What used to take weeks now takes hours. The AI understands our workflows perfectly.",
       image: "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=150&h=150&fit=crop&crop=face"
     },
     {
       name: "Michael Chen",
-      role: "CEO",
-      company: "GrowthCorp",
-      content: "The AI-powered generation is incredibly accurate. Our team productivity increased by 40%.",
+      role: "COO",
+      company: "StreamlineHQ",
+      content: "The workflow visualization feature is game-changing. Our team can finally see the complete picture of our operations.",
       image: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face"
     },
     {
       name: "Emily Rodriguez",
-      role: "Quality Assurance Lead",
-      company: "Precision Systems",
-      content: "Outstanding tool for standardizing our quality processes. Highly recommended!",
+      role: "Quality Manager",
+      company: "Precision Co",
+      content: "Implementation was seamless, and the results were immediate. Our process documentation is now consistent and professional.",
       image: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face"
     }
   ];
 
   return (
     <div className="min-h-screen bg-white">
-      {/* Header */}
-      <header className="container mx-auto px-4 py-6">
-        <nav className="flex items-center justify-between">
-          <div className="flex items-center">
-            <div className="w-10 h-10 bg-[#003366] rounded-lg flex items-center justify-center mr-3">
-              <span className="text-white font-bold text-xl">S</span>
+      {/* Navbar */}
+      <header className="fixed top-0 w-full bg-white/95 backdrop-blur-sm border-b border-gray-100 z-50">
+        <nav className="container mx-auto px-6 py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-3">
+              <div className="w-10 h-10 bg-sopfuel-blue rounded-xl flex items-center justify-center">
+                <Bot className="h-6 w-6 text-white" />
+              </div>
+              <span className="text-2xl font-bold text-sopfuel-blue font-montserrat">
+                Sopfuel
+              </span>
             </div>
-            <span className="text-2xl font-bold text-[#003366]" style={{fontFamily: 'Montserrat, sans-serif'}}>
-              Sopfuel
-            </span>
-          </div>
-          <div className="flex items-center space-x-4">
-            <Button variant="ghost" className="text-[#333333]">Features</Button>
-            <Button variant="ghost" className="text-[#333333]">Pricing</Button>
-            <Button 
-              onClick={handleGetStarted} 
-              className="bg-[#003366] hover:bg-[#002244] text-white"
-            >
-              {user ? "Dashboard" : "Get Started"}
-            </Button>
+            
+            <div className="hidden md:flex items-center space-x-8">
+              <a href="#features" className="text-sopfuel-dark hover:text-sopfuel-blue transition-colors font-open-sans">Features</a>
+              <a href="#pricing" className="text-sopfuel-dark hover:text-sopfuel-blue transition-colors font-open-sans">Pricing</a>
+              <a href="#testimonials" className="text-sopfuel-dark hover:text-sopfuel-blue transition-colors font-open-sans">Testimonials</a>
+              <a href="#contact" className="text-sopfuel-dark hover:text-sopfuel-blue transition-colors font-open-sans">Contact</a>
+              
+              <Button 
+                onClick={handleGetStarted}
+                className="bg-sopfuel-blue hover:bg-sopfuel-blue/90 text-white rounded-xl px-6 py-2.5 font-medium transition-all duration-200 hover:scale-105"
+              >
+                Start Free Trial
+              </Button>
+            </div>
           </div>
         </nav>
       </header>
 
       {/* Hero Section */}
-      <section className="container mx-auto px-4 py-16 lg:py-24">
-        <div className="grid lg:grid-cols-2 gap-12 items-center">
-          <div>
-            <h1 className="text-4xl lg:text-6xl font-bold text-[#003366] mb-6 leading-tight" style={{fontFamily: 'Montserrat, sans-serif'}}>
-              Sopfuel: Your AI-Powered SOP Generator
-            </h1>
-            <p className="text-xl text-[#333333] mb-8 leading-relaxed" style={{fontFamily: 'Open Sans, sans-serif'}}>
-              Streamline Your Processes with Intelligent SOP Creation
-            </p>
-            <Button 
-              size="lg" 
-              onClick={handleGetStarted}
-              className="bg-[#003366] hover:bg-[#002244] text-white text-lg px-8 py-4 mb-8"
-            >
-              Start Your Free Trial
-            </Button>
-          </div>
-          
-          <div className="bg-[#F5F5F5] rounded-lg p-8">
-            <h3 className="text-xl font-semibold text-[#003366] mb-6" style={{fontFamily: 'Montserrat, sans-serif'}}>
-              Quick Sign Up
-            </h3>
-            <form onSubmit={handleSignupSubmit} className="space-y-4">
-              <div>
-                <Label htmlFor="name" className="text-[#333333]">Name</Label>
-                <Input
-                  id="name"
-                  value={signupForm.name}
-                  onChange={(e) => setSignupForm({...signupForm, name: e.target.value})}
-                  className="border-gray-300"
-                  required
+      <section className="pt-24 pb-20 bg-gradient-to-br from-white to-sopfuel-gray/30">
+        <div className="container mx-auto px-6">
+          <div className="grid lg:grid-cols-2 gap-16 items-center">
+            <div className="animate-fade-in">
+              <h1 className="text-5xl lg:text-7xl font-bold text-sopfuel-blue mb-6 leading-tight font-montserrat">
+                Sopfuel: Your AI-Powered SOP Generator
+              </h1>
+              <p className="text-xl lg:text-2xl text-sopfuel-dark/80 mb-8 leading-relaxed font-open-sans">
+                Streamline Your Processes with Intelligent SOP Creation
+              </p>
+              <p className="text-lg text-sopfuel-dark/70 mb-10 font-open-sans">
+                Transform your business workflows into clear, actionable Standard Operating Procedures in minutes with AI.
+              </p>
+              
+              <div className="flex flex-col sm:flex-row gap-4 mb-12">
+                <Button 
+                  size="lg"
+                  onClick={handleGetStarted}
+                  className="bg-sopfuel-blue hover:bg-sopfuel-blue/90 text-white text-lg px-8 py-4 rounded-xl font-medium transition-all duration-200 hover:scale-105 group"
+                >
+                  Start Your Free Trial
+                  <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
+                </Button>
+                <Button 
+                  variant="outline"
+                  size="lg"
+                  className="border-sopfuel-blue text-sopfuel-blue hover:bg-sopfuel-blue hover:text-white text-lg px-8 py-4 rounded-xl font-medium transition-all duration-200"
+                >
+                  Watch Demo
+                </Button>
+              </div>
+            </div>
+            
+            <div className="relative">
+              <div className="bg-gradient-to-br from-sopfuel-blue/10 to-sopfuel-green/10 rounded-3xl p-8 backdrop-blur-sm">
+                <img 
+                  src="https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=600&h=400&fit=crop" 
+                  alt="AI-powered workflow visualization"
+                  className="w-full h-auto rounded-2xl shadow-2xl"
                 />
               </div>
-              <div>
-                <Label htmlFor="email" className="text-[#333333]">Email</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  value={signupForm.email}
-                  onChange={(e) => setSignupForm({...signupForm, email: e.target.value})}
-                  className="border-gray-300"
-                  required
-                />
-              </div>
-              <div>
-                <Label htmlFor="password" className="text-[#333333]">Password</Label>
-                <Input
-                  id="password"
-                  type="password"
-                  value={signupForm.password}
-                  onChange={(e) => setSignupForm({...signupForm, password: e.target.value})}
-                  className="border-gray-300"
-                  required
-                />
-              </div>
-              <Button type="submit" className="w-full bg-[#66CC99] hover:bg-[#55BB88] text-white">
-                Sign Up Free
-              </Button>
-            </form>
+            </div>
           </div>
         </div>
       </section>
 
       {/* Features Section */}
-      <section className="bg-[#F5F5F5] py-16 lg:py-24">
-        <div className="container mx-auto px-4">
-          <h2 className="text-3xl lg:text-4xl font-bold text-[#003366] text-center mb-16" style={{fontFamily: 'Montserrat, sans-serif'}}>
-            Key Features
-          </h2>
-          <div className="grid md:grid-cols-3 gap-8 mb-16">
+      <section id="features" className="py-24 bg-white">
+        <div className="container mx-auto px-6">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl lg:text-5xl font-bold text-sopfuel-blue mb-6 font-montserrat">
+              Key Features
+            </h2>
+            <p className="text-xl text-sopfuel-dark/70 max-w-3xl mx-auto font-open-sans">
+              Everything you need to create, manage, and optimize your Standard Operating Procedures
+            </p>
+          </div>
+          
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
             {features.map((feature, index) => (
-              <Card key={index} className="text-center hover:shadow-lg transition-all duration-300 border-none">
-                <CardHeader>
+              <Card key={index} className="border-0 shadow-lg hover:shadow-xl transition-all duration-300 rounded-2xl group hover:-translate-y-2">
+                <CardHeader className="text-center pb-4">
                   <div className="flex justify-center mb-4">
-                    {feature.icon}
+                    <div className="p-4 bg-sopfuel-blue/5 rounded-2xl group-hover:bg-sopfuel-blue/10 transition-colors">
+                      {feature.icon}
+                    </div>
                   </div>
-                  <CardTitle className="text-xl text-[#003366]" style={{fontFamily: 'Montserrat, sans-serif'}}>
+                  <CardTitle className="text-xl text-sopfuel-blue font-montserrat">
                     {feature.title}
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <CardDescription className="text-[#333333]" style={{fontFamily: 'Open Sans, sans-serif'}}>
+                  <CardDescription className="text-sopfuel-dark/70 font-open-sans leading-relaxed">
                     {feature.description}
                   </CardDescription>
                 </CardContent>
               </Card>
             ))}
           </div>
-          
-          {/* Video Section */}
-          <div className="text-center">
-            <h3 className="text-2xl font-semibold text-[#003366] mb-8" style={{fontFamily: 'Montserrat, sans-serif'}}>
-              See Sopfuel in Action
-            </h3>
-            <div className="max-w-4xl mx-auto">
-              <div className="aspect-video bg-gray-200 rounded-lg flex items-center justify-center">
-                <div className="text-center">
-                  <div className="w-16 h-16 bg-[#003366] rounded-full flex items-center justify-center mx-auto mb-4">
-                    <div className="w-0 h-0 border-l-[8px] border-l-white border-t-[6px] border-t-transparent border-b-[6px] border-b-transparent ml-1"></div>
-                  </div>
-                  <p className="text-[#333333]" style={{fontFamily: 'Open Sans, sans-serif'}}>
-                    Demo Video Coming Soon
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
         </div>
       </section>
 
       {/* Pricing Section */}
-      <section className="py-16 lg:py-24">
-        <div className="container mx-auto px-4">
-          <h2 className="text-3xl lg:text-4xl font-bold text-[#003366] text-center mb-16" style={{fontFamily: 'Montserrat, sans-serif'}}>
-            Pricing Plans
-          </h2>
-          <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+      <section id="pricing" className="py-24 bg-sopfuel-gray/30">
+        <div className="container mx-auto px-6">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl lg:text-5xl font-bold text-sopfuel-blue mb-6 font-montserrat">
+              Pricing Plans
+            </h2>
+            <p className="text-xl text-sopfuel-dark/70 max-w-3xl mx-auto font-open-sans">
+              Choose the perfect plan for your team size and requirements
+            </p>
+          </div>
+          
+          <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
             {pricingPlans.map((plan, index) => (
-              <Card key={index} className={`relative hover:shadow-xl transition-all duration-300 ${plan.popular ? 'border-[#66CC99] border-2' : 'border-gray-200'}`}>
+              <Card key={index} className={`relative hover:shadow-2xl transition-all duration-300 rounded-2xl border-0 ${plan.popular ? 'ring-2 ring-sopfuel-green shadow-xl scale-105' : 'shadow-lg'}`}>
                 {plan.popular && (
                   <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
-                    <span className="bg-[#66CC99] text-white px-4 py-1 rounded-full text-sm font-semibold">
+                    <span className="bg-sopfuel-green text-white px-6 py-2 rounded-full text-sm font-medium font-open-sans">
                       Most Popular
                     </span>
                   </div>
                 )}
-                <CardHeader className="text-center">
-                  <CardTitle className="text-2xl text-[#003366]" style={{fontFamily: 'Montserrat, sans-serif'}}>
+                <CardHeader className="text-center pb-8">
+                  <CardTitle className="text-2xl text-sopfuel-blue font-montserrat mb-4">
                     {plan.name}
                   </CardTitle>
-                  <div className="mt-4">
-                    <span className="text-4xl font-bold text-[#003366]">{plan.price}</span>
-                    <span className="text-[#333333]">{plan.period}</span>
+                  <div className="mb-6">
+                    <span className="text-5xl font-bold text-sopfuel-blue">{plan.price}</span>
+                    <span className="text-sopfuel-dark/70 font-open-sans">{plan.period}</span>
                   </div>
                 </CardHeader>
                 <CardContent>
-                  <ul className="space-y-3 mb-8">
+                  <ul className="space-y-4 mb-8">
                     {plan.features.map((feature, featureIndex) => (
-                      <li key={featureIndex} className="flex items-center text-[#333333]" style={{fontFamily: 'Open Sans, sans-serif'}}>
-                        <CheckCircle className="h-5 w-5 text-[#66CC99] mr-3 flex-shrink-0" />
+                      <li key={featureIndex} className="flex items-start text-sopfuel-dark font-open-sans">
+                        <CheckCircle className="h-5 w-5 text-sopfuel-green mr-3 flex-shrink-0 mt-0.5" />
                         {feature}
                       </li>
                     ))}
                   </ul>
                   <Button 
-                    className={`w-full ${plan.popular ? 'bg-[#003366] hover:bg-[#002244]' : 'bg-[#66CC99] hover:bg-[#55BB88]'} text-white`}
+                    className={`w-full rounded-xl py-3 font-medium transition-all duration-200 hover:scale-105 ${
+                      plan.popular 
+                        ? 'bg-sopfuel-blue hover:bg-sopfuel-blue/90 text-white' 
+                        : 'bg-sopfuel-green hover:bg-sopfuel-green/90 text-white'
+                    }`}
                     onClick={handleGetStarted}
                   >
-                    Choose Plan
+                    {plan.cta}
                   </Button>
                 </CardContent>
               </Card>
@@ -296,34 +282,40 @@ const Index = () => {
       </section>
 
       {/* Testimonials Section */}
-      <section className="bg-[#F5F5F5] py-16 lg:py-24">
-        <div className="container mx-auto px-4">
-          <h2 className="text-3xl lg:text-4xl font-bold text-[#003366] text-center mb-16" style={{fontFamily: 'Montserrat, sans-serif'}}>
-            What Our Users Say
-          </h2>
-          <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+      <section id="testimonials" className="py-24 bg-white">
+        <div className="container mx-auto px-6">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl lg:text-5xl font-bold text-sopfuel-blue mb-6 font-montserrat">
+              What Our Users Say
+            </h2>
+            <p className="text-xl text-sopfuel-dark/70 max-w-3xl mx-auto font-open-sans">
+              Join thousands of teams who've transformed their operations with Sopfuel
+            </p>
+          </div>
+          
+          <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
             {testimonials.map((testimonial, index) => (
-              <Card key={index} className="hover:shadow-lg transition-all duration-300 border-none">
-                <CardContent className="pt-6">
-                  <div className="flex mb-4">
+              <Card key={index} className="border-0 shadow-lg hover:shadow-xl transition-all duration-300 rounded-2xl">
+                <CardContent className="pt-8">
+                  <div className="flex mb-6">
                     {[...Array(5)].map((_, starIndex) => (
-                      <Star key={starIndex} className="h-5 w-5 text-[#66CC99] fill-current" />
+                      <Star key={starIndex} className="h-5 w-5 text-sopfuel-green fill-current" />
                     ))}
                   </div>
-                  <p className="text-[#333333] mb-6 italic" style={{fontFamily: 'Open Sans, sans-serif'}}>
+                  <p className="text-sopfuel-dark mb-8 italic font-open-sans leading-relaxed text-lg">
                     "{testimonial.content}"
                   </p>
                   <div className="flex items-center">
                     <img 
                       src={testimonial.image} 
                       alt={testimonial.name}
-                      className="w-12 h-12 rounded-full mr-4"
+                      className="w-14 h-14 rounded-full mr-4 object-cover"
                     />
                     <div>
-                      <p className="font-semibold text-[#003366]" style={{fontFamily: 'Montserrat, sans-serif'}}>
+                      <p className="font-semibold text-sopfuel-blue font-montserrat">
                         {testimonial.name}
                       </p>
-                      <p className="text-sm text-[#333333]" style={{fontFamily: 'Open Sans, sans-serif'}}>
+                      <p className="text-sm text-sopfuel-dark/70 font-open-sans">
                         {testimonial.role}, {testimonial.company}
                       </p>
                     </div>
@@ -336,47 +328,56 @@ const Index = () => {
       </section>
 
       {/* Contact Section */}
-      <section className="py-16 lg:py-24">
-        <div className="container mx-auto px-4">
-          <h2 className="text-3xl lg:text-4xl font-bold text-[#003366] text-center mb-16" style={{fontFamily: 'Montserrat, sans-serif'}}>
-            Contact Us
-          </h2>
+      <section id="contact" className="py-24 bg-sopfuel-gray/30">
+        <div className="container mx-auto px-6">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl lg:text-5xl font-bold text-sopfuel-blue mb-6 font-montserrat">
+              Contact Us
+            </h2>
+            <p className="text-xl text-sopfuel-dark/70 max-w-3xl mx-auto font-open-sans">
+              Have questions? We'd love to hear from you. Send us a message and we'll respond as soon as possible.
+            </p>
+          </div>
+          
           <div className="max-w-2xl mx-auto">
-            <Card className="border-gray-200">
+            <Card className="border-0 shadow-xl rounded-2xl">
               <CardContent className="p-8">
                 <form onSubmit={handleContactSubmit} className="space-y-6">
                   <div>
-                    <Label htmlFor="contact-name" className="text-[#333333]">Name</Label>
+                    <Label htmlFor="contact-name" className="text-sopfuel-dark font-open-sans font-medium">Name</Label>
                     <Input
                       id="contact-name"
                       value={contactForm.name}
                       onChange={(e) => setContactForm({...contactForm, name: e.target.value})}
-                      className="border-gray-300"
+                      className="border-gray-200 rounded-xl mt-2 py-3 font-open-sans"
                       required
                     />
                   </div>
                   <div>
-                    <Label htmlFor="contact-email" className="text-[#333333]">Email</Label>
+                    <Label htmlFor="contact-email" className="text-sopfuel-dark font-open-sans font-medium">Email</Label>
                     <Input
                       id="contact-email"
                       type="email"
                       value={contactForm.email}
                       onChange={(e) => setContactForm({...contactForm, email: e.target.value})}
-                      className="border-gray-300"
+                      className="border-gray-200 rounded-xl mt-2 py-3 font-open-sans"
                       required
                     />
                   </div>
                   <div>
-                    <Label htmlFor="contact-message" className="text-[#333333]">Message</Label>
+                    <Label htmlFor="contact-message" className="text-sopfuel-dark font-open-sans font-medium">Message</Label>
                     <Textarea
                       id="contact-message"
                       value={contactForm.message}
                       onChange={(e) => setContactForm({...contactForm, message: e.target.value})}
-                      className="border-gray-300 min-h-[120px]"
+                      className="border-gray-200 rounded-xl min-h-[150px] mt-2 py-3 font-open-sans"
                       required
                     />
                   </div>
-                  <Button type="submit" className="w-full bg-[#003366] hover:bg-[#002244] text-white">
+                  <Button 
+                    type="submit" 
+                    className="w-full bg-sopfuel-blue hover:bg-sopfuel-blue/90 text-white rounded-xl py-4 font-medium transition-all duration-200 hover:scale-105"
+                  >
                     Send Message
                   </Button>
                 </form>
@@ -385,15 +386,16 @@ const Index = () => {
             
             {/* Social Media Links */}
             <div className="text-center mt-12">
-              <p className="text-[#333333] mb-6" style={{fontFamily: 'Open Sans, sans-serif'}}>
+              <p className="text-sopfuel-dark/70 mb-8 font-open-sans text-lg">
                 Connect with us on social media
               </p>
-              <div className="flex justify-center space-x-6">
+              <div className="flex justify-center space-x-8">
                 <a 
                   href="https://linkedin.com/company/sopfuel" 
                   target="_blank" 
                   rel="noopener noreferrer"
-                  className="text-[#003366] hover:text-[#66CC99] transition-colors transform hover:scale-110"
+                  className="text-sopfuel-blue hover:text-sopfuel-green transition-all duration-200 transform hover:scale-125"
+                  aria-label="Follow us on LinkedIn"
                 >
                   <Linkedin className="h-8 w-8" />
                 </a>
@@ -401,7 +403,8 @@ const Index = () => {
                   href="https://twitter.com/sopfuel" 
                   target="_blank" 
                   rel="noopener noreferrer"
-                  className="text-[#003366] hover:text-[#66CC99] transition-colors transform hover:scale-110"
+                  className="text-sopfuel-blue hover:text-sopfuel-green transition-all duration-200 transform hover:scale-125"
+                  aria-label="Follow us on Twitter"
                 >
                   <Twitter className="h-8 w-8" />
                 </a>
@@ -409,7 +412,8 @@ const Index = () => {
                   href="https://facebook.com/sopfuel" 
                   target="_blank" 
                   rel="noopener noreferrer"
-                  className="text-[#003366] hover:text-[#66CC99] transition-colors transform hover:scale-110"
+                  className="text-sopfuel-blue hover:text-sopfuel-green transition-all duration-200 transform hover:scale-125"
+                  aria-label="Follow us on Facebook"
                 >
                   <Facebook className="h-8 w-8" />
                 </a>
@@ -420,56 +424,46 @@ const Index = () => {
       </section>
 
       {/* Footer */}
-      <footer className="bg-[#003366] text-white py-12">
-        <div className="container mx-auto px-4">
+      <footer className="bg-sopfuel-blue text-white py-16">
+        <div className="container mx-auto px-6">
           <div className="grid md:grid-cols-4 gap-8">
-            <div>
-              <div className="flex items-center mb-4">
-                <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center mr-2">
-                  <span className="text-[#003366] font-bold">S</span>
+            <div className="md:col-span-2">
+              <div className="flex items-center mb-6">
+                <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center mr-3">
+                  <Bot className="h-6 w-6 text-sopfuel-blue" />
                 </div>
-                <span className="text-xl font-bold" style={{fontFamily: 'Montserrat, sans-serif'}}>
+                <span className="text-2xl font-bold font-montserrat">
                   Sopfuel
                 </span>
               </div>
-              <p className="text-gray-300" style={{fontFamily: 'Open Sans, sans-serif'}}>
-                Streamline your processes with intelligent SOP creation powered by AI.
+              <p className="text-gray-300 font-open-sans leading-relaxed max-w-md">
+                Streamline your processes with intelligent SOP creation powered by AI. Transform your business workflows into clear, actionable procedures.
               </p>
             </div>
             
             <div>
-              <h3 className="font-semibold mb-4" style={{fontFamily: 'Montserrat, sans-serif'}}>Product</h3>
-              <ul className="space-y-2 text-gray-300" style={{fontFamily: 'Open Sans, sans-serif'}}>
-                <li><a href="#" className="hover:text-white transition-colors">Features</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Pricing</a></li>
+              <h3 className="font-semibold mb-6 font-montserrat text-lg">Product</h3>
+              <ul className="space-y-3 text-gray-300 font-open-sans">
+                <li><a href="#features" className="hover:text-white transition-colors">Features</a></li>
+                <li><a href="#pricing" className="hover:text-white transition-colors">Pricing</a></li>
                 <li><a href="#" className="hover:text-white transition-colors">Templates</a></li>
                 <li><a href="#" className="hover:text-white transition-colors">API</a></li>
               </ul>
             </div>
             
             <div>
-              <h3 className="font-semibold mb-4" style={{fontFamily: 'Montserrat, sans-serif'}}>Company</h3>
-              <ul className="space-y-2 text-gray-300" style={{fontFamily: 'Open Sans, sans-serif'}}>
-                <li><a href="#" className="hover:text-white transition-colors">About</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Blog</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Careers</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Contact</a></li>
-              </ul>
-            </div>
-            
-            <div>
-              <h3 className="font-semibold mb-4" style={{fontFamily: 'Montserrat, sans-serif'}}>Support</h3>
-              <ul className="space-y-2 text-gray-300" style={{fontFamily: 'Open Sans, sans-serif'}}>
+              <h3 className="font-semibold mb-6 font-montserrat text-lg">Support</h3>
+              <ul className="space-y-3 text-gray-300 font-open-sans">
                 <li><a href="#" className="hover:text-white transition-colors">Help Center</a></li>
                 <li><a href="#" className="hover:text-white transition-colors">Documentation</a></li>
+                <li><a href="#contact" className="hover:text-white transition-colors">Contact</a></li>
                 <li><a href="#" className="hover:text-white transition-colors">Privacy Policy</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Terms of Service</a></li>
               </ul>
             </div>
           </div>
           
-          <div className="border-t border-gray-600 mt-8 pt-8 text-center text-gray-300">
-            <p style={{fontFamily: 'Open Sans, sans-serif'}}>
+          <div className="border-t border-gray-600 mt-12 pt-8 text-center text-gray-300">
+            <p className="font-open-sans">
               © {new Date().getFullYear()} Sopfuel. All rights reserved.
             </p>
           </div>
