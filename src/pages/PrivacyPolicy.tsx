@@ -1,149 +1,172 @@
 
 import React from 'react';
-import Layout from '@/components/Layout';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useNavigate } from "react-router-dom";
+import { Bot, Shield, Eye, Lock, FileText } from "lucide-react";
 
 const PrivacyPolicy = () => {
+  const navigate = useNavigate();
+
   return (
-    <Layout title="Privacy Policy">
-      <Card className="max-w-4xl mx-auto">
-        <CardHeader>
-          <CardTitle className="text-center">Privacy Policy</CardTitle>
-          <p className="text-center text-gray-600 dark:text-gray-300">
-            Last updated: {new Date().toLocaleDateString()}
-          </p>
-        </CardHeader>
-        <CardContent className="prose dark:prose-invert max-w-none">
-          <div className="space-y-6">
-            <section>
-              <h2 className="text-2xl font-semibold text-gray-900 dark:text-white mb-4">1. Introduction</h2>
-              <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
-                FlowForge ("we," "our," or "us") is committed to protecting your privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our AI-powered Standard Operating Procedure (SOP) generation platform and related services.
-              </p>
-            </section>
-
-            <section>
-              <h2 className="text-2xl font-semibold text-gray-900 dark:text-white mb-4">2. Information We Collect</h2>
-              
-              <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-3">2.1 Information You Provide</h3>
-              <ul className="list-disc list-inside text-gray-600 dark:text-gray-300 space-y-2 mb-4">
-                <li>Account information (name, email address, company details)</li>
-                <li>SOP content and process descriptions you create</li>
-                <li>Payment information (processed through secure third-party providers)</li>
-                <li>Communications with our support team</li>
-                <li>Feedback and survey responses</li>
-              </ul>
-
-              <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-3">2.2 Information We Collect Automatically</h3>
-              <ul className="list-disc list-inside text-gray-600 dark:text-gray-300 space-y-2 mb-4">
-                <li>Usage data (features used, time spent, interaction patterns)</li>
-                <li>Device information (IP address, browser type, operating system)</li>
-                <li>Log data (access times, pages viewed, errors encountered)</li>
-                <li>Cookies and similar tracking technologies</li>
-              </ul>
-            </section>
-
-            <section>
-              <h2 className="text-2xl font-semibold text-gray-900 dark:text-white mb-4">3. How We Use Your Information</h2>
-              <ul className="list-disc list-inside text-gray-600 dark:text-gray-300 space-y-2">
-                <li>Provide and improve our SOP generation services</li>
-                <li>Process payments and manage your account</li>
-                <li>Communicate with you about our services</li>
-                <li>Analyze usage patterns to enhance user experience</li>
-                <li>Train and improve our AI models (using anonymized data)</li>
-                <li>Provide customer support and respond to inquiries</li>
-                <li>Send important updates and security notifications</li>
-                <li>Comply with legal obligations</li>
-              </ul>
-            </section>
-
-            <section>
-              <h2 className="text-2xl font-semibold text-gray-900 dark:text-white mb-4">4. Data Sharing and Disclosure</h2>
-              <p className="text-gray-600 dark:text-gray-300 leading-relaxed mb-4">
-                We do not sell, trade, or rent your personal information. We may share your information only in the following circumstances:
-              </p>
-              <ul className="list-disc list-inside text-gray-600 dark:text-gray-300 space-y-2">
-                <li>With trusted service providers who assist in operating our platform</li>
-                <li>When required by law or to protect our rights and safety</li>
-                <li>In connection with a business transaction (merger, acquisition, etc.)</li>
-                <li>With your explicit consent</li>
-              </ul>
-            </section>
-
-            <section>
-              <h2 className="text-2xl font-semibold text-gray-900 dark:text-white mb-4">5. Data Security</h2>
-              <p className="text-gray-600 dark:text-gray-300 leading-relaxed mb-4">
-                We implement industry-standard security measures to protect your information:
-              </p>
-              <ul className="list-disc list-inside text-gray-600 dark:text-gray-300 space-y-2">
-                <li>End-to-end encryption for data transmission</li>
-                <li>Encrypted storage in SOC 2 compliant data centers</li>
-                <li>Regular security audits and penetration testing</li>
-                <li>Multi-factor authentication for account access</li>
-                <li>Employee access controls and training</li>
-              </ul>
-            </section>
-
-            <section>
-              <h2 className="text-2xl font-semibold text-gray-900 dark:text-white mb-4">6. Your Rights and Choices</h2>
-              <p className="text-gray-600 dark:text-gray-300 leading-relaxed mb-4">
-                Depending on your location, you may have the following rights:
-              </p>
-              <ul className="list-disc list-inside text-gray-600 dark:text-gray-300 space-y-2">
-                <li>Access and review your personal information</li>
-                <li>Correct inaccurate or incomplete data</li>
-                <li>Request deletion of your personal information</li>
-                <li>Object to or restrict certain processing activities</li>
-                <li>Data portability (receive your data in a structured format)</li>
-                <li>Withdraw consent where processing is based on consent</li>
-              </ul>
-            </section>
-
-            <section>
-              <h2 className="text-2xl font-semibold text-gray-900 dark:text-white mb-4">7. Cookies and Tracking</h2>
-              <p className="text-gray-600 dark:text-gray-300 leading-relaxed mb-4">
-                We use cookies and similar technologies to enhance your experience. You can control cookie preferences through your browser settings. Essential cookies required for platform functionality cannot be disabled.
-              </p>
-            </section>
-
-            <section>
-              <h2 className="text-2xl font-semibold text-gray-900 dark:text-white mb-4">8. International Data Transfers</h2>
-              <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
-                Your information may be transferred to and processed in countries other than your own. We ensure appropriate safeguards are in place to protect your information in accordance with this Privacy Policy.
-              </p>
-            </section>
-
-            <section>
-              <h2 className="text-2xl font-semibold text-gray-900 dark:text-white mb-4">9. Children's Privacy</h2>
-              <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
-                Our services are not intended for children under 13 years of age. We do not knowingly collect personal information from children under 13.
-              </p>
-            </section>
-
-            <section>
-              <h2 className="text-2xl font-semibold text-gray-900 dark:text-white mb-4">10. Changes to This Policy</h2>
-              <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
-                We may update this Privacy Policy periodically. We will notify you of significant changes via email or through our platform. Your continued use of our services after changes become effective constitutes acceptance of the updated policy.
-              </p>
-            </section>
-
-            <section>
-              <h2 className="text-2xl font-semibold text-gray-900 dark:text-white mb-4">11. Contact Us</h2>
-              <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
-                If you have questions about this Privacy Policy or our data practices, please contact us:
-              </p>
-              <div className="mt-4 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
-                <p className="text-gray-600 dark:text-gray-300">
-                  <strong>Email:</strong> privacy@flowforge.com<br />
-                  <strong>Address:</strong> 123 Innovation Drive, San Francisco, CA 94107<br />
-                  <strong>Phone:</strong> +1 (555) 123-4567
-                </p>
+    <div className="min-h-screen bg-white">
+      {/* Header */}
+      <header className="fixed top-0 w-full bg-white/95 backdrop-blur-sm border-b border-gray-100 z-50">
+        <nav className="container mx-auto px-6 py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-3" onClick={() => navigate('/')} style={{ cursor: 'pointer' }}>
+              <div className="w-10 h-10 bg-sopfuel-blue rounded-xl flex items-center justify-center">
+                <Bot className="h-6 w-6 text-white" />
               </div>
-            </section>
+              <span className="text-2xl font-bold text-sopfuel-blue font-montserrat">Sopfuel</span>
+            </div>
+            
+            <div className="hidden md:flex items-center space-x-8">
+              <Button variant="ghost" onClick={() => navigate('/contact')} className="font-open-sans">Contact</Button>
+              <Button onClick={() => navigate('/')} className="bg-sopfuel-blue hover:bg-sopfuel-blue/90 text-white rounded-xl px-6 py-2.5 font-medium">
+                Back to Home
+              </Button>
+            </div>
           </div>
-        </CardContent>
-      </Card>
-    </Layout>
+        </nav>
+      </header>
+
+      {/* Main Content */}
+      <main className="pt-24 pb-20">
+        <div className="container mx-auto px-6">
+          <div className="max-w-4xl mx-auto">
+            {/* Hero Section */}
+            <div className="text-center mb-16">
+              <h1 className="text-5xl lg:text-6xl font-bold text-sopfuel-blue mb-6 font-montserrat">
+                Privacy Policy
+              </h1>
+              <p className="text-xl text-sopfuel-dark/70 font-open-sans">
+                Last updated: January 1, 2024
+              </p>
+            </div>
+
+            {/* Privacy Highlights */}
+            <div className="grid md:grid-cols-3 gap-6 mb-12">
+              <Card className="border-0 shadow-lg rounded-2xl text-center">
+                <CardContent className="pt-8">
+                  <Shield className="h-12 w-12 text-sopfuel-blue mx-auto mb-4" />
+                  <h3 className="text-lg font-semibold text-sopfuel-blue mb-2 font-montserrat">Data Protection</h3>
+                  <p className="text-sm text-sopfuel-dark/70 font-open-sans">We use industry-standard encryption to protect your data</p>
+                </CardContent>
+              </Card>
+              <Card className="border-0 shadow-lg rounded-2xl text-center">
+                <CardContent className="pt-8">
+                  <Eye className="h-12 w-12 text-sopfuel-blue mx-auto mb-4" />
+                  <h3 className="text-lg font-semibold text-sopfuel-blue mb-2 font-montserrat">Transparency</h3>
+                  <p className="text-sm text-sopfuel-dark/70 font-open-sans">Clear information about how we collect and use data</p>
+                </CardContent>
+              </Card>
+              <Card className="border-0 shadow-lg rounded-2xl text-center">
+                <CardContent className="pt-8">
+                  <Lock className="h-12 w-12 text-sopfuel-blue mx-auto mb-4" />
+                  <h3 className="text-lg font-semibold text-sopfuel-blue mb-2 font-montserrat">Your Control</h3>
+                  <p className="text-sm text-sopfuel-dark/70 font-open-sans">You have full control over your personal information</p>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Privacy Policy Content */}
+            <Card className="border-0 shadow-lg rounded-2xl">
+              <CardContent className="p-8">
+                <div className="prose prose-lg max-w-none font-open-sans">
+                  <section className="mb-8">
+                    <h2 className="text-2xl font-bold text-sopfuel-blue mb-4 font-montserrat">Information We Collect</h2>
+                    <p className="text-sopfuel-dark/80 mb-4">
+                      We collect information you provide directly to us, such as when you create an account, 
+                      use our services, or contact us for support.
+                    </p>
+                    <ul className="list-disc pl-6 space-y-2 text-sopfuel-dark/80">
+                      <li>Account information (name, email address, password)</li>
+                      <li>SOPs and content you create using our service</li>
+                      <li>Usage data and analytics</li>
+                      <li>Communication preferences and support interactions</li>
+                    </ul>
+                  </section>
+
+                  <section className="mb-8">
+                    <h2 className="text-2xl font-bold text-sopfuel-blue mb-4 font-montserrat">How We Use Your Information</h2>
+                    <p className="text-sopfuel-dark/80 mb-4">
+                      We use the information we collect to provide, maintain, and improve our services:
+                    </p>
+                    <ul className="list-disc pl-6 space-y-2 text-sopfuel-dark/80">
+                      <li>To provide and operate the Sopfuel service</li>
+                      <li>To improve and personalize your experience</li>
+                      <li>To communicate with you about service updates</li>
+                      <li>To provide customer support and respond to inquiries</li>
+                      <li>To ensure security and prevent fraud</li>
+                    </ul>
+                  </section>
+
+                  <section className="mb-8">
+                    <h2 className="text-2xl font-bold text-sopfuel-blue mb-4 font-montserrat">Information Sharing</h2>
+                    <p className="text-sopfuel-dark/80 mb-4">
+                      We do not sell, trade, or rent your personal information to third parties. 
+                      We may share your information only in the following circumstances:
+                    </p>
+                    <ul className="list-disc pl-6 space-y-2 text-sopfuel-dark/80">
+                      <li>With your explicit consent</li>
+                      <li>To comply with legal obligations</li>
+                      <li>To protect our rights and prevent fraud</li>
+                      <li>With service providers under strict confidentiality agreements</li>
+                    </ul>
+                  </section>
+
+                  <section className="mb-8">
+                    <h2 className="text-2xl font-bold text-sopfuel-blue mb-4 font-montserrat">Data Security</h2>
+                    <p className="text-sopfuel-dark/80 mb-4">
+                      We implement appropriate technical and organizational measures to protect your 
+                      personal information against unauthorized access, alteration, disclosure, or destruction.
+                    </p>
+                  </section>
+
+                  <section className="mb-8">
+                    <h2 className="text-2xl font-bold text-sopfuel-blue mb-4 font-montserrat">Your Rights</h2>
+                    <p className="text-sopfuel-dark/80 mb-4">
+                      You have the right to:
+                    </p>
+                    <ul className="list-disc pl-6 space-y-2 text-sopfuel-dark/80">
+                      <li>Access and update your personal information</li>
+                      <li>Delete your account and associated data</li>
+                      <li>Export your data in a portable format</li>
+                      <li>Opt out of marketing communications</li>
+                      <li>Contact us with privacy concerns</li>
+                    </ul>
+                  </section>
+
+                  <section className="mb-8">
+                    <h2 className="text-2xl font-bold text-sopfuel-blue mb-4 font-montserrat">Contact Us</h2>
+                    <p className="text-sopfuel-dark/80">
+                      If you have any questions about this Privacy Policy, please contact us at:
+                      <br />
+                      Email: privacy@sopfuel.com
+                      <br />
+                      Address: 123 Privacy Street, San Francisco, CA 94107
+                    </p>
+                  </section>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* CTA Section */}
+            <div className="text-center mt-12">
+              <Button 
+                size="lg"
+                onClick={() => navigate('/contact')}
+                className="bg-sopfuel-blue hover:bg-sopfuel-blue/90 text-white text-lg px-8 py-4 rounded-xl font-medium transition-all duration-200 hover:scale-105"
+              >
+                <FileText className="mr-2 h-5 w-5" />
+                Have Questions? Contact Us
+              </Button>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
   );
 };
 
