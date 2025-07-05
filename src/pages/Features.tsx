@@ -1,180 +1,103 @@
 
 import React from 'react';
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { useNavigate } from "react-router-dom";
-import { useAuth } from "@/hooks/useAuth";
-import { Bot, Workflow, Users, FileText, Zap, Settings, ArrowRight } from "lucide-react";
+import Layout from '@/components/Layout';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Bot, Workflow, Edit, Download, Share, Zap } from 'lucide-react';
 
 const Features = () => {
-  const navigate = useNavigate();
-  const { user } = useAuth();
-
-  const handleGetStarted = () => {
-    if (user) {
-      navigate('/dashboard');
-    } else {
-      navigate('/');
-    }
-  };
-
   const features = [
     {
-      icon: <Bot className="h-12 w-12 text-sopfuel-blue" />,
+      icon: Bot,
       title: "AI-Powered Generation",
-      description: "Create comprehensive SOPs instantly with advanced AI that understands your business processes and industry requirements.",
-      details: [
-        "Natural language processing for process understanding",
-        "Industry-specific templates and best practices",
-        "Automated step sequencing and organization",
-        "Smart content suggestions and improvements"
-      ]
+      description: "Transform simple descriptions into comprehensive SOPs using advanced AI technology that understands your business needs."
     },
     {
-      icon: <Workflow className="h-12 w-12 text-sopfuel-blue" />,
-      title: "Visual Workflow Builder",
-      description: "Design and visualize your processes with our intuitive drag-and-drop workflow builder and real-time collaboration tools.",
-      details: [
-        "Drag-and-drop interface for easy editing",
-        "Flowchart and diagram generation",
-        "Process mapping visualization",
-        "Integration with existing tools"
-      ]
+      icon: Workflow,
+      title: "Visual Workflows",
+      description: "Automatically generate flowcharts and visual representations to make complex procedures easy to understand and follow."
     },
     {
-      icon: <Users className="h-12 w-12 text-sopfuel-blue" />,
+      icon: Edit,
+      title: "Interactive Editing",
+      description: "Edit and customize your SOPs with our intuitive interface. Add steps, modify content, and reorganize workflows effortlessly."
+    },
+    {
+      icon: Download,
+      title: "Multi-Format Export",
+      description: "Export your SOPs in multiple formats including PDF, Word, and HTML to fit your organization's needs."
+    },
+    {
+      icon: Share,
       title: "Team Collaboration",
-      description: "Share, review, and iterate on SOPs with your team in real-time with version control and role-based permissions.",
-      details: [
-        "Real-time collaborative editing",
-        "Comment and feedback system",
-        "Version history and rollback",
-        "Role-based access control"
-      ]
+      description: "Share SOPs with your team, collect feedback, and maintain version control for all your business processes."
     },
     {
-      icon: <FileText className="h-12 w-12 text-sopfuel-blue" />,
-      title: "Smart Templates",
-      description: "Access industry-specific templates that adapt to your needs, with customizable formats and automated compliance checks.",
-      details: [
-        "50+ industry-specific templates",
-        "Customizable formatting options",
-        "Compliance requirement checks",
-        "Export to multiple formats"
-      ]
-    },
-    {
-      icon: <Zap className="h-12 w-12 text-sopfuel-blue" />,
+      icon: Zap,
       title: "Quick Implementation",
-      description: "Go from idea to implementation in minutes with streamlined processes and automated quality assurance.",
-      details: [
-        "Instant SOP generation",
-        "Quality assurance checks",
-        "Automated formatting",
-        "One-click publishing"
-      ]
-    },
-    {
-      icon: <Settings className="h-12 w-12 text-sopfuel-blue" />,
-      title: "Advanced Customization",
-      description: "Tailor every aspect of your SOPs with advanced customization options and branding controls.",
-      details: [
-        "Custom branding and styling",
-        "Advanced formatting controls",
-        "Integration capabilities",
-        "API access for developers"
-      ]
+      description: "Go from idea to implementation in minutes, not hours. Our streamlined process gets you results fast."
     }
   ];
 
   return (
-    <div className="min-h-screen bg-white">
-      {/* Header */}
-      <header className="fixed top-0 w-full bg-white/95 backdrop-blur-sm border-b border-gray-100 z-50">
-        <nav className="container mx-auto px-6 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-3" onClick={() => navigate('/')} style={{ cursor: 'pointer' }}>
-              <div className="w-10 h-10 bg-sopfuel-blue rounded-xl flex items-center justify-center">
-                <Bot className="h-6 w-6 text-white" />
-              </div>
-              <span className="text-2xl font-bold text-sopfuel-blue font-montserrat">Sopfuel</span>
+    <Layout title="Features">
+      <div className="space-y-8">
+        <div className="text-center mb-12">
+          <p className="text-lg text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
+            Discover the powerful features that make FlowForge the best choice for creating and managing your Standard Operating Procedures.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {features.map((feature, index) => (
+            <Card key={index} className="hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1">
+              <CardHeader>
+                <div className="flex items-center space-x-3">
+                  <feature.icon className="h-8 w-8 text-blue-600" />
+                  <CardTitle className="text-xl">{feature.title}</CardTitle>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <CardDescription className="text-base">
+                  {feature.description}
+                </CardDescription>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-8 mt-16">
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4 text-center">
+            Why Choose FlowForge?
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div>
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">Save Time</h3>
+              <p className="text-gray-600 dark:text-gray-300">
+                Reduce SOP creation time from hours to minutes with our AI-powered generation system.
+              </p>
             </div>
-            
-            <div className="hidden md:flex items-center space-x-8">
-              <Button variant="ghost" onClick={() => navigate('/pricing')} className="font-open-sans">Pricing</Button>
-              <Button variant="ghost" onClick={() => navigate('/contact')} className="font-open-sans">Contact</Button>
-              <Button onClick={handleGetStarted} className="bg-sopfuel-blue hover:bg-sopfuel-blue/90 text-white rounded-xl px-6 py-2.5 font-medium">
-                Start Free Trial
-              </Button>
+            <div>
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">Improve Quality</h3>
+              <p className="text-gray-600 dark:text-gray-300">
+                Ensure consistency and completeness across all your business processes.
+              </p>
             </div>
-          </div>
-        </nav>
-      </header>
-
-      {/* Main Content */}
-      <main className="pt-24 pb-20">
-        <div className="container mx-auto px-6">
-          {/* Hero Section */}
-          <div className="text-center mb-16">
-            <h1 className="text-5xl lg:text-6xl font-bold text-sopfuel-blue mb-6 font-montserrat">
-              Powerful Features
-            </h1>
-            <p className="text-xl text-sopfuel-dark/70 max-w-3xl mx-auto font-open-sans">
-              Everything you need to create, manage, and optimize your Standard Operating Procedures with the power of AI
-            </p>
-          </div>
-
-          {/* Features Grid */}
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
-            {features.map((feature, index) => (
-              <Card key={index} className="border-0 shadow-lg hover:shadow-xl transition-all duration-300 rounded-2xl group hover:-translate-y-2">
-                <CardHeader className="text-center pb-4">
-                  <div className="flex justify-center mb-4">
-                    <div className="p-4 bg-sopfuel-blue/5 rounded-2xl group-hover:bg-sopfuel-blue/10 transition-colors">
-                      {feature.icon}
-                    </div>
-                  </div>
-                  <CardTitle className="text-xl text-sopfuel-blue font-montserrat">
-                    {feature.title}
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <CardDescription className="text-sopfuel-dark/70 font-open-sans leading-relaxed mb-4">
-                    {feature.description}
-                  </CardDescription>
-                  <ul className="space-y-2">
-                    {feature.details.map((detail, detailIndex) => (
-                      <li key={detailIndex} className="flex items-start text-sm text-sopfuel-dark/60 font-open-sans">
-                        <div className="w-1.5 h-1.5 bg-sopfuel-green rounded-full mt-2 mr-3 flex-shrink-0"></div>
-                        {detail}
-                      </li>
-                    ))}
-                  </ul>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-
-          {/* CTA Section */}
-          <div className="text-center bg-gradient-to-br from-sopfuel-blue/5 to-sopfuel-green/5 rounded-3xl p-12">
-            <h2 className="text-3xl font-bold text-sopfuel-blue mb-4 font-montserrat">
-              Ready to Transform Your Processes?
-            </h2>
-            <p className="text-lg text-sopfuel-dark/70 mb-8 font-open-sans">
-              Join thousands of teams who've streamlined their operations with Sopfuel
-            </p>
-            <Button 
-              size="lg"
-              onClick={handleGetStarted}
-              className="bg-sopfuel-blue hover:bg-sopfuel-blue/90 text-white text-lg px-8 py-4 rounded-xl font-medium transition-all duration-200 hover:scale-105 group"
-            >
-              Start Your Free Trial
-              <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
-            </Button>
+            <div>
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">Enhance Collaboration</h3>
+              <p className="text-gray-600 dark:text-gray-300">
+                Enable seamless teamwork with shared workspaces and real-time collaboration features.
+              </p>
+            </div>
+            <div>
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">Scale Efficiently</h3>
+              <p className="text-gray-600 dark:text-gray-300">
+                Grow your business with standardized processes that scale with your organization.
+              </p>
+            </div>
           </div>
         </div>
-      </main>
-    </div>
+      </div>
+    </Layout>
   );
 };
 

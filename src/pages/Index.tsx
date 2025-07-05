@@ -444,20 +444,20 @@ const Index = () => {
             <div>
               <h3 className="font-semibold mb-6 font-montserrat text-lg">Product</h3>
               <ul className="space-y-3 text-gray-300 font-open-sans">
-                <li><button onClick={() => navigate('/features')} className="hover:text-white transition-colors">Features</button></li>
-                <li><button onClick={() => navigate('/pricing')} className="hover:text-white transition-colors">Pricing</button></li>
-                <li><button onClick={() => navigate('/templates')} className="hover:text-white transition-colors">Templates</button></li>
-                <li><button onClick={() => navigate('/api')} className="hover:text-white transition-colors">API</button></li>
+                <li><a href="#features" className="hover:text-white transition-colors">Features</a></li>
+                <li><a href="#pricing" className="hover:text-white transition-colors">Pricing</a></li>
+                <li><a href="#" className="hover:text-white transition-colors">Templates</a></li>
+                <li><a href="#" className="hover:text-white transition-colors">API</a></li>
               </ul>
             </div>
             
             <div>
               <h3 className="font-semibold mb-6 font-montserrat text-lg">Support</h3>
               <ul className="space-y-3 text-gray-300 font-open-sans">
-                <li><button onClick={() => navigate('/help-center')} className="hover:text-white transition-colors">Help Center</button></li>
-                <li><button onClick={() => navigate('/documentation')} className="hover:text-white transition-colors">Documentation</button></li>
-                <li><button onClick={() => navigate('/contact')} className="hover:text-white transition-colors">Contact</button></li>
-                <li><button onClick={() => navigate('/privacy-policy')} className="hover:text-white transition-colors">Privacy Policy</button></li>
+                <li><a href="#" className="hover:text-white transition-colors">Help Center</a></li>
+                <li><a href="#" className="hover:text-white transition-colors">Documentation</a></li>
+                <li><a href="#contact" className="hover:text-white transition-colors">Contact</a></li>
+                <li><a href="#" className="hover:text-white transition-colors">Privacy Policy</a></li>
               </ul>
             </div>
           </div>
