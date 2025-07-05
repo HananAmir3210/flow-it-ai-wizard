@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -12,6 +11,7 @@ import Index from "./pages/Index";
 import Dashboard from "./pages/Dashboard";
 import Features from "./pages/Features";
 import Pricing from "./pages/Pricing";
+import Templates from "./pages/Templates";
 import Demo from "./pages/Demo";
 import ApiDocs from "./pages/ApiDocs";
 import About from "./pages/About";
@@ -19,6 +19,7 @@ import Blog from "./pages/Blog";
 import Careers from "./pages/Careers";
 import Contact from "./pages/Contact";
 import Help from "./pages/Help";
+import Documentation from "./pages/Documentation";
 import Community from "./pages/Community";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsOfService from "./pages/TermsOfService";
@@ -48,6 +49,7 @@ const App = () => (
               <Route path="/" element={<Index />} />
               <Route path="/features" element={<Features />} />
               <Route path="/pricing" element={<Pricing />} />
+              <Route path="/templates" element={<Templates />} />
               <Route path="/demo" element={<Demo />} />
               <Route path="/docs/api" element={<ApiDocs />} />
               <Route path="/about" element={<About />} />
@@ -55,6 +57,7 @@ const App = () => (
               <Route path="/careers" element={<Careers />} />
               <Route path="/contact" element={<Contact />} />
               <Route path="/help" element={<Help />} />
+              <Route path="/documentation" element={<Documentation />} />
               <Route path="/community" element={<Community />} />
               <Route path="/privacy-policy" element={<PrivacyPolicy />} />
               <Route path="/terms-of-service" element={<TermsOfService />} />

@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -444,20 +443,20 @@ const Index = () => {
             <div>
               <h3 className="font-semibold mb-6 font-montserrat text-lg">Product</h3>
               <ul className="space-y-3 text-gray-300 font-open-sans">
-                <li><a href="#features" className="hover:text-white transition-colors">Features</a></li>
-                <li><a href="#pricing" className="hover:text-white transition-colors">Pricing</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Templates</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">API</a></li>
+                <li><a href="/features" className="hover:text-white transition-colors">Features</a></li>
+                <li><a href="/pricing" className="hover:text-white transition-colors">Pricing</a></li>
+                <li><a href="/templates" className="hover:text-white transition-colors">Templates</a></li>
+                <li><a href="/docs/api" className="hover:text-white transition-colors">API</a></li>
               </ul>
             </div>
             
             <div>
               <h3 className="font-semibold mb-6 font-montserrat text-lg">Support</h3>
               <ul className="space-y-3 text-gray-300 font-open-sans">
-                <li><a href="#" className="hover:text-white transition-colors">Help Center</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Documentation</a></li>
-                <li><a href="#contact" className="hover:text-white transition-colors">Contact</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Privacy Policy</a></li>
+                <li><a href="/help" className="hover:text-white transition-colors">Help Center</a></li>
+                <li><a href="/documentation" className="hover:text-white transition-colors">Documentation</a></li>
+                <li><a href="/contact" className="hover:text-white transition-colors">Contact</a></li>
+                <li><a href="/privacy-policy" className="hover:text-white transition-colors">Privacy Policy</a></li>
               </ul>
             </div>
           </div>
