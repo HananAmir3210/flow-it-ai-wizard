@@ -87,6 +87,24 @@ const gradientShift = {
   }
 };
 
+// Large blur card background animation
+const blurCardAnimation = {
+  animate: {
+    background: [
+      "linear-gradient(135deg, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0.05) 50%, rgba(255, 255, 255, 0.1) 100%)",
+      "linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.15) 50%, rgba(255, 255, 255, 0.05) 100%)",
+      "linear-gradient(135deg, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0.05) 50%, rgba(255, 255, 255, 0.1) 100%)"
+    ],
+    y: [0, -10, 0],
+    scale: [1, 1.005, 1],
+    transition: {
+      duration: 12,
+      repeat: Infinity,
+      ease: [0.4, 0, 0.6, 1] as const
+    }
+  }
+};
+
 // Reusable animated section component
 const AnimatedSection = ({ children, className = "" }: { children: React.ReactNode, className?: string }) => {
   const ref = useRef(null);
@@ -281,6 +299,23 @@ const Index = () => {
           }}
         />
         
+        {/* Premium Large Glassmorphism Blur Card Background */}
+        <motion.div 
+          className="absolute top-20 left-4 right-4 bottom-20 mx-auto max-w-[95%] lg:max-w-[90%] xl:max-w-[85%] rounded-3xl backdrop-blur-3xl border border-white/20 shadow-2xl"
+          style={{
+            background: "linear-gradient(135deg, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0.05) 50%, rgba(255, 255, 255, 0.1) 100%)",
+            boxShadow: `
+              0 32px 64px rgba(0, 0, 0, 0.05),
+              0 16px 32px rgba(0, 0, 0, 0.04),
+              0 8px 16px rgba(0, 0, 0, 0.03),
+              inset 0 1px 0 rgba(255, 255, 255, 0.2),
+              inset 0 -1px 0 rgba(255, 255, 255, 0.1)
+            `
+          }}
+          variants={blurCardAnimation}
+          animate="animate"
+        />
+        
         {/* Glassmorphism elements */}
         <motion.div 
           className="absolute top-20 right-20 w-32 h-32 rounded-2xl backdrop-blur-xl bg-white/5 border border-white/10"
@@ -315,7 +350,7 @@ const Index = () => {
         <motion.header 
           initial={{ y: -80 }}
           animate={{ y: 0 }}
-          transition={{ duration: 0.8, ease: [0.4, 0, 0.2, 1] }}
+          transition={{ duration: 0.8, ease: [0.4, 0, 0.2, 1] as const }}
           className="fixed top-0 w-full bg-white/80 backdrop-blur-xl border-b border-gray-100/50 z-50"
         >
           <nav className="container mx-auto px-6 py-4">
