@@ -42,22 +42,22 @@ const Features = () => {
     <Layout title="Features">
       <div className="space-y-8">
         <div className="text-center mb-12">
-          <p className="text-lg text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
-            Discover the powerful features that make FlowForge the best choice for creating and managing your Standard Operating Procedures.
+          <p className="text-lg text-sopfuel-dark/70 max-w-3xl mx-auto font-open-sans">
+            Discover the powerful features that make Sopfuel the best choice for creating and managing your Standard Operating Procedures.
           </p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {features.map((feature, index) => (
-            <Card key={index} className="hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1">
+            <Card key={index} className="hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 border-sopfuel-gray">
               <CardHeader>
                 <div className="flex items-center space-x-3">
-                  <feature.icon className="h-8 w-8 text-blue-600" />
-                  <CardTitle className="text-xl">{feature.title}</CardTitle>
+                  <feature.icon className="h-8 w-8 text-sopfuel-blue" />
+                  <CardTitle className="text-xl text-sopfuel-blue font-montserrat">{feature.title}</CardTitle>
                 </div>
               </CardHeader>
               <CardContent>
-                <CardDescription className="text-base">
+                <CardDescription className="text-base text-sopfuel-dark/70 font-open-sans">
                   {feature.description}
                 </CardDescription>
               </CardContent>
@@ -65,32 +65,32 @@ const Features = () => {
           ))}
         </div>
 
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-8 mt-16">
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4 text-center">
-            Why Choose FlowForge?
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-8 mt-16 border border-sopfuel-gray">
+          <h2 className="text-2xl font-bold text-sopfuel-blue mb-4 text-center font-montserrat">
+            Why Choose Sopfuel?
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             <div>
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">Save Time</h3>
-              <p className="text-gray-600 dark:text-gray-300">
+              <h3 className="text-lg font-semibold text-sopfuel-blue mb-3 font-montserrat">Save Time</h3>
+              <p className="text-sopfuel-dark/70 font-open-sans">
                 Reduce SOP creation time from hours to minutes with our AI-powered generation system.
               </p>
             </div>
             <div>
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">Improve Quality</h3>
-              <p className="text-gray-600 dark:text-gray-300">
+              <h3 className="text-lg font-semibold text-sopfuel-blue mb-3 font-montserrat">Improve Quality</h3>
+              <p className="text-sopfuel-dark/70 font-open-sans">
                 Ensure consistency and completeness across all your business processes.
               </p>
             </div>
             <div>
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">Enhance Collaboration</h3>
-              <p className="text-gray-600 dark:text-gray-300">
+              <h3 className="text-lg font-semibold text-sopfuel-blue mb-3 font-montserrat">Enhance Collaboration</h3>
+              <p className="text-sopfuel-dark/70 font-open-sans">
                 Enable seamless teamwork with shared workspaces and real-time collaboration features.
               </p>
             </div>
             <div>
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">Scale Efficiently</h3>
-              <p className="text-gray-600 dark:text-gray-300">
+              <h3 className="text-lg font-semibold text-sopfuel-blue mb-3 font-montserrat">Scale Efficiently</h3>
+              <p className="text-sopfuel-dark/70 font-open-sans">
                 Grow your business with standardized processes that scale with your organization.
               </p>
             </div>
