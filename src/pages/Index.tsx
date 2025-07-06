@@ -16,7 +16,14 @@ import { Twitter, Linkedin, Facebook, Star, CheckCircle, Users, Zap, Settings, A
 // Animation variants
 const fadeInUp = {
   hidden: { opacity: 0, y: 60 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: "easeOut" } }
+  visible: { 
+    opacity: 1, 
+    y: 0, 
+    transition: { 
+      duration: 0.8, 
+      ease: [0.4, 0, 0.2, 1] as const
+    } 
+  }
 };
 
 const staggerContainer = {
@@ -35,7 +42,7 @@ const floatingAnimation = {
   transition: {
     duration: 6,
     repeat: Infinity,
-    ease: "easeInOut"
+    ease: [0.4, 0, 0.6, 1] as const
   }
 };
 
@@ -48,7 +55,7 @@ const pulseGlow = {
   transition: {
     duration: 3,
     repeat: Infinity,
-    ease: "easeInOut"
+    ease: [0.4, 0, 0.6, 1] as const
   }
 };
 
@@ -191,7 +198,7 @@ const Index = () => {
       <motion.header 
         initial={{ y: -80 }}
         animate={{ y: 0 }}
-        transition={{ duration: 0.8, ease: "easeOut" }}
+        transition={{ duration: 0.8, ease: [0.4, 0, 0.2, 1] }}
         className="fixed top-0 w-full bg-white/80 backdrop-blur-xl border-b border-gray-100/50 z-50"
       >
         <nav className="container mx-auto px-6 py-4">
@@ -204,7 +211,14 @@ const Index = () => {
             >
               <motion.div 
                 className="w-10 h-10 bg-sopfuel-blue rounded-xl flex items-center justify-center"
-                animate={floatingAnimation}
+                animate={{
+                  y: [-10, 10, -10],
+                  transition: {
+                    duration: 6,
+                    repeat: Infinity,
+                    ease: [0.4, 0, 0.6, 1] as const
+                  }
+                }}
               >
                 <Bot className="h-6 w-6 text-white" />
               </motion.div>
